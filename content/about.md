@@ -15,7 +15,7 @@ I am a graduate student in Natural Resources and Environmental Studies at Univer
 
 and
 
-- Cooking!! - I used to work at a Japanese restaturant for more than five years.
+- Cooking!! - I used to work at a Japanese restaurant for more than five years.
 
 Contact me: [mail](mailto:mori@unbc.ca)
 
