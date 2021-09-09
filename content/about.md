@@ -17,6 +17,9 @@ and
 
 - Cooking!! - I used to work at a Japanese restaturant for more than five years.
 
+Contact me:
+[Mail](mailto:mori@unbc.ca)
+
 <!---Purpose: I want to establish myself as an authority in my niche. Include links to online interviews or include video if you have it. Link to articles you’ve written at other sites. Include a few quotes from people who have used your information.
 -->
 
