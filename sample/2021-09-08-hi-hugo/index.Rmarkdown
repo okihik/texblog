@@ -1,0 +1,24 @@
+---
+title: Hi Hugo
+author: Akihiko Mori
+date: '2021-09-08'
+slug: []
+categories: []
+tags: [Test]
+---
+
+```{r}
+summary(Orange)
+```
+![my-first-image](img1.jpg)
+```{r echo=FALSE}
+library(ggplot2)
+oplot <- ggplot(Orange, aes(x = age, 
+                   y = circumference, 
+                   colour = Tree)) +
+  geom_point() +
+  geom_line() +
+  guides(colour = FALSE) +
+  theme_bw()
+oplot
+```

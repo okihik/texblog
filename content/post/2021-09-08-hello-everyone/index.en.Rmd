@@ -1,0 +1,27 @@
+---
+title: Hello World!
+author: Akihiko Mori
+date: '2021-09-08'
+slug: []
+categories:
+tags: [Test]
+---
+
+Hello world!
+
+This is my first blog and introduce myself.
+
+I am Akihiko Mori, a NRES graduate student at UNBC. 
+My research topic is an estimation of social cost or loss of food waste/loss.
+My supervisor is Prof. Balbinder Deo.
+I love cooking and doing math.
+Previously, I used to work at a Japanese restaurant in Vancouver for more than five years as an assistant chef. 
+And I graduated from Statistics at UBC.
+
+Why I chose NRES, especially focusing on food waste is Covid and my work experience. As the chef position at a local restaurant, my duties were mainly to arrange and organize food stock and inventory, as well as front-line cooking. During the covid-19, we were facing a disruption in food production, particularly the significance of food waste, and tring to review waste control and food loss. However, handling with this problem at a local restaurant is difficult.
+
+My ultimate goal is an estimation of a tax on food waste at a local restaurant level that is acceptable to consumers and producers.
+Of course, I believe that taxation is a very sensitive topic, and I do not believe that it is the only solution to impose a tax to improve food waste. However, I think it is necessary to quantify the amount of taxation to bring food loss down to a sustainable level and index it to compare various food policies. Mainly I would like to explore microeconomic-approach research in a sustainable food system and waste reduction at a restaurant level.
+
+Therefore, my post will likely have a student life in NRES at UNBC, Japanese culinary, and my research topic as above.
+My aim is to post once a week, but it may be once every two weeks or a month depending on the progress of the class and other factors.
