@@ -4,7 +4,7 @@ author: Akihiko Mori
 date: '2021-09-08'
 slug: []
 categories:
-tags: [Test, 'NRES']
+tags: ['Test', 'NRES']
 ---
 
 Hello world!
