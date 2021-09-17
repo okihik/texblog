@@ -1,0 +1,11 @@
+---
+title: 'ENSC650 lecture 01: Vector and Matrix Algebra'
+author: Akihiko Mori
+date: '2021-09-15'
+slug: []
+categories: []
+tags:
+  - R
+---
+
+

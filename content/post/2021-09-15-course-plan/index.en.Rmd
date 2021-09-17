@@ -12,7 +12,7 @@ Hello world!
 
 I am a first-year graduate studnet at UNBC, and studying around food waste.
 As the semester has started, my courses are almost finalized.
-This is my course map:
+This is my course map from [Fall 2021](https://ssb.unbc.ca/ssb/bwckschd.p_get_crse_unsec) and [Winter 2022](https://ssb.unbc.ca/ssb/bwckschd.p_get_crse_unsec):
 
 | Fall 2021 | Winter 2022  | Summer 2022 | Fall 2022 | Winter 2023 |
 |-----------|--------------|-------------|-----------|-------------|
@@ -21,18 +21,18 @@ This is my course map:
 | ENSC 650 (method)    | ECON 608   |   |   |   |
 
 For the first semester:\
-NRES 700 is a course that exposes students to various philosophies and epistemologies regarding research within the field of natural resources and environmental studies. Topics include the nature of research, communicating research, research ethics, qualitative and quantitative methodology and interdisciplinary research. Basically, we do presentation about our thesis topic.
+[NRES 700](https://ssb.unbc.ca/ssb/bwckschd.p_disp_detail_sched?term_in=202105&crn_in=50455) is a course that exposes students to various philosophies and epistemologies regarding research within the field of natural resources and environmental studies. Topics include the nature of research, communicating research, research ethics, qualitative and quantitative methodology and interdisciplinary research. Basically, we do presentation about our thesis topic.
 
-NRES 701 is weekly colloquia on a range of research conducted in natural resources and environmental studies. Essentially, we attend weekly professional presentation and write an essay or review of each presentation. 
+[NRES 701](https://ssb.unbc.ca/ssb/bwckschd.p_disp_detail_sched?term_in=202105&crn_in=50456) is weekly colloquia on a range of research conducted in natural resources and environmental studies. Essentially, we attend weekly professional presentation and write an essay or review of each presentation. 
 
-ENSC 650 is a method course and focus on the principles and practicality of the most common environmental and geophysical data analysis methods, including time series analysis and multivariate statistical analysis as well as their application in the environmental and natural sciences. This course includes labs in which students are expected to apply theories and methods covered in lectures to solve practical problems using computer software for statistical data analysis. 
+[ENSC 650](https://ssb.unbc.ca/ssb/bwckschd.p_disp_detail_sched?term_in=202105&crn_in=50286) is a method course and focus on the principles and practicality of the most common environmental and geophysical data analysis methods, including time series analysis and multivariate statistical analysis as well as their application in the environmental and natural sciences. This course includes labs in which students are expected to apply theories and methods covered in lectures to solve practical problems using computer software for statistical data analysis. 
 
 For the second semester:\
-NRES 701 is same above.
+[NRES 701](https://ssb.unbc.ca/ssb/bwckschd.p_disp_detail_sched?term_in=202105&crn_in=50456) is same above.
 
-ENSC 604 is a waste management course that introduces environmental, technical and political aspects of non-hazardous and hazardous wastes. Topics include sources, evaluative methods, risk assessment, treatment, disposal, and current legal and management requirements. 
+[ENSC 604](https://ssb.unbc.ca/ssb/bwckschd.p_disp_detail_sched?term_in=202201&crn_in=10308) is a waste management course that introduces environmental, technical and political aspects of non-hazardous and hazardous wastes. Topics include sources, evaluative methods, risk assessment, treatment, disposal, and current legal and management requirements. 
 
-ECON 608 is a managerial economics that offers the economic basis of managerial decision-making. The focus is on demand analysis, production and costs, and price determination in different market structures. Other topics covered include pricing strategies, decision-making under risk, and the economic rationale for business regulation. Case studies and events reported in the business press inform the course. 
+[ECON 608](https://ssb.unbc.ca/ssb/bwckschd.p_disp_detail_sched?term_in=202201&crn_in=10219) is a managerial economics that offers the economic basis of managerial decision-making. The focus is on demand analysis, production and costs, and price determination in different market structures. Other topics covered include pricing strategies, decision-making under risk, and the economic rationale for business regulation. Case studies and events reported in the business press inform the course. 
 
 If time allows, I would like to summarize the global and national trends in food waste to prepare my master's thesis.  
 
