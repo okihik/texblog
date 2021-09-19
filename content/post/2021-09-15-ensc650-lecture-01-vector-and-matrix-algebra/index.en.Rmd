@@ -375,7 +375,8 @@ Then find eigenvalues, $\lambda$, by solving the above equation.
 For **eigenvector**, there is a corresponding eigenvector x for each eigenvalue $\lambda$.
 
 e.g.
-Let $\mathbf{A}$ be $\left[\begin{array}{rr} -5 & 2 \\ 2 & -2 \end{array}\right]$. Then to find eigenvalues $\lambda$, solve $\left(\mathbf{A}- \lambda\mathbf{I}\right)\mathbf{x} = \mathbf{0}$.
+Let $\mathbf{A}$ be $\left[\begin{array}{rr} -5 & 2 \\ 2 & -2 \end{array}\right]$.  
+Then to find eigenvalues $\lambda$, solve $\begin{vmatrix}\mathbf{A}- \lambda\mathbf{I}\end{vmatrix} = 0$ for $\lambda$.
 
 $$
 \begin{aligned}
