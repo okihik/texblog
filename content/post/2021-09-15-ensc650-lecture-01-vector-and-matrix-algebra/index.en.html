@@ -346,28 +346,63 @@ g &amp; h &amp; i
 </div>
 <div id="some-other-rule-of-matrices" class="section level3">
 <h3>Some other rule of Matrices</h3>
-$$
-<span class="math display">\[\begin{cases}
-
+<p><span class="math display">\[
+\begin{aligned}
 (A + B)^T &amp;= A^T + B^T  \\
 (AB)^T &amp;= B^TA^T  \\
 A(B + C) &amp;= AB + AC \\ 
 AB &amp;= AC \nRightarrow B = C
-\end{cases}\]</span>
-<p>$$
+\end{aligned}
+\]</span>
 In general <span class="math inline">\(AB \neq BA\)</span>.
 If <span class="math inline">\(\alpha\)</span> is a number then <span class="math inline">\(\alpha AB = A(\alpha B)\)</span>.</p>
 </div>
 <div id="eigenvalues-and-eigenvectors" class="section level3">
 <h3>Eigenvalues and Eigenvectors</h3>
-<pre class="r"><code>eigen(A)</code></pre>
+<p>General strategy: find Eigenvalues <span class="math inline">\(\rightarrow\)</span> Eigenvenctors.</p>
+<p>For <strong>eigenvalues</strong>, there exists nonzero <span class="math inline">\(\mathbf{x}\)</span>, such that
+<span class="math display">\[
+\begin{aligned}
+\mathbf{Ax} &amp;= \lambda\mathbf{x}\\
+\mathbf{Ax} - \lambda\mathbf{x} &amp;= \mathbf{0}\\
+\left(\mathbf{A}- \lambda\mathbf{I}\right)\mathbf{x} &amp;= \mathbf{0}
+\end{aligned}
+\]</span>
+This is a homogeneous linear system, homogeneous meaning that the RHS are all zeros.<br />
+For such a system, a theorem states that a solution exists given that det<span class="math inline">\(\left(\mathbf{A}- \lambda\mathbf{I}\right)=0\)</span>.<br />
+Then find eigenvalues, <span class="math inline">\(\lambda\)</span>, by solving the above equation.<br />
+For <strong>eigenvector</strong>, there is a corresponding eigenvector x for each eigenvalue <span class="math inline">\(\lambda\)</span>.</p>
+<p>e.g.
+Let <span class="math inline">\(\mathbf{A}\)</span> be <span class="math inline">\(\left[\begin{array}{rr} -5 &amp; 2 \\ 2 &amp; -2 \end{array}\right]\)</span>. Then to find eigenvalues <span class="math inline">\(\lambda\)</span>, solve <span class="math inline">\(\left(\mathbf{A}- \lambda\mathbf{I}\right)\mathbf{x} = \mathbf{0}\)</span>.</p>
+<p><span class="math display">\[
+\begin{aligned}
+\begin{vmatrix}
+-5-\lambda &amp; 2\\
+2 &amp; -2-\lambda
+\end{vmatrix} &amp;=
+(5+\lambda)(2+\lambda) - 4\\
+&amp;= \lambda^2+7\lambda + 6\\
+&amp;= (\lambda +1)(\lambda +6) = 0 
+\end{aligned}
+\]</span>
+The eigenvalue is <span class="math inline">\(\lambda = -1\)</span> or <span class="math inline">\(\lambda = -6\)</span>.</p>
+<p>For <strong>eigenvector</strong> corresponding each eigenvalue,
+<span class="math inline">\(\lambda = -1\)</span>:<br />
+<span class="math display">\[\left[\begin{array}{rr} -4 &amp; 2 \\ 2 &amp; -1 \end{array}\right] \stackrel{rref}{\sim} \left[\begin{array}{rr} 1 &amp; -\frac{1}{2} \\ 0 &amp; 0 \end{array}\right]\]</span>
+So, <span class="math display">\[\mathbf{x}=r\left[\begin{array} {r}1\\ 2  \end{array}\right], r \in \mathbb{R}\]</span></p>
+<p><span class="math inline">\(\lambda = -6\)</span>:<br />
+<span class="math display">\[\left[\begin{array}{rr} 1 &amp; 2 \\ 2 &amp; 4 \end{array}\right] \stackrel{rref}{\sim} \left[\begin{array}{rr} 1 &amp; 2 \\ 0 &amp; 0 \end{array}\right]\]</span>
+So, <span class="math display">\[\mathbf{x}=r\left[\begin{array} {r}-2\\ 1  \end{array}\right], r \in \mathbb{R}\]</span></p>
+<p>Therefore, the eigenvectors are <span class="math inline">\(\left[\begin{array} {r}1\\ 2 \end{array}\right]\)</span> for <span class="math inline">\(\lambda = -1\)</span> and <span class="math inline">\(\left[\begin{array} {r}-2\\ 1 \end{array}\right]\)</span> for <span class="math inline">\(\lambda = -6\)</span></p>
+<pre class="r"><code>A &lt;- matrix(c(-5,2,2,-2),2,2,T)
+eigen(A)</code></pre>
 <pre><code>## eigen() decomposition
 ## $values
-## [1]  5.3722813 -0.3722813
+## [1] -1 -6
 ## 
 ## $vectors
 ##            [,1]       [,2]
-## [1,] -0.5657675 -0.9093767
-## [2,] -0.8245648  0.4159736</code></pre>
+## [1,] -0.4472136 -0.8944272
+## [2,] -0.8944272  0.4472136</code></pre>
 </div>
 </div>

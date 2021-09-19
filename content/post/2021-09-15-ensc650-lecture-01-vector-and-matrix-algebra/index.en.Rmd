@@ -347,19 +347,61 @@ det(A)
 ```
 
 ### Some other rule of Matrices
-$$\begin{cases}
-
+$$
+\begin{aligned}
 (A + B)^T &= A^T + B^T  \\
 (AB)^T &= B^TA^T  \\
 A(B + C) &= AB + AC \\ 
 AB &= AC \nRightarrow B = C
-\end{cases}
+\end{aligned}
 $$
 In general $AB \neq BA$.
 If $\alpha$ is a number then $\alpha AB = A(\alpha B)$.
 
 ### Eigenvalues and Eigenvectors 
+General strategy: find Eigenvalues $\rightarrow$ Eigenvenctors.
+
+For **eigenvalues**, there exists nonzero $\mathbf{x}$, such that
+$$
+\begin{aligned}
+\mathbf{Ax} &= \lambda\mathbf{x}\\
+\mathbf{Ax} - \lambda\mathbf{x} &= \mathbf{0}\\
+\left(\mathbf{A}- \lambda\mathbf{I}\right)\mathbf{x} &= \mathbf{0}
+\end{aligned}
+$$
+This is a homogeneous linear system, homogeneous meaning that the RHS are all zeros.  
+For such a system, a theorem states that a solution exists given that det$\left(\mathbf{A}- \lambda\mathbf{I}\right)=0$.  
+Then find eigenvalues, $\lambda$, by solving the above equation.  
+For **eigenvector**, there is a corresponding eigenvector x for each eigenvalue $\lambda$.
+
+e.g.
+Let $\mathbf{A}$ be $\left[\begin{array}{rr} -5 & 2 \\ 2 & -2 \end{array}\right]$. Then to find eigenvalues $\lambda$, solve $\left(\mathbf{A}- \lambda\mathbf{I}\right)\mathbf{x} = \mathbf{0}$.
+
+$$
+\begin{aligned}
+\begin{vmatrix}
+-5-\lambda & 2\\
+2 & -2-\lambda
+\end{vmatrix} &=
+(5+\lambda)(2+\lambda) - 4\\
+&= \lambda^2+7\lambda + 6\\
+&= (\lambda +1)(\lambda +6) = 0 
+\end{aligned}
+$$
+The eigenvalue is $\lambda = -1$ or $\lambda = -6$.
+
+For **eigenvector** corresponding each eigenvalue,
+$\lambda = -1$:  
+$$\left[\begin{array}{rr} -4 & 2 \\ 2 & -1 \end{array}\right] \stackrel{rref}{\sim} \left[\begin{array}{rr} 1 & -\frac{1}{2} \\ 0 & 0 \end{array}\right]$$
+So, $$\mathbf{x}=r\left[\begin{array} {r}1\\ 2  \end{array}\right], r \in \mathbb{R}$$
+
+$\lambda = -6$:  
+$$\left[\begin{array}{rr} 1 & 2 \\ 2 & 4 \end{array}\right] \stackrel{rref}{\sim} \left[\begin{array}{rr} 1 & 2 \\ 0 & 0 \end{array}\right]$$
+So, $$\mathbf{x}=r\left[\begin{array} {r}-2\\ 1  \end{array}\right], r \in \mathbb{R}$$
+
+Therefore, the eigenvectors are $\left[\begin{array} {r}1\\ 2  \end{array}\right]$ for $\lambda = -1$ and $\left[\begin{array} {r}-2\\ 1  \end{array}\right]$ for $\lambda = -6$
 
 ```{r}
+A <- matrix(c(-5,2,2,-2),2,2,T)
 eigen(A)
 ```
