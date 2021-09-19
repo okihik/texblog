@@ -8,4 +8,358 @@ tags:
   - R
 ---
 
+## Vector
+A vector is a quantity that has both **magnitude** and **direction**.
+In general, a vector is a column vector.  
 
+```{r}
+a <- c(1,2,3)
+b <- c(2,1,3)
+```
+The order is mattered, $a \neq b$.
+
+### Transpose of Vector
+Transposing a vector means turning a column (row) vector into a row (column) vector.
+
+$$\left[\begin{array}
+{r}
+1  \\
+2  \\
+3 
+\end{array}\right]^T
+=
+\left[\begin{array}
+{rrr}
+1 & 2 & 3
+\end{array}\right]
+$$
+
+```{r}
+aT <- t(a)
+```
+
+## Matrices
+A rectangular array of numbers/ functions.
+$M\times N$ matrix $\mathbf{A}$ is a table with $m$ rows and $n$ columns; or  size of $\mathbf{A}$ is $M\times N$. Each element is $a_{ij}, i\in M, j\in N$.
+$$\mathbf{A_{MN}} = \left[\begin{array}
+{rrrr}
+a_{11} & a_{12} & \dots & a_{1n} \\
+a_{21} & a_{22} &  & \vdots  \\
+\vdots &  & \ddots & \vdots \\
+a_{m1} & \dots & \dots  & a_{mn} 
+\end{array}\right]
+$$
+
+```{r}
+# matrix - column by column is default
+A <- matrix(c(1,2,3,
+              4,5,6,
+              7,8,9),3,3)
+# row by row matrix assign
+B <- matrix(c(1,2,3,
+              4,5,6,
+              7,8,9),3,3, byrow = TRUE)
+A # column by column
+B # row by row
+```
+
+### Transpose of Matrix
+Transposing matrix is interchanging rows and columns. $90^\circ$ rotation.
+$$a_{ij} = a_{ji}$$
+
+e.g.
+$$\left[\begin{array}
+{rrr}
+1 & 3 & 8 \\
+4 & 7 & 2 \\
+6 & 5 & 0
+\end{array}\right]^T
+= \left[\begin{array}
+{rrr}
+1 & 4 & 6 \\
+3 & 7 & 5 \\
+8 & 2 & 0
+\end{array}\right]
+$$
+
+```{r}
+AT <- t(A)
+```
+
+### Special Matrices
+#### Diagonal Mtrix
+A square matrix with 0 on all off–diagonal entries and elements $d_1,d_2,\dots,d_n$
+on the diagonal a diagonal matrix,  $diag{d_1, d_2,\dots , d_n}$
+
+$$\left[\begin{array}
+{rrr}
+1 & 0 & 0\\
+0 & 2 & 0\\
+0 & 0 & 3
+\end{array}\right]$$
+
+```{r}
+diag(c(1,2,3))
+```
+
+– A diagonal matrix with $1$s on the diagonal is the identity matrix
+and is denoted $\mathbf{I}$. The identity matrix satisfies that $\mathbf{IA} = \mathbf{AI} = \mathbf{A}$.
+
+$$\left[\begin{array}
+{rrr}
+1 & 0 & 0\\
+0 & 1 & 0\\
+0 & 0 & 1
+\end{array}\right]$$
+
+```{r}
+diag(1,3)
+```
+
+#### Symmetric Matrix
+A matrix is symmetric if $$\mathbf{A}^T=\mathbf{A}$$
+
+e.g.  
+$$ \left[\begin{array}
+{rr}
+1 & 2 \\
+2 & 3 
+\end{array}\right]^T
+= \left[\begin{array}
+{rr}
+1 & 2 \\
+2 & 3 
+\end{array}\right]
+$$
+
+#### Skew-Symmetric Matrix
+A matrix is skew-symmetric if $$\mathbf{A}^T=-\mathbf{A}$$
+
+e.g.
+$$\left[\begin{array}
+{rrr}
+0 & 2 & -45 \\
+-2 & 0 & -4 \\
+45 & 4 & 0
+\end{array}\right]^T
+= \left[\begin{array}
+{rrr}
+0 & -2 & 45 \\
+2 & 0 & 4 \\
+-45 & -4 & 0
+\end{array}\right]
+$$
+
+#### Orthogonal Matrix
+A matrix is orthogonal if $$\mathbf{A}^T = \mathbf{A}^{-1}$$
+
+e.g.
+$$ \left[\begin{array}
+{rr}
+1 & 0 \\
+0 & 1 
+\end{array}\right]^T
+= \left[\begin{array}
+{rr}
+1 & 0 \\
+0 & 1 
+\end{array}\right],
+ \left[\begin{array}
+{rr}
+1 & 0 \\
+0 & 1 
+\end{array}\right]^{-1}
+= \left[\begin{array}
+{rr}
+1 & 0 \\
+0 & 1 
+\end{array}\right]
+$$
+
+$$ \left[\begin{array}
+{rr}
+cos\theta & -sin\theta \\
+sin\theta & cos\theta 
+\end{array}\right]
+$$
+
+$$ \left[\begin{array}
+{rr}
+1 & 0 \\
+0 & -1 
+\end{array}\right]
+$$
+
+$$ \left[\begin{array}
+{rrrr}
+0 & 0  & 0 & 1 \\
+0 & 0  & 1 & 0 \\
+1 & 0  & 0 & 0 \\
+0 & 1  & 0 & 0 
+\end{array}\right]
+$$
+
+### Scalar Multiplication
+
+For a number $\alpha$ and a matrix $\mathbf{A}$, the product $\alpha\mathbf{A}$ is the matrix obtained by multiplying each element in $\mathbf{A}$ by $\alpha$.
+
+e.g.
+$$5\times\left[\begin{array}
+{rr}
+1 & 3 \\
+4 & 7 
+\end{array}\right] =
+\left[\begin{array}
+{rr}
+5 & 15 \\
+20 & 35 
+\end{array}\right]
+$$
+
+```{r}
+A <- matrix(c(1,3,4,7),2,2,byrow = T)
+a <- 5
+a*A
+```
+
+### Addition
+Let $\mathbf{A}$ and $\mathbf{B}$ be $m\times n$ matrices. The sum $$\mathbf{A+B}$$ is the $m\times n$ matrix obtained by adding $\mathbf{A}$ and $\mathbf{B}$ elementwise.
+Only matrices with the same dimensions can be added.
+
+e.g.
+$$\left[\begin{array}
+{rr}
+1 & 3 \\
+4 & 7 
+\end{array}\right] +
+\left[\begin{array}
+{rr}
+6 & 2 \\
+3 & 1 
+\end{array}\right] 
+=
+\left[\begin{array}
+{rr}
+7 & 5 \\
+7 & 8 
+\end{array}\right]
+$$
+
+```{r}
+A <- matrix(c(1,3,4,7),2,2,T)
+B <- matrix(c(6,2,3,1),2,2,T)
+A+B
+```
+
+### Multiplication
+Let $\mathbf{A}$ be a $m\times l$ matrix and $\mathbf{B}$ a $l\times n$ matrix, 
+i.e.$B=[b_1 :b_2 :···:b_t]$. The product $\mathbf{AB}$ is the $m \times n$ matrix given by:
+$$\mathbf{AB}=\mathbf{A}\left[b_1 :b_2 :\dots:b_t\right]=\left[\mathbf{A}b_1 :\mathbf{A}b_2 :\dots:\mathbf{A}b_t\right]$$
+$$\mathbf{C}_{mn}=\sum_{l=1}^L\mathbf{A}_{ml}\mathbf{B}_{ln}$$
+in general $$\mathbf{AB} \neq \mathbf{BA}$$
+
+e.g.
+$$\left[\begin{array}
+{rr}
+4 & 3 \\
+7 & 2 \\
+9 & 0
+\end{array}\right]
+\left[\begin{array}
+{rr}
+2 & 5 \\
+1 & 6 
+\end{array}\right] 
+=
+\left[\begin{array}
+{rr}
+4\cdot 2 + 3\cdot 1  & 4\cdot 5+3\cdot6 \\
+7\cdot 2 + 2\cdot 1  & 7\cdot 5+2\cdot6 \\
+9\cdot 2 + 0\cdot 1  & 9\cdot 5+0\cdot6 
+\end{array}\right] = 
+\left[\begin{array}
+{rr}
+11 & 38 \\
+16 & 47 \\
+18 & 45
+\end{array}\right]
+$$
+
+```{r}
+A <- matrix(c(4,3,7,2,9,0),3,2,T)
+B <- matrix(c(2,5,1,6),2,2,T)
+# Matrix Multiplication
+A%*%B
+```
+
+### Inverse of Matrices - Division
+The inverse of an $n \times n$ matrix $\mathbf{A}$ is the matrix $\mathbf{B}$ (which is also $n \times n$) which multiplied with $\mathbf{A}$ generates the identity matrix $\mathbf{I}$:
+$$\mathbf{AB} = \mathbf{BA} = \mathbf{I}$$
+$\mathbf{B}$ is an inverse of the matrix $\mathbf{A}$, called $\mathbf{A^{-1}}$.
+
+
+```{r}
+solve(B) # inverse of B
+```
+
+### Solve linear systems
+Matrices are related to systems of linear equations. 
+Consider the two equations
+
+$$
+\begin{cases}
+    x_1+3x_2  &= 7 \\
+    2x_1+4x_2 &= 10
+\end{cases}
+$$
+The system can be written in matrix form
+$$\mathbf{A}\mathbf{x}=\mathbf{b}$$
+where $\mathbf{A}$ is a matrix $\left[\begin{array}{rr} 1 & 3 \\ 2 & 4 \end{array}\right]$, $\mathbf{x}$ is a vector of unknown variables, $\left[\begin{array} {r}x_1\\ x_2  \end{array}\right]$,
+and $\mathbf{b}$ is a vector of values of RHS, $\left[\begin{array} {r}7\\ 10  \end{array}\right]$.
+
+Since $\mathbf{A}^{-1}\mathbf{A}=\mathbf{I}$ and $\mathbf{Ix}=\mathbf{x}$ we have
+$$\mathbf{x} = \mathbf{A}^{-1}\mathbf{b} = \left[\begin{array}{rr} -2 & 1.5 \\ 1 & -0.5 \end{array}\right]\left[\begin{array} {r}7\\ 10  \end{array}\right] = \left[\begin{array} {r}1\\ 2  \end{array}\right]$$
+The matrix $\mathbf{A}$ must be a unique, or full rank.
+
+```{r}
+A <- matrix(c(1,2,3,4),2,2)
+b <- c(7,10)
+x <- solve(A)%*%b; x
+solve(A,b)
+```
+
+### Determinant
+$2\times 2$:
+$$\begin{vmatrix}a & b\\
+c & d
+\end{vmatrix} = a\cdot d - b\cdot c$$
+$3\times 3$
+$$\begin{vmatrix}
+a & b & c\\
+d & e & f \\
+g & h & i
+\end{vmatrix} = a \begin{vmatrix}e & f\\h & i\end{vmatrix} 
+- b\begin{vmatrix}d & f\\g & i\end{vmatrix} 
++ c\begin{vmatrix}d & e\\g & h\end{vmatrix}$$
+
+```{r}
+det(A)
+```
+
+### Some other rule of Matrices
+$$\begin{cases}
+
+(A + B)^T &= A^T + B^T  \\
+(AB)^T &= B^TA^T  \\
+A(B + C) &= AB + AC \\ 
+AB &= AC \nRightarrow B = C
+\end{cases}
+$$
+In general $AB \neq BA$.
+If $\alpha$ is a number then $\alpha AB = A(\alpha B)$.
+
+### Eigenvalues and Eigenvectors 
+
+```{r}
+eigen(A)
+```

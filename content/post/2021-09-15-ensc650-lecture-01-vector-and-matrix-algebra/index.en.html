@@ -1,0 +1,373 @@
+---
+title: 'ENSC650 lecture 01: Vector and Matrix Algebra'
+author: Akihiko Mori
+date: '2021-09-15'
+slug: []
+categories: []
+tags:
+  - R
+---
+
+<script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="vector" class="section level2">
+<h2>Vector</h2>
+<p>A vector is a quantity that has both <strong>magnitude</strong> and <strong>direction</strong>.
+In general, a vector is a column vector.</p>
+<pre class="r"><code>a &lt;- c(1,2,3)
+b &lt;- c(2,1,3)</code></pre>
+<p>The order is mattered, <span class="math inline">\(a \neq b\)</span>.</p>
+<div id="transpose-of-vector" class="section level3">
+<h3>Transpose of Vector</h3>
+<p>Transposing a vector means turning a column (row) vector into a row (column) vector.</p>
+<p><span class="math display">\[\left[\begin{array}
+{r}
+1  \\
+2  \\
+3 
+\end{array}\right]^T
+=
+\left[\begin{array}
+{rrr}
+1 &amp; 2 &amp; 3
+\end{array}\right]
+\]</span></p>
+<pre class="r"><code>aT &lt;- t(a)</code></pre>
+</div>
+</div>
+<div id="matrices" class="section level2">
+<h2>Matrices</h2>
+<p>A rectangular array of numbers/ functions.
+<span class="math inline">\(M\times N\)</span> matrix <span class="math inline">\(\mathbf{A}\)</span> is a table with <span class="math inline">\(m\)</span> rows and <span class="math inline">\(n\)</span> columns; or size of <span class="math inline">\(\mathbf{A}\)</span> is <span class="math inline">\(M\times N\)</span>. Each element is <span class="math inline">\(a_{ij}, i\in M, j\in N\)</span>.
+<span class="math display">\[\mathbf{A_{MN}} = \left[\begin{array}
+{rrrr}
+a_{11} &amp; a_{12} &amp; \dots &amp; a_{1n} \\
+a_{21} &amp; a_{22} &amp;  &amp; \vdots  \\
+\vdots &amp;  &amp; \ddots &amp; \vdots \\
+a_{m1} &amp; \dots &amp; \dots  &amp; a_{mn} 
+\end{array}\right]
+\]</span></p>
+<pre class="r"><code># matrix - column by column is default
+A &lt;- matrix(c(1,2,3,
+              4,5,6,
+              7,8,9),3,3)
+# row by row matrix assign
+B &lt;- matrix(c(1,2,3,
+              4,5,6,
+              7,8,9),3,3, byrow = TRUE)
+A # column by column</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    1    4    7
+## [2,]    2    5    8
+## [3,]    3    6    9</code></pre>
+<pre class="r"><code>B # row by row</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    1    2    3
+## [2,]    4    5    6
+## [3,]    7    8    9</code></pre>
+<div id="transpose-of-matrix" class="section level3">
+<h3>Transpose of Matrix</h3>
+<p>Transposing matrix is interchanging rows and columns. <span class="math inline">\(90^\circ\)</span> rotation.
+<span class="math display">\[a_{ij} = a_{ji}\]</span></p>
+<p>e.g.
+<span class="math display">\[\left[\begin{array}
+{rrr}
+1 &amp; 3 &amp; 8 \\
+4 &amp; 7 &amp; 2 \\
+6 &amp; 5 &amp; 0
+\end{array}\right]^T
+= \left[\begin{array}
+{rrr}
+1 &amp; 4 &amp; 6 \\
+3 &amp; 7 &amp; 5 \\
+8 &amp; 2 &amp; 0
+\end{array}\right]
+\]</span></p>
+<pre class="r"><code>AT &lt;- t(A)</code></pre>
+</div>
+<div id="special-matrices" class="section level3">
+<h3>Special Matrices</h3>
+<div id="diagonal-mtrix" class="section level4">
+<h4>Diagonal Mtrix</h4>
+<p>A square matrix with 0 on all off–diagonal entries and elements <span class="math inline">\(d_1,d_2,\dots,d_n\)</span>
+on the diagonal a diagonal matrix, <span class="math inline">\(diag{d_1, d_2,\dots , d_n}\)</span></p>
+<p><span class="math display">\[\left[\begin{array}
+{rrr}
+1 &amp; 0 &amp; 0\\
+0 &amp; 2 &amp; 0\\
+0 &amp; 0 &amp; 3
+\end{array}\right]\]</span></p>
+<pre class="r"><code>diag(c(1,2,3))</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    1    0    0
+## [2,]    0    2    0
+## [3,]    0    0    3</code></pre>
+<p>– A diagonal matrix with <span class="math inline">\(1\)</span>s on the diagonal is the identity matrix
+and is denoted <span class="math inline">\(\mathbf{I}\)</span>. The identity matrix satisfies that <span class="math inline">\(\mathbf{IA} = \mathbf{AI} = \mathbf{A}\)</span>.</p>
+<p><span class="math display">\[\left[\begin{array}
+{rrr}
+1 &amp; 0 &amp; 0\\
+0 &amp; 1 &amp; 0\\
+0 &amp; 0 &amp; 1
+\end{array}\right]\]</span></p>
+<pre class="r"><code>diag(1,3)</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    1    0    0
+## [2,]    0    1    0
+## [3,]    0    0    1</code></pre>
+</div>
+<div id="symmetric-matrix" class="section level4">
+<h4>Symmetric Matrix</h4>
+<p>A matrix is symmetric if <span class="math display">\[\mathbf{A}^T=\mathbf{A}\]</span></p>
+<p>e.g.<br />
+<span class="math display">\[ \left[\begin{array}
+{rr}
+1 &amp; 2 \\
+2 &amp; 3 
+\end{array}\right]^T
+= \left[\begin{array}
+{rr}
+1 &amp; 2 \\
+2 &amp; 3 
+\end{array}\right]
+\]</span></p>
+</div>
+<div id="skew-symmetric-matrix" class="section level4">
+<h4>Skew-Symmetric Matrix</h4>
+<p>A matrix is skew-symmetric if <span class="math display">\[\mathbf{A}^T=-\mathbf{A}\]</span></p>
+<p>e.g.
+<span class="math display">\[\left[\begin{array}
+{rrr}
+0 &amp; 2 &amp; -45 \\
+-2 &amp; 0 &amp; -4 \\
+45 &amp; 4 &amp; 0
+\end{array}\right]^T
+= \left[\begin{array}
+{rrr}
+0 &amp; -2 &amp; 45 \\
+2 &amp; 0 &amp; 4 \\
+-45 &amp; -4 &amp; 0
+\end{array}\right]
+\]</span></p>
+</div>
+<div id="orthogonal-matrix" class="section level4">
+<h4>Orthogonal Matrix</h4>
+<p>A matrix is orthogonal if <span class="math display">\[\mathbf{A}^T = \mathbf{A}^{-1}\]</span></p>
+<p>e.g.
+<span class="math display">\[ \left[\begin{array}
+{rr}
+1 &amp; 0 \\
+0 &amp; 1 
+\end{array}\right]^T
+= \left[\begin{array}
+{rr}
+1 &amp; 0 \\
+0 &amp; 1 
+\end{array}\right],
+ \left[\begin{array}
+{rr}
+1 &amp; 0 \\
+0 &amp; 1 
+\end{array}\right]^{-1}
+= \left[\begin{array}
+{rr}
+1 &amp; 0 \\
+0 &amp; 1 
+\end{array}\right]
+\]</span></p>
+<p><span class="math display">\[ \left[\begin{array}
+{rr}
+cos\theta &amp; -sin\theta \\
+sin\theta &amp; cos\theta 
+\end{array}\right]
+\]</span></p>
+<p><span class="math display">\[ \left[\begin{array}
+{rr}
+1 &amp; 0 \\
+0 &amp; -1 
+\end{array}\right]
+\]</span></p>
+<p><span class="math display">\[ \left[\begin{array}
+{rrrr}
+0 &amp; 0  &amp; 0 &amp; 1 \\
+0 &amp; 0  &amp; 1 &amp; 0 \\
+1 &amp; 0  &amp; 0 &amp; 0 \\
+0 &amp; 1  &amp; 0 &amp; 0 
+\end{array}\right]
+\]</span></p>
+</div>
+</div>
+<div id="scalar-multiplication" class="section level3">
+<h3>Scalar Multiplication</h3>
+<p>For a number <span class="math inline">\(\alpha\)</span> and a matrix <span class="math inline">\(\mathbf{A}\)</span>, the product <span class="math inline">\(\alpha\mathbf{A}\)</span> is the matrix obtained by multiplying each element in <span class="math inline">\(\mathbf{A}\)</span> by <span class="math inline">\(\alpha\)</span>.</p>
+<p>e.g.
+<span class="math display">\[5\times\left[\begin{array}
+{rr}
+1 &amp; 3 \\
+4 &amp; 7 
+\end{array}\right] =
+\left[\begin{array}
+{rr}
+5 &amp; 15 \\
+20 &amp; 35 
+\end{array}\right]
+\]</span></p>
+<pre class="r"><code>A &lt;- matrix(c(1,3,4,7),2,2,byrow = T)
+a &lt;- 5
+a*A</code></pre>
+<pre><code>##      [,1] [,2]
+## [1,]    5   15
+## [2,]   20   35</code></pre>
+</div>
+<div id="addition" class="section level3">
+<h3>Addition</h3>
+<p>Let <span class="math inline">\(\mathbf{A}\)</span> and <span class="math inline">\(\mathbf{B}\)</span> be <span class="math inline">\(m\times n\)</span> matrices. The sum <span class="math display">\[\mathbf{A+B}\]</span> is the <span class="math inline">\(m\times n\)</span> matrix obtained by adding <span class="math inline">\(\mathbf{A}\)</span> and <span class="math inline">\(\mathbf{B}\)</span> elementwise.
+Only matrices with the same dimensions can be added.</p>
+<p>e.g.
+<span class="math display">\[\left[\begin{array}
+{rr}
+1 &amp; 3 \\
+4 &amp; 7 
+\end{array}\right] +
+\left[\begin{array}
+{rr}
+6 &amp; 2 \\
+3 &amp; 1 
+\end{array}\right] 
+=
+\left[\begin{array}
+{rr}
+7 &amp; 5 \\
+7 &amp; 8 
+\end{array}\right]
+\]</span></p>
+<pre class="r"><code>A &lt;- matrix(c(1,3,4,7),2,2,T)
+B &lt;- matrix(c(6,2,3,1),2,2,T)
+A+B</code></pre>
+<pre><code>##      [,1] [,2]
+## [1,]    7    5
+## [2,]    7    8</code></pre>
+</div>
+<div id="multiplication" class="section level3">
+<h3>Multiplication</h3>
+<p>Let <span class="math inline">\(\mathbf{A}\)</span> be a <span class="math inline">\(m\times l\)</span> matrix and <span class="math inline">\(\mathbf{B}\)</span> a <span class="math inline">\(l\times n\)</span> matrix,
+i.e.<span class="math inline">\(B=[b_1 :b_2 :···:b_t]\)</span>. The product <span class="math inline">\(\mathbf{AB}\)</span> is the <span class="math inline">\(m \times n\)</span> matrix given by:
+<span class="math display">\[\mathbf{AB}=\mathbf{A}\left[b_1 :b_2 :\dots:b_t\right]=\left[\mathbf{A}b_1 :\mathbf{A}b_2 :\dots:\mathbf{A}b_t\right]\]</span>
+<span class="math display">\[\mathbf{C}_{mn}=\sum_{l=1}^L\mathbf{A}_{ml}\mathbf{B}_{ln}\]</span>
+in general <span class="math display">\[\mathbf{AB} \neq \mathbf{BA}\]</span></p>
+<p>e.g.
+<span class="math display">\[\left[\begin{array}
+{rr}
+4 &amp; 3 \\
+7 &amp; 2 \\
+9 &amp; 0
+\end{array}\right]
+\left[\begin{array}
+{rr}
+2 &amp; 5 \\
+1 &amp; 6 
+\end{array}\right] 
+=
+\left[\begin{array}
+{rr}
+4\cdot 2 + 3\cdot 1  &amp; 4\cdot 5+3\cdot6 \\
+7\cdot 2 + 2\cdot 1  &amp; 7\cdot 5+2\cdot6 \\
+9\cdot 2 + 0\cdot 1  &amp; 9\cdot 5+0\cdot6 
+\end{array}\right] = 
+\left[\begin{array}
+{rr}
+11 &amp; 38 \\
+16 &amp; 47 \\
+18 &amp; 45
+\end{array}\right]
+\]</span></p>
+<pre class="r"><code>A &lt;- matrix(c(4,3,7,2,9,0),3,2,T)
+B &lt;- matrix(c(2,5,1,6),2,2,T)
+# Matrix Multiplication
+A%*%B</code></pre>
+<pre><code>##      [,1] [,2]
+## [1,]   11   38
+## [2,]   16   47
+## [3,]   18   45</code></pre>
+</div>
+<div id="inverse-of-matrices---division" class="section level3">
+<h3>Inverse of Matrices - Division</h3>
+<p>The inverse of an <span class="math inline">\(n \times n\)</span> matrix <span class="math inline">\(\mathbf{A}\)</span> is the matrix <span class="math inline">\(\mathbf{B}\)</span> (which is also <span class="math inline">\(n \times n\)</span>) which multiplied with <span class="math inline">\(\mathbf{A}\)</span> generates the identity matrix <span class="math inline">\(\mathbf{I}\)</span>:
+<span class="math display">\[\mathbf{AB} = \mathbf{BA} = \mathbf{I}\]</span>
+<span class="math inline">\(\mathbf{B}\)</span> is an inverse of the matrix <span class="math inline">\(\mathbf{A}\)</span>, called <span class="math inline">\(\mathbf{A^{-1}}\)</span>.</p>
+<pre class="r"><code>solve(B) # inverse of B</code></pre>
+<pre><code>##            [,1]       [,2]
+## [1,]  0.8571429 -0.7142857
+## [2,] -0.1428571  0.2857143</code></pre>
+</div>
+<div id="solve-linear-systems" class="section level3">
+<h3>Solve linear systems</h3>
+<p>Matrices are related to systems of linear equations.
+Consider the two equations</p>
+<p><span class="math display">\[
+\begin{cases}
+    x_1+3x_2  &amp;= 7 \\
+    2x_1+4x_2 &amp;= 10
+\end{cases}
+\]</span>
+The system can be written in matrix form
+<span class="math display">\[\mathbf{A}\mathbf{x}=\mathbf{b}\]</span>
+where <span class="math inline">\(\mathbf{A}\)</span> is a matrix <span class="math inline">\(\left[\begin{array}{rr} 1 &amp; 3 \\ 2 &amp; 4 \end{array}\right]\)</span>, <span class="math inline">\(\mathbf{x}\)</span> is a vector of unknown variables, <span class="math inline">\(\left[\begin{array} {r}x_1\\ x_2 \end{array}\right]\)</span>,
+and <span class="math inline">\(\mathbf{b}\)</span> is a vector of values of RHS, <span class="math inline">\(\left[\begin{array} {r}7\\ 10 \end{array}\right]\)</span>.</p>
+<p>Since <span class="math inline">\(\mathbf{A}^{-1}\mathbf{A}=\mathbf{I}\)</span> and <span class="math inline">\(\mathbf{Ix}=\mathbf{x}\)</span> we have
+<span class="math display">\[\mathbf{x} = \mathbf{A}^{-1}\mathbf{b} = \left[\begin{array}{rr} -2 &amp; 1.5 \\ 1 &amp; -0.5 \end{array}\right]\left[\begin{array} {r}7\\ 10  \end{array}\right] = \left[\begin{array} {r}1\\ 2  \end{array}\right]\]</span>
+The matrix <span class="math inline">\(\mathbf{A}\)</span> must be a unique, or full rank.</p>
+<pre class="r"><code>A &lt;- matrix(c(1,2,3,4),2,2)
+b &lt;- c(7,10)
+x &lt;- solve(A)%*%b; x</code></pre>
+<pre><code>##      [,1]
+## [1,]    1
+## [2,]    2</code></pre>
+<pre class="r"><code>solve(A,b)</code></pre>
+<pre><code>## [1] 1 2</code></pre>
+</div>
+<div id="determinant" class="section level3">
+<h3>Determinant</h3>
+<p><span class="math inline">\(2\times 2\)</span>:
+<span class="math display">\[\begin{vmatrix}a &amp; b\\
+c &amp; d
+\end{vmatrix} = a\cdot d - b\cdot c\]</span>
+<span class="math inline">\(3\times 3\)</span>
+<span class="math display">\[\begin{vmatrix}
+a &amp; b &amp; c\\
+d &amp; e &amp; f \\
+g &amp; h &amp; i
+\end{vmatrix} = a \begin{vmatrix}e &amp; f\\h &amp; i\end{vmatrix} 
+- b\begin{vmatrix}d &amp; f\\g &amp; i\end{vmatrix} 
++ c\begin{vmatrix}d &amp; e\\g &amp; h\end{vmatrix}\]</span></p>
+<pre class="r"><code>det(A)</code></pre>
+<pre><code>## [1] -2</code></pre>
+</div>
+<div id="some-other-rule-of-matrices" class="section level3">
+<h3>Some other rule of Matrices</h3>
+$$
+<span class="math display">\[\begin{cases}
+
+(A + B)^T &amp;= A^T + B^T  \\
+(AB)^T &amp;= B^TA^T  \\
+A(B + C) &amp;= AB + AC \\ 
+AB &amp;= AC \nRightarrow B = C
+\end{cases}\]</span>
+<p>$$
+In general <span class="math inline">\(AB \neq BA\)</span>.
+If <span class="math inline">\(\alpha\)</span> is a number then <span class="math inline">\(\alpha AB = A(\alpha B)\)</span>.</p>
+</div>
+<div id="eigenvalues-and-eigenvectors" class="section level3">
+<h3>Eigenvalues and Eigenvectors</h3>
+<pre class="r"><code>eigen(A)</code></pre>
+<pre><code>## eigen() decomposition
+## $values
+## [1]  5.3722813 -0.3722813
+## 
+## $vectors
+##            [,1]       [,2]
+## [1,] -0.5657675 -0.9093767
+## [2,] -0.8245648  0.4159736</code></pre>
+</div>
+</div>
