@@ -84,3 +84,25 @@ yfit <- yfit*diff(h$mids[1:2])*length(x)
 lines(xfit, yfit, col="blue", lwd=2)
 
 ```
+
+# Continuous Variables
+a variable whose value is obtained by measuring, ie one which can take on an uncountable set of values. an unlimited number of values between the lowest and highest points of measurement.
+$$
+\begin{aligned}
+\mathop{\mathbb{E\left(x\right)}} &= \\
+\mathop{\mathbb{E\left(f\left(x\right)\right)}} &= 
+\end{aligned}$$
+
+
+# Discrete Varialbes
+a variable whose value is obtained by counting. a discrete variable over a particular range of real values is one for which, for any value in the range that the variable is permitted to take on, there is a positive minimum distance to the nearest other permissible value.
+
+$$
+\begin{aligned}
+\mathop{\mathbb{E\left(x\right)}} &= \\
+\mathop{\mathbb{E\left(f\left(x\right)\right)}} &= 
+\end{aligned}$$
+
+
+
+
