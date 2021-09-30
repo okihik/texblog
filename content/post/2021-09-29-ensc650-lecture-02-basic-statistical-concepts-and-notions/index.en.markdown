@@ -107,3 +107,30 @@ lines(xfit, yfit, col="blue", lwd=2)
 ```
 
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-3-2.png" width="672" />
+
+# Continuous Variables
+a variable whose value is obtained by measuring, ie one which can take on an uncountable set of values. an unlimited number of values between the lowest and highest points of measurement.
+$$
+\begin{aligned}
+\mathop{\mathbb{E\left(x\right)}} &= \int_x xp\left(x\right)\mathrm{d}x \\
+\mathop{\mathbb{E\left(f\left(x\right)\right)}} &= \int_x f\left(x\right)p\left(x\right)\mathrm{d}x
+\end{aligned}$$`
+
+
+# Discrete Varialbes
+a variable whose value is obtained by counting. a discrete variable over a particular range of real values is one for which, for any value in the range that the variable is permitted to take on, there is a positive minimum distance to the nearest other permissible value.
+
+$$
+\begin{aligned}
+\mathop{\mathbb{E\left(x\right)}} &= \sum_i x_ip\left(x_i\right) \\
+\mathop{\mathbb{E\left(f\left(x\right)\right)}} &=  \sum_i f\left(x_i\right)p\left(x_i\right) 
+\end{aligned}$$`
+
+# Population and Sample
+Population is the entire set of cases.
+Sample is a subset of population.
+![Population and statistics](statistical_view.jpg)
+<credit: https://online.stat.psu.edu/stat504/lesson/populations-and-samples>
+
+
+
