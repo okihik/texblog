@@ -31,7 +31,8 @@ a dataset collected at different points in time
 
 # Line graph
 for trend of variable over time 
-```{r}
+
+```r
 t=0:10 # time point
 z= exp(-t/2) # a variable
 w = 0.1*exp(t/3) # second variable
@@ -39,28 +40,42 @@ plot(t,z, type="l", col="green", lwd=5, xlab="time", ylab="concentration")
 lines(t, w, col="red", lwd=2)
 title("Exponential growth and decay")
 legend(2,1,c("decay","growth"), lwd=c(5,2), col=c("green","red"), y.intersp=1.5)
-
 ```
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-1-1.png" width="672" />
 
 # Bar graph
 summarize a set of categorical data
-```{r}
+
+```r
 # Simple Bar Plot 
 counts <- table(mtcars$gear)
 barplot(counts, main="Car Distribution", 
    xlab="Number of Gears")
+```
 
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+
+```r
 # Simple Horizontal Bar Plot with Added Labels 
 counts <- table(mtcars$gear)
 barplot(counts, main="Car Distribution", horiz=TRUE,
   names.arg=c("3 Gears", "4 Gears", "5 Gears"))
+```
 
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-2-2.png" width="672" />
+
+```r
 # Stacked Bar Plot with Colors and Legend
 counts <- table(mtcars$vs, mtcars$gear)
 barplot(counts, main="Car Distribution by Gears and VS",
   xlab="Number of Gears", col=c("darkblue","red"),
   legend = rownames(counts))
+```
 
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-2-3.png" width="672" />
+
+```r
 # Grouped Bar Plot
 counts <- table(mtcars$vs, mtcars$gear)
 barplot(counts, main="Car Distribution by Gears and VS",
@@ -68,12 +83,19 @@ barplot(counts, main="Car Distribution by Gears and VS",
   legend = rownames(counts), beside=TRUE)
 ```
 
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-2-4.png" width="672" />
+
 # Histogram
 summarize data measured on interval scale
-```{r}
+
+```r
 # Simple Histogram
 hist(mtcars$mpg)
+```
 
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+
+```r
 # Add a Normal Curve (Thanks to Peter Dalgaard)
 x <- mtcars$mpg 
 h<-hist(x, breaks=10, col="red", xlab="Miles Per Gallon", 
@@ -82,5 +104,6 @@ xfit<-seq(min(x),max(x),length=40)
 yfit<-dnorm(xfit,mean=mean(x),sd=sd(x)) 
 yfit <- yfit*diff(h$mids[1:2])*length(x) 
 lines(xfit, yfit, col="blue", lwd=2)
-
 ```
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-3-2.png" width="672" />
