@@ -163,8 +163,9 @@ sd = 1
 
 
 # Covariance
-a measure of the joint variability of two random variables
-
+a measure of the joint variability of two random variables\
+positive covariance = same relation\
+negative covariance = opposite relation
 
 $$\operatorname{cov}(X, Y) = \operatorname{E}{\big[(X - \operatorname{E}[X])(Y - \operatorname{E}[Y])\big]}$$
 $$
@@ -218,3 +219,106 @@ $$\begin{align}
        \right] \\
     &= \operatorname{E}\left[\mathbf{X} \mathbf{Y}^\mathrm{T}\right] - \operatorname{E}[\mathbf{X}]\operatorname{E}[\mathbf{Y}]^\mathrm{T}
 \end{align}$$
+
+```{r}
+# by hand
+x <- c(25, 27, 29)
+y <- c(5, 15, 9)
+xdev <- x - mean(x)
+ydev <- y - mean(y)
+xdev_ydev <- xdev * ydev
+xdev_ydev
+sum_xdev_ydev <- sum(xdev_ydev)
+cov_xy <- sum_xdev_ydev / (3 - 1)
+cov_xy
+
+#built-in function
+cov(x, y)
+```
+
+# Correlation
+Correlation standardizes covariance on a scale of negative one to one, whereby the magnitude from zero indicates strength of relationship.\
+$-1 \le r_{xy} \le +1$.\
+
+#$$r_{xy}=\frac{cov(x,y)}{s_xs_y}$$
+
+$$\rho_{X,Y} = \operatorname{cor}(X,Y) = {\operatorname{cov}(X,Y) \over \sigma_X \sigma_Y} = {\operatorname{E}[(X-\mu_X)(Y-\mu_Y)] \over \sigma_X\sigma_Y}$$
+$$\rho_{X,Y} =  {\operatorname{E}(XY)-\operatorname{E}(X)\operatorname{E}(Y)\over \sqrt{\operatorname{E}(X^2)-\operatorname{E}(X)^2}\cdot \sqrt{\operatorname{E}(Y^2)-\operatorname{E}(Y)^2} }$$
+$$\begin{align}
+
+X,Y \text{ independent} \quad & \Rightarrow \quad \rho_{X,Y} = 0 \quad (X,Y \text{ uncorrelated})\\
+\rho_{X,Y} = 0 \quad (X,Y \text{ uncorrelated})\quad & \nRightarrow \quad X,Y \text{ independent}
+\end{align}$$
+
+```{r}
+# by hand
+x <- c(25, 27, 29)
+y <- c(5, 15, 9)
+xdev <- x - mean(x)
+ydev <- y - mean(y)
+xdev_ydev <- xdev * ydev
+sum_xdev_ydev <- sum(xdev_ydev)
+cov_xy <- (1 / (3 - 1)) * sum_xdev_ydev
+stnd.dev <- sd(x)*sd(y)
+cov_xy/stnd.dev
+# built-in function
+cor(x,y)
+
+```
+
+
+# Skewness
+a measure of the asymmetry of the probability distribution of a real-valued random variable about its mean\
+The skewness value can be positive, zero, negative, or undefined.
+
+![Relationship between mean and median under different skewness](skewness.png)
+$$    \tilde{\mu}_3 = \operatorname{E}\left[\left(\frac{X-\mu}{\sigma}\right)^3 \right]
+             = \frac{\mu_3}{\sigma^3}
+             = \frac{\operatorname{E}\left[(X-\mu)^3\right]}{( \operatorname{E}\left[ (X-\mu)^2 \right] )^{3/2}}
+             = \frac{\kappa_3}{\kappa_2^{3/2}}
+ $$
+
+$$\begin{align}
+    \tilde{\mu}_3
+     &= \operatorname{E}\left[\left(\frac{X-\mu}{\sigma}\right)^3 \right] \\
+     &= \frac{\operatorname{E}[X^3] - 3\mu\operatorname E[X^2] + 3\mu^2\operatorname E[X] - \mu^3}{\sigma^3}\\
+     &= \frac{\operatorname{E}[X^3] - 3\mu(\operatorname E[X^2] -\mu\operatorname E[X]) - \mu^3}{\sigma^3}\\
+     &= \frac{\operatorname{E}[X^3] - 3\mu\sigma^2 - \mu^3}{\sigma^3}.
+\end{align}
+ $$
+
+```{r}
+# by hand
+```
+
+# Bias
+a feature of a statistical technique or of its results whereby the expected value of the results differs from the true underlying quantitative parameter being estimated
+
+$\operatorname{bias}(\theta)$ is he bias of the statistic $T$
+$$\operatorname E(T)=\theta + \operatorname{bias}(\theta)$$
+
+
+
+# Mean Squared Error (MSE)
+a measurement of the quality of a predictor (i.e., a function mapping arbitrary inputs to a sample of values of some random variable)\
+or of an estimator (i.e., a mathematical function mapping a sample of data to an estimate of a parameter of the population from which the data is sampled).
+
+the within-sample MSE of the predictor is computed as
+$$\operatorname{MSE}=\frac{1}{n}\sum_{i=1}^n(Y_i-\hat{Y_i})^2.$$
+
+In matrix notation,
+$$\operatorname{MSE}=\frac{1}{n}\sum_{i=1}^n(e_i)^2=\frac{1}{n}\mathbf e^\mathsf T \mathbf e$$
+
+$$\begin{aligned}
+R^2 &=  1-\frac{MSE(X)}{Var(X)}\\
+&= 1-\frac{SSE}{SST}
+\end{aligned}$$
+
+The MSE of an estimator $\hat{\theta}$ with respect to an unknown parameter $\theta$  is defined as
+$$\operatorname{MSE}(\hat{\theta})=\operatorname{E}_{\theta}\left[(\hat{\theta}-\theta)^2\right].$$
+
+The MSE can be written as the sum of the variance of the estimator and the squared bias of the estimator, providing a useful way to calculate the MSE and implying that in the case of unbiased estimators, the MSE and variance are equivalent.\
+
+$$\operatorname{MSE}(\hat{\theta})=\operatorname{Var}_{\theta}(\hat{\theta})+ \operatorname{Bias}(\hat{\theta},\theta)^2.$$
+
+
