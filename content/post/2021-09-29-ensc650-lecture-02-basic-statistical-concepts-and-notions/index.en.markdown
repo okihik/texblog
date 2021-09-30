@@ -272,14 +272,14 @@ $$
 Properties:\
 `$$\operatorname{cov}(X, X) =\operatorname{var}(X)\equiv\sigma^2(X)\equiv\sigma_X^2.$$`
 $$
-\begin{align}
+\begin{aligned}
     \operatorname{cov}(X, a) &= 0 \\
     \operatorname{cov}(X, X) &= \operatorname{var}(X) \\
     \operatorname{cov}(X, Y) &= \operatorname{cov}(Y, X) \\
     \operatorname{cov}(aX, bY) &= ab\, \operatorname{cov}(X, Y) \\
     \operatorname{cov}(X+a, Y+b) &= \operatorname{cov}(X, Y) \\ 
     \operatorname{cov}(aX+bY, cW+dV) &= ac\,\operatorname{cov}(X,W)+ad\,\operatorname{cov}(X,V)+bc\,\operatorname{cov}(Y,W)+bd\,\operatorname{cov}(Y,V)
-\end{align}$$`
+\end{aligned}$$`
 
 If X and Y are independent random variables:\
 `$$\begin{align}
