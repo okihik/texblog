@@ -85,6 +85,58 @@ lines(xfit, yfit, col="blue", lwd=2)
 
 ```
 
+# Pei Chart
+
+```{r}
+
+```
+
+
+# Scatter plots
+
+```{r}
+
+```
+
+# Measurement of Central Tendency
+
+
+# Data types
+
+
+
+#Random Variables
+## Random variables
+characteristics of the observational units which can have different possible values (this is the practical, not the statistical definition)
+There are two different types of random variables:
+
+## Quantitative
+(numerical, measurement) variables represent an amount or quantity of something (e.g. time spent waiting for the bus)
+
+## Qualitative
+(categorical) variables represent things that can be categorized (e.g. the colors of the cars that pass while you wait for the bus)
+Letters like X or Y represent random variables if its value is not known before the experiment is run.
+
+# Categorical: Nominal vs. Ordinal
+
+## Nominal
+(unordered) random variables have categories where order doesn’t matter.
+e.g. gender, ethnic background, religious affiliation
+
+## Ordinal 
+(ordered) random variables have ordered categories. ( e.g. grade levels, income levels, school levels, ...)
+
+# Explanatory vs. Response Variable
+
+The explanatory variable attempts to explain (or is purported to cause) differences in a response variable (or outcome variable), (e.g. homework scores and exam scores can be explanatory variables for the final grade).
+
+# Quantitative: Discrete vs. Continuous
+## Discrete
+random variables can only take on values from a countable set of numbers such as the integers or some subset of integers. (Usually, they can’t be fractions.)
+
+## Continuous
+random variables can take on any real number in some interval. (They can be fractions.)
+
 # Continuous Variables
 a variable whose value is obtained by measuring, ie one which can take on an uncountable set of values. an unlimited number of values between the lowest and highest points of measurement.
 $$
@@ -169,13 +221,12 @@ negative covariance = opposite relation
 
 $$\operatorname{cov}(X, Y) = \operatorname{E}{\big[(X - \operatorname{E}[X])(Y - \operatorname{E}[Y])\big]}$$
 $$
-\begin{align}
-\operatorname{cov}(X, Y)
-&= \operatorname{E}\left[\left(X - \operatorname{E}\left[X\right]\right) \left(Y - \operatorname{E}\left[Y\right]\right)\right] \\
-&= \operatorname{E}\left[X Y - X \operatorname{E}\left[Y\right] - \operatorname{E}\left[X\right] Y + \operatorname{E}\left[X\right] \operatorname{E}\left[Y\right]\right] \\
+\begin{aligned}
+\operatorname{cov}(X, Y) &= \operatorname{E}\left[\left(X - \operatorname{E}\left[X\right]\right) \left(Y - \operatorname{E}\left[Y\right]\right)\right]\\
+&= \operatorname{E}\left[X Y - X \operatorname{E}\left[Y\right] - \operatorname{E}\left[X\right] Y + \operatorname{E}\left[X\right] \operatorname{E}\left[Y\right]\right]\\
 &= \operatorname{E}\left[X Y\right] - \operatorname{E}\left[X\right] \operatorname{E}\left[Y\right] - \operatorname{E}\left[X\right] \operatorname{E}\left[Y\right] + \operatorname{E}\left[X\right] \operatorname{E}\left[Y\right] \\
-&= \operatorname{E}\left[X Y\right] - \operatorname{E}\left[X\right] \operatorname{E}\left[Y\right],
-\end{align}
+&= \operatorname{E}\left[X Y\right] - \operatorname{E}\left[X\right] \operatorname{E}\left[Y\right]
+\end{aligned}
 $$
 
 
