@@ -109,19 +109,90 @@ lines(xfit, yfit, col="blue", lwd=2)
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-3-2.png" width="672" />
 
 # Pei Chart
+Proportional display from categorical data
 
+```r
+# Simple Pie Chart
+slices <- c(10, 12,4, 16, 8)
+lbls <- c("US", "UK", "Australia", "Germany", "France")
+pie(slices, labels = lbls, main="Pie Chart of Countries")
+```
 
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+
+```r
+# 3D Exploded Pie Chart
+library(plotrix)
+slices <- c(10, 12, 4, 16, 8) 
+lbls <- c("US", "UK", "Australia", "Germany", "France")
+pie3D(slices,labels=lbls,explode=0.1,
+   main="Pie Chart of Countries ")
+```
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-4-2.png" width="672" />
 
 
 # Scatter plots
+relationship between two variables
 
+```r
+# Simple Scatterplot
+attach(mtcars)
+plot(wt, mpg, main="Scatterplot Example", 
+   xlab="Car Weight ", ylab="Miles Per Gallon ", pch=19)
 
+# Add fit lines
+abline(lm(mpg~wt), col="red") # regression line (y~x) 
+lines(lowess(wt,mpg), col="blue") # lowess line (x,y)
+```
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+
+```r
+# Enhanced Scatterplot of MPG vs. Weight 
+# by Number of Car Cylinders 
+library(car) 
+```
+
+```
+## Loading required package: carData
+```
+
+```r
+scatterplot(mpg ~ wt | cyl, data = mtcars, 
+            xlab="Weight of Car", ylab="Miles Per Gallon", 
+   main ="Enhanced Scatter Plot")
+```
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-5-2.png" width="672" />
 
 # Measurement of Central Tendency
+## Mean
+sum of all data divided by the number of data
+## Median
+"middle number"\
+found by ordering all data
+## Mode
+the most frequent number
 
+Comparing mean, median, and mode gets a skewness of distribution.
 
 # Data types
-
+`$$\begin{equation}
+    \text{Data} =
+    \begin{cases}
+      \text{Discrete data} 
+      & \begin{cases} 
+        \text{Nominal Scale} &- \text{ incomparable}\\
+        \text{Ordinal Scale} &- \text{ comparable}\\
+      \end{cases} \\
+      \text{Continuous data} 
+       &\begin{cases} 
+        \text{Interval Scale} &- \text{ additive}\\
+        \text{Ratio Scale} &- \text{ multiplicative}\\
+      \end{cases}
+    \end{cases}
+  \end{equation}$$`
 
 
 #Random Variables
@@ -278,17 +349,17 @@ $$
     \operatorname{cov}(X, Y) &= \operatorname{cov}(Y, X) \\
     \operatorname{cov}(aX, bY) &= ab\, \operatorname{cov}(X, Y) \\
     \operatorname{cov}(X+a, Y+b) &= \operatorname{cov}(X, Y) \\ 
-    \operatorname{cov}(aX+bY, cW+dV) &= ac\,\operatorname{cov}(X,W)+ad\,\operatorname{cov}(X,V)+bc\,\operatorname{cov}(Y,W)+bd\,\operatorname{cov}(Y,V)
+    \operatorname{cov}(aX+bY, cW+dV) &= ac\operatorname{cov}(X,W)+ad\operatorname{cov}(X,V)+bc\operatorname{cov}(Y,W)+bd\operatorname{cov}(Y,V)
 \end{aligned}$$`
 
 If X and Y are independent random variables:\
-`$$\begin{align}
+`$$\begin{aligned}
   \operatorname{cov}(X, Y) &= \operatorname{cov}\left(X, X^2\right) \\
          &= \operatorname{E}\left[X \cdot X^2\right] - \operatorname{E}[X] \cdot \operatorname{E}\left[X^2\right] \\
          &= \operatorname{E}\left[X^3\right] - \operatorname{E}[X]\operatorname{E}\left[X^2\right] \\
          &= 0 - 0 \cdot \operatorname{E}[X^2] \\
          &= 0.  
-\end{align}$$`
+\end{aligned}$$`
 Let `\(\mathbf {X}\)`  be a random vector with covariance matrix Σ, and let A be a matrix that can act on `\(\mathbf {X}\)`  on the left. The covariance matrix of the matrix-vector product A X is:\
 `$$\begin{align}
   \operatorname{cov}(\mathbf{AX},\mathbf{AX}) &=

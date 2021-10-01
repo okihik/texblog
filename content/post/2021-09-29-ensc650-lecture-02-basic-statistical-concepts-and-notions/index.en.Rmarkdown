@@ -105,9 +105,8 @@ pie3D(slices,labels=lbls,explode=0.1,
 # Scatter plots
 relationship between two variables
 ```{r}
-# Simple Scatterplot
-attach(mtcars)
-plot(wt, mpg, main="Scatterplot Example", 
+# Simple Scatterplot mtcars
+plot(mtcars$wt, mtcars$mpg, main="Scatterplot Example", 
    xlab="Car Weight ", ylab="Miles Per Gallon ", pch=19)
 
 # Add fit lines
@@ -117,19 +116,49 @@ lines(lowess(wt,mpg), col="blue") # lowess line (x,y)
 # Enhanced Scatterplot of MPG vs. Weight 
 # by Number of Car Cylinders 
 library(car) 
-scatterplot(mpg ~ wt | cyl, data=mtcars, 
-   xlab="Weight of Car", ylab="Miles Per Gallon", 
-   main="Enhanced Scatter Plot", 
-   labels=row.names(mtcars))
+scatterplot(mpg ~ wt | cyl, data = mtcars, 
+            xlab="Weight of Car", ylab="Miles Per Gallon", 
+   main ="Enhanced Scatter Plot")
 
+scatterplot(wt ~ mpg, data = mtcars)
 
+# Prepare the data set
+x <- iris$Sepal.Length
+y <- iris$Sepal.Width
+z <- iris$Petal.Length
+grps <- as.factor(iris$Species)
+# Plot
+library(scatterplot3d)
+scatterplot3d(x, y, z, pch = 16)
 ```
 
 # Measurement of Central Tendency
+## Mean
+sum of all data divided by the number of data
+## Median
+"middle number"\
+found by ordering all data
+## Mode
+the most frequent number
 
+Comparing mean, median, and mode gets a skewness of distribution.
 
 # Data types
-
+$$\begin{equation}
+    \text{Data} =
+    \begin{cases}
+      \text{Discrete data} 
+      & \begin{cases} 
+        \text{Nominal Scale} &- \text{ incomparable}\\
+        \text{Ordinal Scale} &- \text{ comparable}\\
+      \end{cases} \\
+      \text{Continuous data} 
+       &\begin{cases} 
+        \text{Interval Scale} &- \text{ additive}\\
+        \text{Ratio Scale} &- \text{ multiplicative}\\
+      \end{cases}
+    \end{cases}
+  \end{equation}$$
 
 
 #Random Variables
