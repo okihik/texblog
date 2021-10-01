@@ -86,15 +86,42 @@ lines(xfit, yfit, col="blue", lwd=2)
 ```
 
 # Pei Chart
-
+Proportional display from categorical data
 ```{r}
+# Simple Pie Chart
+slices <- c(10, 12,4, 16, 8)
+lbls <- c("US", "UK", "Australia", "Germany", "France")
+pie(slices, labels = lbls, main="Pie Chart of Countries")
 
+# 3D Exploded Pie Chart
+library(plotrix)
+slices <- c(10, 12, 4, 16, 8) 
+lbls <- c("US", "UK", "Australia", "Germany", "France")
+pie3D(slices,labels=lbls,explode=0.1,
+   main="Pie Chart of Countries ")
 ```
 
 
 # Scatter plots
-
+relationship between two variables
 ```{r}
+# Simple Scatterplot
+attach(mtcars)
+plot(wt, mpg, main="Scatterplot Example", 
+   xlab="Car Weight ", ylab="Miles Per Gallon ", pch=19)
+
+# Add fit lines
+abline(lm(mpg~wt), col="red") # regression line (y~x) 
+lines(lowess(wt,mpg), col="blue") # lowess line (x,y)
+
+# Enhanced Scatterplot of MPG vs. Weight 
+# by Number of Car Cylinders 
+library(car) 
+scatterplot(mpg ~ wt | cyl, data=mtcars, 
+   xlab="Weight of Car", ylab="Miles Per Gallon", 
+   main="Enhanced Scatter Plot", 
+   labels=row.names(mtcars))
+
 
 ```
 
@@ -240,17 +267,17 @@ $$
     \operatorname{cov}(X, Y) &= \operatorname{cov}(Y, X) \\
     \operatorname{cov}(aX, bY) &= ab\, \operatorname{cov}(X, Y) \\
     \operatorname{cov}(X+a, Y+b) &= \operatorname{cov}(X, Y) \\ 
-    \operatorname{cov}(aX+bY, cW+dV) &= ac\,\operatorname{cov}(X,W)+ad\,\operatorname{cov}(X,V)+bc\,\operatorname{cov}(Y,W)+bd\,\operatorname{cov}(Y,V)
+    \operatorname{cov}(aX+bY, cW+dV) &= ac\operatorname{cov}(X,W)+ad\operatorname{cov}(X,V)+bc\operatorname{cov}(Y,W)+bd\operatorname{cov}(Y,V)
 \end{aligned}$$
 
 If X and Y are independent random variables:\
-$$\begin{align}
+$$\begin{aligned}
   \operatorname{cov}(X, Y) &= \operatorname{cov}\left(X, X^2\right) \\
          &= \operatorname{E}\left[X \cdot X^2\right] - \operatorname{E}[X] \cdot \operatorname{E}\left[X^2\right] \\
          &= \operatorname{E}\left[X^3\right] - \operatorname{E}[X]\operatorname{E}\left[X^2\right] \\
          &= 0 - 0 \cdot \operatorname{E}[X^2] \\
          &= 0.  
-\end{align}$$
+\end{aligned}$$
 Let $\mathbf {X}$  be a random vector with covariance matrix Σ, and let A be a matrix that can act on $\mathbf {X}$  on the left. The covariance matrix of the matrix-vector product A X is:\
 $$\begin{align}
   \operatorname{cov}(\mathbf{AX},\mathbf{AX}) &=
