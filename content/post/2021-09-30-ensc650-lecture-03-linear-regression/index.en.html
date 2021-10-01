@@ -1,0 +1,67 @@
+---
+title: 'ENSC650 lecture 03: Linear Regression'
+author: Akihiko Mori
+date: '2021-09-30'
+slug: []
+categories: []
+tags:
+  - R
+---
+
+<script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="correlation-rho_xy" class="section level1">
+<h1>Correlation <span class="math inline">\(\rho_{xy}\)</span></h1>
+<p>statistical relationship between two variables
+<span class="math inline">\(-1 \le r_{xy} \le +1\)</span>.
+<span class="math display">\[
+\begin{align}\rho_{X,Y} &amp;= \operatorname{cor}(X,Y) \\
+&amp;= {\operatorname{cov}(X,Y) \over \sigma_X \sigma_Y} \\
+&amp;= {\operatorname{E}[(X-\mu_X)(Y-\mu_Y)] \over \sigma_X\sigma_Y}\\
+&amp;= \frac {\operatorname{E}(XY)-\operatorname{E}(X)\operatorname{E}(Y)}{ \sqrt{\operatorname{E}(X^2)-\operatorname{E}(X)^2}\cdot \sqrt{\operatorname{E}(Y^2)-\operatorname{E}(Y)^2}}
+\end{align}\]</span>
+$$<span class="math display">\[\begin{align}
+
+X,Y \text{ independent} \quad &amp; \Rightarrow \quad \rho_{X,Y} = 0 \quad (X,Y \text{ uncorrelated})\\
+\rho_{X,Y} = 0 \quad (X,Y \text{ uncorrelated})\quad &amp; \nRightarrow \quad X,Y \text{ independent}
+\end{align}\]</span>$$</p>
+<pre class="r"><code>#by hand 
+x &lt;- c(25, 27, 29)
+y &lt;- c(5, 15, 9)
+xdev &lt;- x - mean(x)
+ydev &lt;- y - mean(y)
+xdev_ydev &lt;- xdev * ydev
+sum_xdev_ydev &lt;- sum(xdev_ydev)
+cov_xy &lt;- (1 / (3 - 1)) * sum_xdev_ydev
+stnd.dev &lt;- sd(x)*sd(y)
+cov_xy/stnd.dev</code></pre>
+<pre><code>## [1] 0.3973597</code></pre>
+<pre class="r"><code># built-in
+cor(x,y)</code></pre>
+<pre><code>## [1] 0.3973597</code></pre>
+</div>
+<div id="test-of-correlation" class="section level1">
+<h1>Test of Correlation</h1>
+<p>a correlation test is used to test whether the correlation (denoted <span class="math inline">\(\rho\)</span>) between 2 variables is significantly different from 0 or not in the population.</p>
+<ul>
+<li>$H_0: = 0 $(meaning that there is no linear relationship between the two variables)<br />
+</li>
+<li><span class="math inline">\(H_a: \rho \neq 0\)</span>(meaning that there is a linear relationship between the two variables)</li>
+</ul>
+<p><span class="math display">\[t = \rho\sqrt(\frac{N-2}{1-\rho}) \sim \text{t-distribution(N-2)}\]</span>
+d.f.= <span class="math inline">\(N-2\)</span>,</p>
+</div>
+<div id="autocorrelation" class="section level1">
+<h1>Autocorrelation</h1>
+</div>
+<div id="correlation-matrix" class="section level1">
+<h1>Correlation Matrix</h1>
+<p>#Regression</p>
+</div>
+<div id="decomposion-of-variance" class="section level1">
+<h1>Decomposion of Variance</h1>
+</div>
+<div id="significance-test-of-regression" class="section level1">
+<h1>Significance test of Regression</h1>
+</div>

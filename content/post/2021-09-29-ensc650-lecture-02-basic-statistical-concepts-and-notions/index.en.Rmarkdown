@@ -254,7 +254,9 @@ $$MST = MSR + MSE$$
 
 ```{r}
 # enter data
-y=c(445, 530, 540, 510, 570, 530, 545, 545, 505, 535, 450, 500, 520, 460, 430, 520, 520, 430, 535, 535, 475, 545, 420, 495, 485, 570, 480, 495, 470, 490)
+y=c(445, 530, 540, 510, 570, 530, 545, 545, 505, 535, 450, 500, 520,
+    460, 430, 520, 520, 430, 535, 535, 475, 545, 420, 495, 485, 570, 
+    480, 495, 470, 490)
 mean((y-mean(y))^2)
 # 'pop. var.' where n > 1
 n=length(y); 
@@ -276,29 +278,31 @@ a measure of the joint variability of two random variables\
 positive covariance = same relation\
 negative covariance = opposite relation
 
+Definition:
+$$\operatorname{cov} (X,Y)=\frac{1}{n}\sum_{i=1}^n (x_i-E(X))(y_i-E(Y))$$
 $$\operatorname{cov}(X, Y) = \operatorname{E}{\big[(X - \operatorname{E}[X])(Y - \operatorname{E}[Y])\big]}$$
-$$
-\begin{aligned}
-\operatorname{cov}(X, Y) &= \operatorname{E}\left[\left(X - \operatorname{E}\left[X\right]\right) \left(Y - \operatorname{E}\left[Y\right]\right)\right]\\
-&= \operatorname{E}\left[X Y - X \operatorname{E}\left[Y\right] - \operatorname{E}\left[X\right] Y + \operatorname{E}\left[X\right] \operatorname{E}\left[Y\right]\right]\\
+Definition $\rightarrow$ Computation formula:
+$$\begin{align}
+\operatorname{cov}(X, Y) 
+&= \operatorname{E}\left[\left( X - \operatorname{E}\left[ X\right]\right) \left( Y - \operatorname{E}\left[ Y\right]\right)\right] \\
+&= \operatorname{E}\left[XY - X\operatorname{E}\left[Y\right] - \operatorname{E}\left[X\right] Y + \operatorname{E}\left[X\right] \operatorname{E}\left[Y\right]\right] \\
 &= \operatorname{E}\left[X Y\right] - \operatorname{E}\left[X\right] \operatorname{E}\left[Y\right] - \operatorname{E}\left[X\right] \operatorname{E}\left[Y\right] + \operatorname{E}\left[X\right] \operatorname{E}\left[Y\right] \\
 &= \operatorname{E}\left[X Y\right] - \operatorname{E}\left[X\right] \operatorname{E}\left[Y\right]
-\end{aligned}
-$$
+\end{align}$$
 
-
-$$\operatorname{cov} (X,Y)=\frac{1}{n}\sum_{i=1}^n (x_i-E(X))(y_i-E(Y))$$
 Properties:\
 $$\operatorname{cov}(X, X) =\operatorname{var}(X)\equiv\sigma^2(X)\equiv\sigma_X^2.$$
-$$
-\begin{aligned}
-    \operatorname{cov}(X, a) &= 0 \\
-    \operatorname{cov}(X, X) &= \operatorname{var}(X) \\
-    \operatorname{cov}(X, Y) &= \operatorname{cov}(Y, X) \\
-    \operatorname{cov}(aX, bY) &= ab\, \operatorname{cov}(X, Y) \\
-    \operatorname{cov}(X+a, Y+b) &= \operatorname{cov}(X, Y) \\ 
-    \operatorname{cov}(aX+bY, cW+dV) &= ac\operatorname{cov}(X,W)+ad\operatorname{cov}(X,V)+bc\operatorname{cov}(Y,W)+bd\operatorname{cov}(Y,V)
+Also,\
+
+$$\begin{aligned}
+\operatorname{cov}(X,a) &= 0\\
+\operatorname{cov}(X,X) &= \operatorname{var}(X)\\
+\operatorname{cov}(X,Y) &= \operatorname{cov}(Y,X)\\
+\operatorname{cov}(aX,bY) &= ab\operatorname{cov}(X,Y)\\
+\operatorname{cov}(X+a,Y+b)&=\operatorname{cov}(X,Y)\\
+\operatorname{cov}(aX+bY, cW+dV) &= ac\operatorname{cov}(X,W)+ad\operatorname{cov}(X,V)+bc\operatorname{cov}(Y,W)+bd\operatorname{cov}(Y,V)
 \end{aligned}$$
+
 
 If X and Y are independent random variables:\
 $$\begin{aligned}
@@ -346,14 +350,17 @@ cov(x, y)
 
 # Correlation
 Correlation standardizes covariance on a scale of negative one to one, whereby the magnitude from zero indicates strength of relationship.\
-$-1 \le r_{xy} \le +1$.\
+$-1 \le r_{xy} \le +1$.
 
-#$$r_{xy}=\frac{cov(x,y)}{s_xs_y}$$
 
-$$\rho_{X,Y} = \operatorname{cor}(X,Y) = {\operatorname{cov}(X,Y) \over \sigma_X \sigma_Y} = {\operatorname{E}[(X-\mu_X)(Y-\mu_Y)] \over \sigma_X\sigma_Y}$$
-$$\rho_{X,Y} =  {\operatorname{E}(XY)-\operatorname{E}(X)\operatorname{E}(Y)\over \sqrt{\operatorname{E}(X^2)-\operatorname{E}(X)^2}\cdot \sqrt{\operatorname{E}(Y^2)-\operatorname{E}(Y)^2} }$$
 $$\begin{align}
+\rho_{X,Y} &= \operatorname{cor}(X,Y) \\
+&= \frac{\operatorname{cov}(X,Y)}{\sigma_X \sigma_Y} \\
+&= \frac{\operatorname{E}[(X-\mu_X)(Y-\mu_Y)]}{\sigma_X\sigma_Y}
+\end{align}$$
 
+$$\rho_{X,Y} = \frac {\operatorname{E}(XY)-\operatorname{E}(X)\operatorname{E}(Y)}{ \sqrt{\operatorname{E}(X^2)-\operatorname{E}(X)^2}\cdot \sqrt{\operatorname{E}(Y^2)-\operatorname{E}(Y)^2}}$$
+$$\begin{align}
 X,Y \text{ independent} \quad & \Rightarrow \quad \rho_{X,Y} = 0 \quad (X,Y \text{ uncorrelated})\\
 \rho_{X,Y} = 0 \quad (X,Y \text{ uncorrelated})\quad & \nRightarrow \quad X,Y \text{ independent}
 \end{align}$$
@@ -386,14 +393,14 @@ $$    \tilde{\mu}_3 = \operatorname{E}\left[\left(\frac{X-\mu}{\sigma}\right)^3 
              = \frac{\kappa_3}{\kappa_2^{3/2}}
  $$
 
-$$\begin{align}
-    \tilde{\mu}_3
-     &= \operatorname{E}\left[\left(\frac{X-\mu}{\sigma}\right)^3 \right] \\
-     &= \frac{\operatorname{E}[X^3] - 3\mu\operatorname E[X^2] + 3\mu^2\operatorname E[X] - \mu^3}{\sigma^3}\\
-     &= \frac{\operatorname{E}[X^3] - 3\mu(\operatorname E[X^2] -\mu\operatorname E[X]) - \mu^3}{\sigma^3}\\
-     &= \frac{\operatorname{E}[X^3] - 3\mu\sigma^2 - \mu^3}{\sigma^3}.
-\end{align}
- $$
+$$\begin{aligned}
+\tilde{\mu}_3
+&= \operatorname{E}\left[\left(\frac{X-\mu}{\sigma}\right)^3 \right] \\
+&= \frac{\operatorname{E}[X^3] - 3\mu\operatorname E[X^2] + 3\mu^2\operatorname E[X] - \mu^3}{\sigma^3}\\
+&= \frac{\operatorname{E}[X^3] - 3\mu(\operatorname E[X^2] -\mu\operatorname E[X]) - \mu^3}{\sigma^3}\\
+&= \frac{\operatorname{E}[X^3] - 3\mu\sigma^2 - \mu^3}{\sigma^3}.
+\end{aligned}$$
+
 
 ```{r}
 # by hand
