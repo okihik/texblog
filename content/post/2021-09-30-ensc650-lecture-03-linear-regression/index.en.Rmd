@@ -62,14 +62,26 @@ $$\rho_{k} = \frac{\sum_{i=1}^{N-k}(X_{i} - \bar{X})(X_{i+k} -
          \bar{X})} {\sum_{i=1}^{N}(X_{i} - \bar{X})^{2} }
 $$
 ```{r}
+#define data
+x <- c(22, 24, 25, 25, 28, 29, 34, 37, 40, 44, 51, 48, 47, 50, 51)
+library(tseries)
 
+#calculate autocorrelations
+acf(x,pl=F)
+#plot
+acf(x)
 ```
 
 
 # Correlation Matrix
-
+The correlation matrix of $n$ random variables $X_{1},\ldots ,X_{n}$ is the $n\times n$ matrix whose $(i,j)$ entry is ${\displaystyle \operatorname {corr} (X_{i},X_{j})}$.
+Thus the diagonal entries are all identically unity or one, and the matrix is symmetric. 
 ```{r}
-
+source("http://www.sthda.com/upload/rquery_cormat.r")
+library("corrplot")
+mydata <- mtcars[, c(1,3,4,5,6,7)]
+cor(mydata)
+rquery.cormat(mydata)
 ```
 
 #Regression
@@ -81,12 +93,48 @@ $$
 
 
 # Decomposion of Variance
+law of total variance
+$$\operatorname{Var}[X]=\operatorname{E}(\operatorname{Var}[X\mid Y])+\operatorname{Var}(\operatorname{E}[X\mid Y]).$$
+the "unexplained" and the "explained" components of the variance.\
+The conditional expectation $\operatorname E(X\mid Y)$, and the conditional variance $\operatorname{Var}(X\mid Y)$
 
+ 
+Proof:
+The definition of Variance is:
+$$\operatorname{Var}[Y] = \operatorname{E}[Y^2] - \operatorname{E}[Y]^2$$
+Then applying the law of total expectation,
+$$\begin{align}
+\operatorname{E}[Y^2] &= \operatorname{E} \left[\operatorname{Var}[Y\mid X] + [\operatorname{E}[Y\mid X]]^2\right]\\
+\operatorname{E}[Y^2] - \operatorname{E}[Y]^2 &= \operatorname{E} \left[\operatorname{Var}[Y\mid X] + [\operatorname{E}[Y\mid X]]^2\right] - [\operatorname{E} [\operatorname{E}[Y\mid X]]]^2\\
+&= \left(\operatorname{E} [\operatorname{Var}[Y\mid X]]\right) + \left(\operatorname{E} [\operatorname{E}[Y\mid X]^2] - \operatorname{E} [\operatorname{E}[Y\mid X]]^2\right)\\
+&= \operatorname{E} [\operatorname{Var}[Y\mid X]] + \operatorname{Var} [\operatorname{E}[Y\mid X]]
+\end{align}$$
+
+Similar decomposition:
+$$\mathit{SS}_\text{total} = \mathit{SS}_\text{between} + \mathit{SS}_\text{within},$$
+$$\mathit{SS}_\text{total} = \mathit{SS}_\text{regression} + \mathit{SS}_\text{residual}.$$
+
+$$\begin{align}
+SST &= \sum\left(Y-\bar{Y}\right)^2\\
+&= \sum\left(Y - \hat{Y} + \hat{Y} - \bar{Y}\right)^2\\
+&= \sum\left[\left(Y - \hat{Y}\right)^2 + \left(\hat{Y} - \bar{Y}\right)^2 + 2\left(Y - \hat{Y}\right)\left(\hat{Y} - \bar{Y}\right)\right]\\
+&= \sum\left(Y - \hat{Y}\right)^2 + \sum\left(\hat{Y} - \bar{Y}\right)^2 + 2\sum\left(Y - \hat{Y}\right)\left(\hat{Y} - \bar{Y}\right)\\
+&= SSE + SSR + 0
+\end{align}$$
+
+$$R^2 = \frac{SSR}{SST} = 1-\frac{SSE}{SST}$$
 
 # Significance test of Regression
+$H_0: \hat\beta = 0$\
+$H_a: \hat\beta \neq 0$, at least one of $\beta$
 
-
+F: Test statistic
+$$\begin{align}
+F &= \frac{\frac{SSR}{k}}{\frac{SSE}{N-k-1}}\\
+&= \frac{\frac{R^2}{k}}{\frac{1-R^2}{N-k-1}}
+\end{align}$$
 ```{r}
-
+mfit <- lm(mpg~am + cyl + wt + hp, data = mtcars)
+summary(mfit)
 ```
 

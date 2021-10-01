@@ -49,19 +49,157 @@ cor(x,y)</code></pre>
 </li>
 <li><span class="math inline">\(H_a: \rho \neq 0\)</span>(meaning that there is a linear relationship between the two variables)</li>
 </ul>
-<p><span class="math display">\[t = \rho\sqrt(\frac{N-2}{1-\rho}) \sim \text{t-distribution(N-2)}\]</span>
-d.f.= <span class="math inline">\(N-2\)</span>,</p>
+<p><span class="math display">\[t = \rho\sqrt{\frac{N-2}{1-\rho^2}} \sim \text{t-distribution(N-2)}\]</span>
+d.f.= <span class="math inline">\(N-2\)</span></p>
+<pre class="r"><code>r &lt;- cor(x,y)
+N &lt;- length(x)
+t = r*sqrt((N-2)/(1-r^2))
+t</code></pre>
+<pre><code>## [1] 0.4330127</code></pre>
+<pre class="r"><code>pt(t,df=N-2, lower.tail = FALSE)*2</code></pre>
+<pre><code>## [1] 0.7398531</code></pre>
+<pre class="r"><code>cor.test(x,y)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  x and y
+## t = 0.43301, df = 1, p-value = 0.7399
+## alternative hypothesis: true correlation is not equal to 0
+## sample estimates:
+##       cor 
+## 0.3973597</code></pre>
 </div>
 <div id="autocorrelation" class="section level1">
 <h1>Autocorrelation</h1>
+<p>In time series data, assess whether a time series is dependent on its past.
+<span class="math display">\[\rho_{k} = \frac{\sum_{i=1}^{N-k}(X_{i} - \bar{X})(X_{i+k} - 
+         \bar{X})} {\sum_{i=1}^{N}(X_{i} - \bar{X})^{2} }
+\]</span></p>
+<pre class="r"><code>#define data
+x &lt;- c(22, 24, 25, 25, 28, 29, 34, 37, 40, 44, 51, 48, 47, 50, 51)
+library(tseries)</code></pre>
+<pre><code>## Registered S3 method overwritten by &#39;quantmod&#39;:
+##   method            from
+##   as.zoo.data.frame zoo</code></pre>
+<pre class="r"><code>#calculate autocorrelations
+acf(x,pl=F)</code></pre>
+<pre><code>## 
+## Autocorrelations of series &#39;x&#39;, by lag
+## 
+##      0      1      2      3      4      5      6      7      8      9     10 
+##  1.000  0.832  0.656  0.491  0.279  0.031 -0.165 -0.304 -0.401 -0.458 -0.450 
+##     11 
+## -0.369</code></pre>
+<pre class="r"><code>#plot
+acf(x)</code></pre>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 </div>
 <div id="correlation-matrix" class="section level1">
 <h1>Correlation Matrix</h1>
+<p>The correlation matrix of <span class="math inline">\(n\)</span> random variables <span class="math inline">\(X_{1},\ldots ,X_{n}\)</span> is the <span class="math inline">\(n\times n\)</span> matrix whose <span class="math inline">\((i,j)\)</span> entry is <span class="math inline">\({\displaystyle \operatorname {corr} (X_{i},X_{j})}\)</span>.
+Thus the diagonal entries are all identically unity or one, and the matrix is symmetric.</p>
+<pre class="r"><code>source(&quot;http://www.sthda.com/upload/rquery_cormat.r&quot;)
+library(&quot;corrplot&quot;)</code></pre>
+<pre><code>## corrplot 0.90 loaded</code></pre>
+<pre class="r"><code>mydata &lt;- mtcars[, c(1,3,4,5,6,7)]
+cor(mydata)</code></pre>
+<pre><code>##             mpg       disp         hp        drat         wt        qsec
+## mpg   1.0000000 -0.8475514 -0.7761684  0.68117191 -0.8676594  0.41868403
+## disp -0.8475514  1.0000000  0.7909486 -0.71021393  0.8879799 -0.43369788
+## hp   -0.7761684  0.7909486  1.0000000 -0.44875912  0.6587479 -0.70822339
+## drat  0.6811719 -0.7102139 -0.4487591  1.00000000 -0.7124406  0.09120476
+## wt   -0.8676594  0.8879799  0.6587479 -0.71244065  1.0000000 -0.17471588
+## qsec  0.4186840 -0.4336979 -0.7082234  0.09120476 -0.1747159  1.00000000</code></pre>
+<pre class="r"><code>rquery.cormat(mydata)</code></pre>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre><code>## $r
+##         hp  disp    wt  qsec  mpg drat
+## hp       1                            
+## disp  0.79     1                      
+## wt    0.66  0.89     1                
+## qsec -0.71 -0.43 -0.17     1          
+## mpg  -0.78 -0.85 -0.87  0.42    1     
+## drat -0.45 -0.71 -0.71 0.091 0.68    1
+## 
+## $p
+##           hp    disp      wt  qsec     mpg drat
+## hp         0                                   
+## disp 7.1e-08       0                           
+## wt   4.1e-05 1.2e-11       0                   
+## qsec 5.8e-06   0.013    0.34     0             
+## mpg  1.8e-07 9.4e-10 1.3e-10 0.017       0     
+## drat    0.01 5.3e-06 4.8e-06  0.62 1.8e-05    0
+## 
+## $sym
+##      hp disp wt qsec mpg drat
+## hp   1                       
+## disp ,  1                    
+## wt   ,  +    1               
+## qsec ,  .       1            
+## mpg  ,  +    +  .    1       
+## drat .  ,    ,       ,   1   
+## attr(,&quot;legend&quot;)
+## [1] 0 &#39; &#39; 0.3 &#39;.&#39; 0.6 &#39;,&#39; 0.8 &#39;+&#39; 0.9 &#39;*&#39; 0.95 &#39;B&#39; 1</code></pre>
 <p>#Regression</p>
 </div>
 <div id="decomposion-of-variance" class="section level1">
 <h1>Decomposion of Variance</h1>
+<p>law of total variance
+<span class="math display">\[\operatorname{Var}[X]=\operatorname{E}(\operatorname{Var}[X\mid Y])+\operatorname{Var}(\operatorname{E}[X\mid Y]).\]</span>
+the “unexplained” and the “explained” components of the variance.<br />
+The conditional expectation <span class="math inline">\(\operatorname E(X\mid Y)\)</span>, and the conditional variance <span class="math inline">\(\operatorname{Var}(X\mid Y)\)</span></p>
+<p>Proof:
+The definition of Variance is:
+<span class="math display">\[\operatorname{Var}[Y] = \operatorname{E}[Y^2] - \operatorname{E}[Y]^2\]</span>
+Then applying the law of total expectation,
+<span class="math display">\[\begin{align}
+\operatorname{E}[Y^2] &amp;= \operatorname{E} \left[\operatorname{Var}[Y\mid X] + [\operatorname{E}[Y\mid X]]^2\right]\\
+\operatorname{E}[Y^2] - \operatorname{E}[Y]^2 &amp;= \operatorname{E} \left[\operatorname{Var}[Y\mid X] + [\operatorname{E}[Y\mid X]]^2\right] - [\operatorname{E} [\operatorname{E}[Y\mid X]]]^2\\
+&amp;= \left(\operatorname{E} [\operatorname{Var}[Y\mid X]]\right) + \left(\operatorname{E} [\operatorname{E}[Y\mid X]^2] - \operatorname{E} [\operatorname{E}[Y\mid X]]^2\right)\\
+&amp;= \operatorname{E} [\operatorname{Var}[Y\mid X]] + \operatorname{Var} [\operatorname{E}[Y\mid X]]
+\end{align}\]</span></p>
+<p>Similar decomposition:
+<span class="math display">\[\mathit{SS}_\text{total} = \mathit{SS}_\text{between} + \mathit{SS}_\text{within},\]</span>
+<span class="math display">\[\mathit{SS}_\text{total} = \mathit{SS}_\text{regression} + \mathit{SS}_\text{residual}.\]</span></p>
+<p><span class="math display">\[\begin{align}
+SST &amp;= \sum\left(Y-\bar{Y}\right)^2\\
+&amp;= \sum\left(Y - \hat{Y} + \hat{Y} - \bar{Y}\right)^2\\
+&amp;= \sum\left[\left(Y - \hat{Y}\right)^2 + \left(\hat{Y} - \bar{Y}\right)^2 + 2\left(Y - \hat{Y}\right)\left(\hat{Y} - \bar{Y}\right)\right]\\
+&amp;= \sum\left(Y - \hat{Y}\right)^2 + \sum\left(\hat{Y} - \bar{Y}\right)^2 + 2\sum\left(Y - \hat{Y}\right)\left(\hat{Y} - \bar{Y}\right)\\
+&amp;= SSE + SSR + 0
+\end{align}\]</span></p>
+<p><span class="math display">\[R^2 = \frac{SSR}{SST} = 1-\frac{SSE}{SST}\]</span></p>
 </div>
 <div id="significance-test-of-regression" class="section level1">
 <h1>Significance test of Regression</h1>
+<p><span class="math inline">\(H_0: \hat\beta = 0\)</span><br />
+<span class="math inline">\(H_a: \hat\beta \neq 0\)</span>, at least one of <span class="math inline">\(\beta\)</span></p>
+<p>F: Test statistic
+<span class="math display">\[\begin{align}
+F &amp;= \frac{\frac{SSR}{k}}{\frac{SSE}{N-k-1}}\\
+&amp;= \frac{\frac{R^2}{k}}{\frac{1-R^2}{N-k-1}}
+\end{align}\]</span></p>
+<pre class="r"><code>mfit &lt;- lm(mpg~am + cyl + wt + hp, data = mtcars)
+summary(mfit)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ am + cyl + wt + hp, data = mtcars)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -3.4765 -1.8471 -0.5544  1.2758  5.6608 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 36.14654    3.10478  11.642 4.94e-12 ***
+## am           1.47805    1.44115   1.026   0.3142    
+## cyl         -0.74516    0.58279  -1.279   0.2119    
+## wt          -2.60648    0.91984  -2.834   0.0086 ** 
+## hp          -0.02495    0.01365  -1.828   0.0786 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 2.509 on 27 degrees of freedom
+## Multiple R-squared:  0.849,  Adjusted R-squared:  0.8267 
+## F-statistic: 37.96 on 4 and 27 DF,  p-value: 1.025e-10</code></pre>
 </div>
