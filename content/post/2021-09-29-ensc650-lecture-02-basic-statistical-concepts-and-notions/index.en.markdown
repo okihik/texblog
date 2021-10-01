@@ -136,9 +136,9 @@ pie3D(slices,labels=lbls,explode=0.1,
 relationship between two variables
 
 ```r
-# Simple Scatterplot
+# Simple Scatterplot mtcars
 attach(mtcars)
-plot(wt, mpg, main="Scatterplot Example", 
+plot(mtcars$wt, mtcars$mpg, main="Scatterplot Example", 
    xlab="Car Weight ", ylab="Miles Per Gallon ", pch=19)
 
 # Add fit lines
@@ -165,6 +165,25 @@ scatterplot(mpg ~ wt | cyl, data = mtcars,
 ```
 
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-5-2.png" width="672" />
+
+```r
+scatterplot(wt ~ mpg, data = mtcars)
+```
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-5-3.png" width="672" />
+
+```r
+# Prepare the data set
+x <- iris$Sepal.Length
+y <- iris$Sepal.Width
+z <- iris$Petal.Length
+grps <- as.factor(iris$Species)
+# Plot
+library(scatterplot3d)
+scatterplot3d(x, y, z, pch = 16)
+```
+
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-5-4.png" width="672" />
 
 # Measurement of Central Tendency
 ## Mean

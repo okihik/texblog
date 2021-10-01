@@ -106,6 +106,7 @@ pie3D(slices,labels=lbls,explode=0.1,
 relationship between two variables
 ```{r}
 # Simple Scatterplot mtcars
+attach(mtcars)
 plot(mtcars$wt, mtcars$mpg, main="Scatterplot Example", 
    xlab="Car Weight ", ylab="Miles Per Gallon ", pch=19)
 
