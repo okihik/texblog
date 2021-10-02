@@ -8,8 +8,10 @@ tags:
   - R
 ---
 # Correlation $\rho_{xy}$
-statistical relationship between two variables
+statistical relationship between two variables\
+
 $-1 \le r_{xy} \le +1$.
+
 $$
 \begin{align}\rho_{X,Y} &= \operatorname{cor}(X,Y) \\
 &= {\operatorname{cov}(X,Y) \over \sigma_X \sigma_Y} \\
@@ -85,12 +87,53 @@ rquery.cormat(mydata)
 ```
 
 #Regression
-
+a linear relation between a dependent variable $y$ and one or more independent variables, $x$.\
+## Simple Linear Model
+$$Y_i = \alpha + \beta X_i + \varepsilon_i.$$
+* $Y$ is the random response for the i-th case\
+* $\alpha$, $\beta$ are parameters\
+* $X_i$ is a know constant, the value of the predictor varialbe for the i-th case\
+* $\epsilon_i$ is a random error term, such that:
+  + $\operatorname{E}(\epsilon_i)=0$
+  + $\operatorname{\sigma^2}(epsilon_i)=\sigma^2$
+  + $\operatorname{\sigma}(Y_i,Y_j), \forall i,j\ni i\neq j$.
+  
+$$\begin{align}
+\widehat\beta &= \frac{\sum_{i=1}^n (x_i - \bar{x})(y_i -\bar{y})}{ \sum_{i=1}^n (x_i - \bar{x})^2 } \\
+            &= \frac{ s_{x, y} }{ s^2_{x} } \\
+            &= r_{xy} \frac{s_y}{s_x}. \\
+ \widehat\alpha & = \bar{y} - (  \widehat\beta\,\bar{x}), \\
+\end{align}$$
+* $\bar x$ and $\bar y$ as the average of the $x_i$ and $y_i$, respectively\
+* $r_xy$ as the sample correlation coefficient between $x$ and $y$\
+* $s_x$ and $s_y$ as the uncorrected sample standard deviations of $x$ and $y$\
+* $s^2_x$ and $s_{x,y}$ as the sample variance and sample covariance, respectively
 
 ```{r}
+x <- mtcars$wt
+y <- mtcars$mpg
+lm(x~y, data = data.frame(x,y))
 
 ```
 
+### Homework: $\sigma_e^2 = \sigma_y^2(1-\rho_{x,y})$
+
+$$\begin{align}
+\sigma_e^2 &= Var(e)\\
+&= Var(Y-\hat{Y})\\
+&= Var\left(\left(Y-\bar{Y}\right)-\left(\hat{Y}-\bar{Y}\right)\right)\\
+&= Var(Y-\bar{Y})+Var(\hat{Y}-\bar{Y})-2Cov(Y-\bar{Y},\hat{Y}-\bar{Y})\\
+&= Var(Y-\bar{Y})+Var(\alpha+\beta X-\bar{Y})-2Cov(Y-\bar{Y},\alpha+\beta X-\bar{Y})\\
+&= Var(Y-\bar{Y})+Var(\bar{Y}-\beta \bar{X}+\beta X-\bar{Y})-2Cov(Y-\bar{Y},\bar{Y}-\beta \bar{X}+\beta X-\bar{Y})\\
+&= Var(Y-\bar{Y}) + Var(\beta \bar{X}-\beta X)-2Cov(Y-\bar{Y},\beta \bar{X}-\beta X)\\
+&= Var(Y-\bar{Y}) + \beta^2Var(X-\bar{X})-2\beta Cov(Y-\bar{Y},X-\bar{X})\\
+&= Var(Y) + \beta^2Var(X)-2\beta Cov(Y,X)\\
+&= Var(Y) + \left(\frac{Cov(X,Y)}{Var(X)}\right)^2Var(X)-2\left(\frac{Cov(X,Y)}{Var(X)}\right) Cov(Y,X)\\
+&= Var(Y) + \frac{Cov(X,Y)^2}{Var(X)}-\frac{2Cov(X,Y)^2}{Var(X)}\\
+&= Var(Y) -\frac{Cov(X,Y)^2}{Var(X)}\\
+&= Var(Y)\left[1 -\left(\frac{Cov(X,Y)^2}{Var(X)Var(Y)}\right)\right]\\
+&= \sigma_y^2 \left(1 - \rho_{xy}^2\right)
+\end{align}$$
 
 # Decomposion of Variance
 law of total variance

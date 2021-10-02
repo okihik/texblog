@@ -13,9 +13,10 @@ tags:
 
 <div id="correlation-rho_xy" class="section level1">
 <h1>Correlation <span class="math inline">\(\rho_{xy}\)</span></h1>
-<p>statistical relationship between two variables
-<span class="math inline">\(-1 \le r_{xy} \le +1\)</span>.
-<span class="math display">\[
+<p>statistical relationship between two variables<br />
+</p>
+<p><span class="math inline">\(-1 \le r_{xy} \le +1\)</span>.</p>
+<p><span class="math display">\[
 \begin{align}\rho_{X,Y} &amp;= \operatorname{cor}(X,Y) \\
 &amp;= {\operatorname{cov}(X,Y) \over \sigma_X \sigma_Y} \\
 &amp;= {\operatorname{E}[(X-\mu_X)(Y-\mu_Y)] \over \sigma_X\sigma_Y}\\
@@ -140,7 +141,56 @@ cor(mydata)</code></pre>
 ## drat .  ,    ,       ,   1   
 ## attr(,&quot;legend&quot;)
 ## [1] 0 &#39; &#39; 0.3 &#39;.&#39; 0.6 &#39;,&#39; 0.8 &#39;+&#39; 0.9 &#39;*&#39; 0.95 &#39;B&#39; 1</code></pre>
-<p>#Regression</p>
+<p>#Regression
+a linear relation between a dependent variable <span class="math inline">\(y\)</span> and one or more independent variables, <span class="math inline">\(x\)</span>.<br />
+## Simple Linear Model
+<span class="math display">\[Y_i = \alpha + \beta X_i + \varepsilon_i.\]</span>
+* <span class="math inline">\(Y\)</span> is the random response for the i-th case<br />
+* <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span> are parameters<br />
+* <span class="math inline">\(X_i\)</span> is a know constant, the value of the predictor varialbe for the i-th case<br />
+* <span class="math inline">\(\epsilon_i\)</span> is a random error term, such that:
++ <span class="math inline">\(\operatorname{E}(\epsilon_i)=0\)</span>
++ <span class="math inline">\(\operatorname{\sigma^2}(epsilon_i)=\sigma^2\)</span>
++ <span class="math inline">\(\operatorname{\sigma}(Y_i,Y_j), \forall i,j\ni i\neq j\)</span>.</p>
+<p><span class="math display">\[\begin{align}
+\widehat\beta &amp;= \frac{\sum_{i=1}^n (x_i - \bar{x})(y_i -\bar{y})}{ \sum_{i=1}^n (x_i - \bar{x})^2 } \\
+            &amp;= \frac{ s_{x, y} }{ s^2_{x} } \\
+            &amp;= r_{xy} \frac{s_y}{s_x}. \\
+ \widehat\alpha &amp; = \bar{y} - (  \widehat\beta\,\bar{x}), \\
+\end{align}\]</span>
+* <span class="math inline">\(\bar x\)</span> and <span class="math inline">\(\bar y\)</span> as the average of the <span class="math inline">\(x_i\)</span> and <span class="math inline">\(y_i\)</span>, respectively<br />
+* <span class="math inline">\(r_xy\)</span> as the sample correlation coefficient between <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span><br />
+* <span class="math inline">\(s_x\)</span> and <span class="math inline">\(s_y\)</span> as the uncorrected sample standard deviations of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span><br />
+* <span class="math inline">\(s^2_x\)</span> and <span class="math inline">\(s_{x,y}\)</span> as the sample variance and sample covariance, respectively</p>
+<pre class="r"><code>x &lt;- mtcars$wt
+y &lt;- mtcars$mpg
+lm(x~y, data = data.frame(x,y))</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = x ~ y, data = data.frame(x, y))
+## 
+## Coefficients:
+## (Intercept)            y  
+##      6.0473      -0.1409</code></pre>
+<div id="homework-sigma_e2-sigma_y21-rho_xy" class="section level3">
+<h3>Homework: <span class="math inline">\(\sigma_e^2 = \sigma_y^2(1-\rho_{x,y})\)</span></h3>
+<p><span class="math display">\[\begin{align}
+\sigma_e^2 &amp;= Var(e)\\
+&amp;= Var(Y-\hat{Y})\\
+&amp;= Var\left(\left(Y-\bar{Y}\right)-\left(\hat{Y}-\bar{Y}\right)\right)\\
+&amp;= Var(Y-\bar{Y})+Var(\hat{Y}-\bar{Y})-2Cov(Y-\bar{Y},\hat{Y}-\bar{Y})\\
+&amp;= Var(Y-\bar{Y})+Var(\alpha+\beta X-\bar{Y})-2Cov(Y-\bar{Y},\alpha+\beta X-\bar{Y})\\
+&amp;= Var(Y-\bar{Y})+Var(\bar{Y}-\beta \bar{X}+\beta X-\bar{Y})-2Cov(Y-\bar{Y},\bar{Y}-\beta \bar{X}+\beta X-\bar{Y})\\
+&amp;= Var(Y-\bar{Y}) + Var(\beta \bar{X}-\beta X)-2Cov(Y-\bar{Y},\beta \bar{X}-\beta X)\\
+&amp;= Var(Y-\bar{Y}) + \beta^2Var(X-\bar{X})-2\beta Cov(Y-\bar{Y},X-\bar{X})\\
+&amp;= Var(Y) + \beta^2Var(X)-2\beta Cov(Y,X)\\
+&amp;= Var(Y) + \left(\frac{Cov(X,Y)}{Var(X)}\right)^2Var(X)-2\left(\frac{Cov(X,Y)}{Var(X)}\right) Cov(Y,X)\\
+&amp;= Var(Y) + \frac{Cov(X,Y)^2}{Var(X)}-\frac{2Cov(X,Y)^2}{Var(X)}\\
+&amp;= Var(Y) -\frac{Cov(X,Y)^2}{Var(X)}\\
+&amp;= Var(Y)\left[1 -\left(\frac{Cov(X,Y)^2}{Var(X)Var(Y)}\right)\right]\\
+&amp;= \sigma_y^2 \left(1 - \rho_{xy}^2\right)
+\end{align}\]</span></p>
+</div>
 </div>
 <div id="decomposion-of-variance" class="section level1">
 <h1>Decomposion of Variance</h1>
