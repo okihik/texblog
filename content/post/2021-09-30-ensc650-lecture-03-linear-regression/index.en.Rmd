@@ -18,8 +18,8 @@ $$
 &= {\operatorname{E}[(X-\mu_X)(Y-\mu_Y)] \over \sigma_X\sigma_Y}\\
 &= \frac {\operatorname{E}(XY)-\operatorname{E}(X)\operatorname{E}(Y)}{ \sqrt{\operatorname{E}(X^2)-\operatorname{E}(X)^2}\cdot \sqrt{\operatorname{E}(Y^2)-\operatorname{E}(Y)^2}}
 \end{align}$$
-$$\begin{align}
 
+$$\begin{align}
 X,Y \text{ independent} \quad & \Rightarrow \quad \rho_{X,Y} = 0 \quad (X,Y \text{ uncorrelated})\\
 \rho_{X,Y} = 0 \quad (X,Y \text{ uncorrelated})\quad & \nRightarrow \quad X,Y \text{ independent}
 \end{align}$$
