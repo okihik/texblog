@@ -86,16 +86,17 @@ cor(mydata)
 rquery.cormat(mydata)
 ```
 
-#Regression
+# Regression
 a linear relation between a dependent variable $y$ and one or more independent variables, $x$.\
+
 ## Simple Linear Model
 $$Y_i = \alpha + \beta X_i + \varepsilon_i.$$
-* $Y$ is the random response for the i-th case\
+* item $Y$ is the random response for the i-th case\
 * $\alpha$, $\beta$ are parameters\
 * $X_i$ is a know constant, the value of the predictor varialbe for the i-th case\
-* $\epsilon_i$ is a random error term, such that:
-  + $\operatorname{E}(\epsilon_i)=0$
-  + $\operatorname{\sigma^2}(epsilon_i)=\sigma^2$
+* $\epsilon_i$ is a random error term, such that:\
+  + $\operatorname{E}(\epsilon_i)=0$\
+  + $\operatorname{\sigma^2}(\epsilon_i)=\sigma^2$\
   + $\operatorname{\sigma}(Y_i,Y_j), \forall i,j\ni i\neq j$.
   
 $$\begin{align}
@@ -113,10 +114,9 @@ $$\begin{align}
 x <- mtcars$wt
 y <- mtcars$mpg
 lm(x~y, data = data.frame(x,y))
-
 ```
 
-### Homework: $\sigma_e^2 = \sigma_y^2(1-\rho_{x,y})$
+### Homework: $\sigma_e^2 = \sigma_y^2(1-\rho_{xy})$
 
 $$\begin{align}
 \sigma_e^2 &= Var(e)\\

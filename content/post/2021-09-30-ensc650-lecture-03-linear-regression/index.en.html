@@ -140,16 +140,20 @@ cor(mydata)</code></pre>
 ## drat .  ,    ,       ,   1   
 ## attr(,&quot;legend&quot;)
 ## [1] 0 &#39; &#39; 0.3 &#39;.&#39; 0.6 &#39;,&#39; 0.8 &#39;+&#39; 0.9 &#39;*&#39; 0.95 &#39;B&#39; 1</code></pre>
-<p>#Regression
-a linear relation between a dependent variable <span class="math inline">\(y\)</span> and one or more independent variables, <span class="math inline">\(x\)</span>.<br />
-## Simple Linear Model
-<span class="math display">\[Y_i = \alpha + \beta X_i + \varepsilon_i.\]</span>
-* <span class="math inline">\(Y\)</span> is the random response for the i-th case<br />
+</div>
+<div id="regression" class="section level1">
+<h1>Regression</h1>
+<p>a linear relation between a dependent variable <span class="math inline">\(y\)</span> and one or more independent variables, <span class="math inline">\(x\)</span>.<br />
+</p>
+<div id="simple-linear-model" class="section level2">
+<h2>Simple Linear Model</h2>
+<p><span class="math display">\[Y_i = \alpha + \beta X_i + \varepsilon_i.\]</span>
+* item <span class="math inline">\(Y\)</span> is the random response for the i-th case<br />
 * <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span> are parameters<br />
 * <span class="math inline">\(X_i\)</span> is a know constant, the value of the predictor varialbe for the i-th case<br />
-* <span class="math inline">\(\epsilon_i\)</span> is a random error term, such that:
-+ <span class="math inline">\(\operatorname{E}(\epsilon_i)=0\)</span>
-+ <span class="math inline">\(\operatorname{\sigma^2}(epsilon_i)=\sigma^2\)</span>
+* <span class="math inline">\(\epsilon_i\)</span> is a random error term, such that:<br />
++ <span class="math inline">\(\operatorname{E}(\epsilon_i)=0\)</span><br />
++ <span class="math inline">\(\operatorname{\sigma^2}(\epsilon_i)=\sigma^2\)</span><br />
 + <span class="math inline">\(\operatorname{\sigma}(Y_i,Y_j), \forall i,j\ni i\neq j\)</span>.</p>
 <p><span class="math display">\[\begin{align}
 \widehat\beta &amp;= \frac{\sum_{i=1}^n (x_i - \bar{x})(y_i -\bar{y})}{ \sum_{i=1}^n (x_i - \bar{x})^2 } \\
@@ -172,7 +176,7 @@ lm(x~y, data = data.frame(x,y))</code></pre>
 ## (Intercept)            y  
 ##      6.0473      -0.1409</code></pre>
 <div id="homework-sigma_e2-sigma_y21-rho_xy" class="section level3">
-<h3>Homework: <span class="math inline">\(\sigma_e^2 = \sigma_y^2(1-\rho_{x,y})\)</span></h3>
+<h3>Homework: <span class="math inline">\(\sigma_e^2 = \sigma_y^2(1-\rho_{xy})\)</span></h3>
 <p><span class="math display">\[\begin{align}
 \sigma_e^2 &amp;= Var(e)\\
 &amp;= Var(Y-\hat{Y})\\
@@ -189,6 +193,7 @@ lm(x~y, data = data.frame(x,y))</code></pre>
 &amp;= Var(Y)\left[1 -\left(\frac{Cov(X,Y)^2}{Var(X)Var(Y)}\right)\right]\\
 &amp;= \sigma_y^2 \left(1 - \rho_{xy}^2\right)
 \end{align}\]</span></p>
+</div>
 </div>
 </div>
 <div id="decomposion-of-variance" class="section level1">
