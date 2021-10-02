@@ -91,7 +91,8 @@ a linear relation between a dependent variable $y$ and one or more independent v
 
 ## Simple Linear Model
 $$Y_i = \alpha + \beta X_i + \varepsilon_i.$$
-* item $Y$ is the random response for the i-th case\
+
+* $Y$ is the random response for the i-th case\
 * $\alpha$, $\beta$ are parameters\
 * $X_i$ is a know constant, the value of the predictor varialbe for the i-th case\
 * $\epsilon_i$ is a random error term, such that:\
@@ -105,6 +106,7 @@ $$\begin{align}
             &= r_{xy} \frac{s_y}{s_x}. \\
  \widehat\alpha & = \bar{y} - (  \widehat\beta\,\bar{x}), \\
 \end{align}$$
+
 * $\bar x$ and $\bar y$ as the average of the $x_i$ and $y_i$, respectively\
 * $r_xy$ as the sample correlation coefficient between $x$ and $y$\
 * $s_x$ and $s_y$ as the uncorrected sample standard deviations of $x$ and $y$\
@@ -132,6 +134,7 @@ $$\begin{align}
 &= Var(Y) + \frac{Cov(X,Y)^2}{Var(X)}-\frac{2Cov(X,Y)^2}{Var(X)}\\
 &= Var(Y) -\frac{Cov(X,Y)^2}{Var(X)}\\
 &= Var(Y)\left[1 -\left(\frac{Cov(X,Y)^2}{Var(X)Var(Y)}\right)\right]\\
+&= Var(Y)\left[1 -\left(\frac{Cov(X,Y)}{\sqrt{Var(X)}\sqrt{Var(Y)}}\right)^2\right]\\
 &= \sigma_y^2 \left(1 - \rho_{xy}^2\right)
 \end{align}$$
 

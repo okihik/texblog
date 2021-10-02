@@ -147,24 +147,39 @@ cor(mydata)</code></pre>
 </p>
 <div id="simple-linear-model" class="section level2">
 <h2>Simple Linear Model</h2>
-<p><span class="math display">\[Y_i = \alpha + \beta X_i + \varepsilon_i.\]</span>
-* item <span class="math inline">\(Y\)</span> is the random response for the i-th case<br />
-* <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span> are parameters<br />
-* <span class="math inline">\(X_i\)</span> is a know constant, the value of the predictor varialbe for the i-th case<br />
-* <span class="math inline">\(\epsilon_i\)</span> is a random error term, such that:<br />
-+ <span class="math inline">\(\operatorname{E}(\epsilon_i)=0\)</span><br />
-+ <span class="math inline">\(\operatorname{\sigma^2}(\epsilon_i)=\sigma^2\)</span><br />
-+ <span class="math inline">\(\operatorname{\sigma}(Y_i,Y_j), \forall i,j\ni i\neq j\)</span>.</p>
+<p><span class="math display">\[Y_i = \alpha + \beta X_i + \varepsilon_i.\]</span></p>
+<ul>
+<li><span class="math inline">\(Y\)</span> is the random response for the i-th case<br />
+</li>
+<li><span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span> are parameters<br />
+</li>
+<li><span class="math inline">\(X_i\)</span> is a know constant, the value of the predictor varialbe for the i-th case<br />
+</li>
+<li><span class="math inline">\(\epsilon_i\)</span> is a random error term, such that:<br />
+
+<ul>
+<li><span class="math inline">\(\operatorname{E}(\epsilon_i)=0\)</span><br />
+</li>
+<li><span class="math inline">\(\operatorname{\sigma^2}(\epsilon_i)=\sigma^2\)</span><br />
+</li>
+<li><span class="math inline">\(\operatorname{\sigma}(Y_i,Y_j), \forall i,j\ni i\neq j\)</span>.</li>
+</ul></li>
+</ul>
 <p><span class="math display">\[\begin{align}
 \widehat\beta &amp;= \frac{\sum_{i=1}^n (x_i - \bar{x})(y_i -\bar{y})}{ \sum_{i=1}^n (x_i - \bar{x})^2 } \\
             &amp;= \frac{ s_{x, y} }{ s^2_{x} } \\
             &amp;= r_{xy} \frac{s_y}{s_x}. \\
  \widehat\alpha &amp; = \bar{y} - (  \widehat\beta\,\bar{x}), \\
-\end{align}\]</span>
-* <span class="math inline">\(\bar x\)</span> and <span class="math inline">\(\bar y\)</span> as the average of the <span class="math inline">\(x_i\)</span> and <span class="math inline">\(y_i\)</span>, respectively<br />
-* <span class="math inline">\(r_xy\)</span> as the sample correlation coefficient between <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span><br />
-* <span class="math inline">\(s_x\)</span> and <span class="math inline">\(s_y\)</span> as the uncorrected sample standard deviations of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span><br />
-* <span class="math inline">\(s^2_x\)</span> and <span class="math inline">\(s_{x,y}\)</span> as the sample variance and sample covariance, respectively</p>
+\end{align}\]</span></p>
+<ul>
+<li><span class="math inline">\(\bar x\)</span> and <span class="math inline">\(\bar y\)</span> as the average of the <span class="math inline">\(x_i\)</span> and <span class="math inline">\(y_i\)</span>, respectively<br />
+</li>
+<li><span class="math inline">\(r_xy\)</span> as the sample correlation coefficient between <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span><br />
+</li>
+<li><span class="math inline">\(s_x\)</span> and <span class="math inline">\(s_y\)</span> as the uncorrected sample standard deviations of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span><br />
+</li>
+<li><span class="math inline">\(s^2_x\)</span> and <span class="math inline">\(s_{x,y}\)</span> as the sample variance and sample covariance, respectively</li>
+</ul>
 <pre class="r"><code>x &lt;- mtcars$wt
 y &lt;- mtcars$mpg
 lm(x~y, data = data.frame(x,y))</code></pre>
@@ -191,6 +206,7 @@ lm(x~y, data = data.frame(x,y))</code></pre>
 &amp;= Var(Y) + \frac{Cov(X,Y)^2}{Var(X)}-\frac{2Cov(X,Y)^2}{Var(X)}\\
 &amp;= Var(Y) -\frac{Cov(X,Y)^2}{Var(X)}\\
 &amp;= Var(Y)\left[1 -\left(\frac{Cov(X,Y)^2}{Var(X)Var(Y)}\right)\right]\\
+&amp;= Var(Y)\left[1 -\left(\frac{Cov(X,Y)}{\sqrt{Var(X)}\sqrt{Var(Y)}}\right)^2\right]\\
 &amp;= \sigma_y^2 \left(1 - \rho_{xy}^2\right)
 \end{align}\]</span></p>
 </div>
