@@ -37,13 +37,13 @@ library(ggplot2)
 ```r
 set.seed(10)
 age <- rnorm(100, 40, 20) 
-sholder <- rnorm(100, 40, 3)
+shoulder <- rnorm(100, 40, 3)
 height <- rnorm(100, 170, 10)
 err <- rnorm(100, 0, 50) 
-income <- 5*age + rnorm(100,10*sholder,70) + 300 + err
-data <-data.frame(age, sholder, height, income) %>%
+income <- 5*age + rnorm(100,10*shoulder,70) + 300 + err
+data <-data.frame(age, shoulder, height, income) %>%
 filter(18<age&age<60) %>%
-mutate(age=round(age), income=round(income), height=round(height), sholder=round(sholder))
+mutate(age=round(age), income=round(income), height=round(height), shoulder=round(shoulder))
 ```
 
 ### Results
@@ -53,13 +53,13 @@ data %>% head()
 ```
 
 ```
-##   age sholder height income
-## 1  40      38    182    949
-## 2  36      41    173   1006
-## 3  28      42    179    929
-## 4  46      38    159    865
-## 5  48      42    175    835
-## 6  33      35    157    786
+##   age shoulder height income
+## 1  40       38    182    949
+## 2  36       41    173   1006
+## 3  28       42    179    929
+## 4  46       38    159    865
+## 5  48       42    175    835
+## 6  33       35    157    786
 ```
 
 ## Regression Analysis
@@ -67,7 +67,7 @@ data %>% head()
 ### R code
 
 ```r
-model <- lm(data=data, income~age+sholder+height)
+model <- lm(data=data, income~age+shoulder+height)
 ```
 ### Results
 
@@ -78,7 +78,7 @@ summary(model)
 ```
 ## 
 ## Call:
-## lm(formula = income ~ age + sholder + height, data = data)
+## lm(formula = income ~ age + shoulder + height, data = data)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -88,7 +88,7 @@ summary(model)
 ##             Estimate Std. Error t value Pr(>|t|)    
 ## (Intercept) 293.0234   269.3576   1.088   0.2806    
 ## age           5.9241     0.9482   6.248 3.28e-08 ***
-## sholder       8.4364     3.7952   2.223   0.0296 *  
+## shoulder      8.4364     3.7952   2.223   0.0296 *  
 ## height        0.2723     1.2235   0.223   0.8245    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -105,24 +105,24 @@ summary(model)
 ```r
 set.seed(1)
 age <- rnorm(100, 40, 20) 
-sholder <- rnorm(100, age, 1)
+shoulder <- rnorm(100, age, 1)
 height <- rnorm(100, 170, 10)
 err <- rnorm(100, 0, 50) 
-income <- 5*age + rnorm(100,10*sholder,70) + 300 + err
-data <-data.frame(age, sholder, height, income) %>%
+income <- 5*age + rnorm(100,10*shoulder,70) + 300 + err
+data <-data.frame(age, shoulder, height, income) %>%
   filter(18<age&age<60) %>%
-  mutate(age=round(age), income=round(income), height=round(height), sholder=round(sholder))
+  mutate(age=round(age), income=round(income), height=round(height), shoulder=round(shoulder))
 data %>% head()
 ```
 
 ```
-##   age sholder height income
-## 1  27      27    174    826
-## 2  44      44    187   1036
-## 3  23      22    186    697
-## 4  47      46    147   1046
-## 5  24      25    195    721
-## 6  50      50    177   1032
+##   age shoulder height income
+## 1  27       27    174    826
+## 2  44       44    187   1036
+## 3  23       22    186    697
+## 4  47       46    147   1046
+## 5  24       25    195    721
+## 6  50       50    177   1032
 ```
 
 ```r
@@ -130,22 +130,22 @@ cor(data[,c(4,1:3)])
 ```
 
 ```
-##             income        age    sholder     height
-## income   1.0000000  0.8705654  0.8768171 -0.2291069
-## age      0.8705654  1.0000000  0.9950794 -0.2797307
-## sholder  0.8768171  0.9950794  1.0000000 -0.2826242
-## height  -0.2291069 -0.2797307 -0.2826242  1.0000000
+##              income        age   shoulder     height
+## income    1.0000000  0.8705654  0.8768171 -0.2291069
+## age       0.8705654  1.0000000  0.9950794 -0.2797307
+## shoulder  0.8768171  0.9950794  1.0000000 -0.2826242
+## height   -0.2291069 -0.2797307 -0.2826242  1.0000000
 ```
 
 ```r
-model <- lm(data=data, income~age+sholder+height)
+model <- lm(data=data, income~age+shoulder+height)
 summary(model)
 ```
 
 ```
 ## 
 ## Call:
-## lm(formula = income ~ age + sholder + height, data = data)
+## lm(formula = income ~ age + shoulder + height, data = data)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
@@ -155,7 +155,7 @@ summary(model)
 ##             Estimate Std. Error t value Pr(>|t|)  
 ## (Intercept) 211.9309   198.3031   1.069   0.2888  
 ## age          -3.6525    10.4760  -0.349   0.7284  
-## sholder      19.4120    10.3242   1.880   0.0642 .
+## shoulder     19.4120    10.3242   1.880   0.0642 .
 ## height        0.3698     1.0634   0.348   0.7291  
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1

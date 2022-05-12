@@ -35,13 +35,13 @@ library(ggplot2)
 ```{r}
 set.seed(10)
 age <- rnorm(100, 40, 20) 
-sholder <- rnorm(100, 40, 3)
+shoulder <- rnorm(100, 40, 3)
 height <- rnorm(100, 170, 10)
 err <- rnorm(100, 0, 50) 
-income <- 5*age + rnorm(100,10*sholder,70) + 300 + err
-data <-data.frame(age, sholder, height, income) %>%
+income <- 5*age + rnorm(100,10*shoulder,70) + 300 + err
+data <-data.frame(age, shoulder, height, income) %>%
 filter(18<age&age<60) %>%
-mutate(age=round(age), income=round(income), height=round(height), sholder=round(sholder))
+mutate(age=round(age), income=round(income), height=round(height), shoulder=round(shoulder))
 ```
 
 ### Results
@@ -53,7 +53,7 @@ data %>% head()
 
 ### R code
 ```{r}
-model <- lm(data=data, income~age+sholder+height)
+model <- lm(data=data, income~age+shoulder+height)
 ```
 ### Results
 ```{r}
@@ -66,17 +66,17 @@ summary(model)
 ```{r}
 set.seed(1)
 age <- rnorm(100, 40, 20) 
-sholder <- rnorm(100, age, 1)
+shoulder <- rnorm(100, age, 1)
 height <- rnorm(100, 170, 10)
 err <- rnorm(100, 0, 50) 
-income <- 5*age + rnorm(100,10*sholder,70) + 300 + err
-data <-data.frame(age, sholder, height, income) %>%
+income <- 5*age + rnorm(100,10*shoulder,70) + 300 + err
+data <-data.frame(age, shoulder, height, income) %>%
   filter(18<age&age<60) %>%
-  mutate(age=round(age), income=round(income), height=round(height), sholder=round(sholder))
+  mutate(age=round(age), income=round(income), height=round(height), shoulder=round(shoulder))
 data %>% head()
 cor(data[,c(4,1:3)])
 
-model <- lm(data=data, income~age+sholder+height)
+model <- lm(data=data, income~age+shoulder+height)
 summary(model)
 ```
 
