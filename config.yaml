@@ -15,6 +15,9 @@ markup:
   goldmark:
     renderer:
       unsafe: yes
+output:
+  blogdown::html_page:
+    toc: true
 menu:
   main:
     - identifier: post
@@ -52,3 +55,4 @@ params:
     label: Comment
     repo: ''
     theme: github-light
+    

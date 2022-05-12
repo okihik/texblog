@@ -1,0 +1,95 @@
+---
+title: Single Linear Regression Analysis
+author: Akihiko Mori
+date: '2022-05-11'
+slug: []
+categories: []
+tags: 
+- Multivariate Analysis with R
+---
+
+## Purpose
+
+We will implement single regression analysis using R. Implemented from the creation of data, the code can be copied and pasted.
+
+## Contents
+1. Prerequisites
+2. Generating Data
+3. Visualization of Data
+4. Analysis
+5. Visualization of Results
+
+## Prerequites
+
+### Library
+```{r, message=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+### Assumptions
+
+## Data
+
+### R Code
+```{r}
+set.seed(10)
+age <- rnorm(100, 40, 20) 
+err <- rnorm(100, 0, 50) 
+income <- 5*age + 300 + err
+data <- data.frame(age, income) %>%
+  filter(18<age&age<60) %>%
+  mutate(age=round(age), income=round(income))
+```
+
+### Results
+```{r}
+data %>% head()
+```
+
+## Visualization of Data
+
+### R Code
+```{r}
+x <- seq(20,60,1)
+plot <- ggplot()+
+  geom_point(aes(data$age, data$income))+
+  theme_classic(base_family = "HiraKakuPro-W3") +
+  theme(text=element_text(size=30)) +
+  labs(x="Age", y="Income", title="Single Linear Regression")
+```
+
+### Results
+```{r}
+plot
+```
+
+## Analysis
+
+### R code
+```{r}
+model <- lm(data=data, income~age)
+```
+### Results
+```{r}
+summary(model)
+```
+
+## Visualization of Results
+
+### R code
+```{r}
+x <- seq(20,60,1)
+plot2 <- ggplot()+
+  geom_point(aes(data$age, data$income))+
+  theme_classic(base_family = "HiraKakuPro-W3") +
+  theme(text=element_text(size=30)) +
+  geom_line(aes(x, model$coefficients[2]*x+model$coefficients[1]), col="blue") +
+  labs(x="Age", y="Income", title="Single Linear Regression")
+```
+
+### Results
+```{r}
+plot2
+```
+
