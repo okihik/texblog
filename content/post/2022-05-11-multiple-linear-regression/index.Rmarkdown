@@ -15,9 +15,8 @@ We will implement single regression analysis using R. Implemented from the creat
 ## Contents
 1. Prerequisites
 2. Generating Data
-3. Visualization of Data
-4. Analysis
-5. Visualization of Results
+3. Regression Analysis
+4. Multicollinearity
 
 ## Prerequites
 
