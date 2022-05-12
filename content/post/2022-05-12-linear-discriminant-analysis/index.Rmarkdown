@@ -1,0 +1,97 @@
+---
+title: Linear Discriminant Analysis
+author: Akihiko Mori
+date: '2022-05-12'
+slug: []
+categories: []
+tags: 
+- Multivariate Analysis with R
+---
+## Purpose
+
+We will implement single regression analysis using R. 
+Implemented from the creation of data, the code can be copied and pasted.
+
+## Contents
+1. Prerequisites
+2. Generating Data
+3. Regression Analysis
+4. Multicollinearity
+
+## Prerequites
+
+### Library
+```{r, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(MASS)
+```
+
+### Assumptions
+
+## Data
+
+### R Code
+```{r}
+set.seed(1)
+sales <- c(rnorm(50, 2000, 200), rnorm(50, 1700, 200)) %>% round(1)
+counts <- c(rpois(50, 30), rpois(50, 20))
+customer <- c(rep("Regulaters", 50), rep("Exiters", 50))
+data <- data.frame(sales, counts, customer)
+```
+
+### Results
+```{r}
+data %>% head()
+```
+
+## Visulization of Data
+
+### R code
+```{r}
+data %>%
+  ggplot() +
+  geom_point(aes(sales, counts, col=customer)) +
+  theme_classic(base_family = "") +
+  theme(text=element_text(size=20)) +
+  ggtitle("Scatter Plot") +
+  ggeasy::easy_center_title()
+```
+
+
+## LD Analysis
+
+### R code
+```{r}
+model <- lda(data=data, customer~sales+counts)
+```
+### Results
+```{r}
+model
+```
+
+## Visulization of Analysis
+
+### R code
+```{r}
+a0 <- - apply(model$means %*% model$scaling,2,mean)
+x <- seq(1400, 2200,1)
+y <- -model$scaling[1]/model$scaling[2]*x - a0/model$scaling[2]
+mu <- apply(model$means, 2, mean)
+
+plot <- ggplot()+
+  geom_point(aes(data$sales, data$counts, col=customer))+
+  geom_point(aes(mu[1], mu[2]), size=3, col="blue") +
+  theme_classic(base_family = "")+
+  theme(text=element_text(size=20)) +
+  labs(x="Sales", y="Counts") +
+  geom_line(aes(x,y), col="blue") + 
+  ggtitle("Scatter Plot") +
+  ggeasy::easy_center_title()
+```
+
+### Result
+```{r}
+plot
+```
+
