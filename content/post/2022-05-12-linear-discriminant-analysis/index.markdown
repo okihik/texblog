@@ -15,8 +15,9 @@ Implemented from the creation of data, the code can be copied and pasted.
 ## Contents
 1. Prerequisites
 2. Generating Data
-3. Regression Analysis
-4. Multicollinearity
+3. Visualization of Data
+4. LD Analysis
+5. Visualization of Analysis
 
 ## Prerequites
 
