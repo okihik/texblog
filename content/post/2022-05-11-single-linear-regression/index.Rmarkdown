@@ -54,9 +54,12 @@ data %>% head()
 x <- seq(20,60,1)
 plot <- ggplot()+
   geom_point(aes(data$age, data$income))+
-  theme_classic(base_family = "HiraKakuPro-W3") +
-  theme(text=element_text(size=30)) +
-  labs(x="Age", y="Income", title="Single Linear Regression")
+  theme_classic(base_family = "") +
+  theme(text=element_text(size=20)) +
+  labs(x="Age", y="Income") +
+  ggtitle("Single Linear Regression") +
+  ggeasy::easy_center_title()
+
 ```
 
 ### Results
@@ -82,10 +85,12 @@ summary(model)
 x <- seq(20,60,1)
 plot2 <- ggplot()+
   geom_point(aes(data$age, data$income))+
-  theme_classic(base_family = "HiraKakuPro-W3") +
-  theme(text=element_text(size=30)) +
+  theme_classic(base_family = "") +
+  theme(text=element_text(size=20)) +
   geom_line(aes(x, model$coefficients[2]*x+model$coefficients[1]), col="blue") +
-  labs(x="Age", y="Income", title="Single Linear Regression")
+  labs(x="Age", y="Income") +
+  ggtitle("Single Linear Regression") +
+  ggeasy::easy_center_title()
 ```
 
 ### Results
