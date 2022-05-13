@@ -21,7 +21,7 @@ Implemented from the creation of data, the code can be copied and pasted.
 ## Prerequites
 
 ### Library
-```{r}
+```{r, message=FALSE}
 library(dplyr)
 library(ggplot2)
 library(MASS)
