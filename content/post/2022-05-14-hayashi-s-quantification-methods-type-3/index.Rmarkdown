@@ -1,0 +1,84 @@
+---
+title: Hayashi's quantification methods type 3
+author: Akihiko Mori
+date: '2022-05-14'
+slug: []
+categories: []
+tags: 
+- Multivariate Analysis with R
+---
+
+## Purpose
+We will implement Hayashi's quantification methods type 3 using R. 
+Implemented from the generation of data, it can be copied and pasted.
+
+## Contents
+1. Prerequisites
+2. Data generation
+3. Data elimination
+4. Hayashi's quantification methods type 3
+5. Analysis visualization
+
+## Prerequites
+
+### Library
+```{r, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(MASS)
+library(ggrepel)
+library(gridExtra)
+```
+
+
+## Data Generation
+```{r}
+set.seed(1)
+eng <- rnorm(15, 50, 10) %>% round()
+math <- rnorm(15, 50, 10) %>% round()
+sec <- rnorm(15, eng, 5) %>% round()
+sci <- rnorm(15, math, 5) %>% round()
+soc <- rnorm(15, sec, 3) %>% round()
+data <- data.frame(eng, math, sec, sci, soc) %>%
+mutate(eng=ifelse(eng>50, 1, 0)) %>%
+mutate(math=ifelse(math>50, 1, 0)) %>%
+mutate(sec=ifelse(sec>50, 1, 0)) %>%
+mutate(sci=ifelse(sci>50, 1, 0)) %>%
+mutate(soc=ifelse(soc>50, 1, 0))
+data %>% head()
+```
+
+## Data Elimination
+```{r}
+data <- data[data %>% apply(1,sum) != 0,]
+rownames(data) <- 1:nrow(data)
+data %>% head()
+```
+
+## Type 3
+```{r}
+model <- corresp(as.matrix(data), nf=2)
+model
+```
+
+## Analysis visualization
+```{r}
+p1 <- ggplot() +
+  geom_text_repel(aes(model$rscore[,1],
+                      model$rscore[,2],
+                      label=1:nrow(data)), size=5) + 
+  theme_classic(base_family = "")+
+  theme(text=element_text(size=20)) +
+  labs(title="plot", x=expression(x[1]), y=expression(x[2]))
+
+p2 <- ggplot() +
+  geom_text_repel(aes(model$cscore[,1],
+                      model$cscore[,2],
+                      label=colnames(data)), size=5, family="") + 
+  theme_classic(base_family = "")+
+  theme(text=element_text(size=20)) +
+  labs(title="plot", x=expression(y[1]), y=expression(y[2]))
+
+#grid.arrange(p1, p2)
+p1; p2
+```
