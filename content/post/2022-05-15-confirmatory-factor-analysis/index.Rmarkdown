@@ -1,0 +1,68 @@
+---
+title: Confirmatory Factor Analysis
+author: Akihiko Mori
+date: '2022-05-15'
+slug: []
+categories: []
+tags: - Multivariate Analysis with R
+---
+
+## Purpose
+We will Confirmatory Factor Analysis using R. 
+Implemented from the generation of data, it can be copied and pasted.
+
+## Contents
+1. Prerequisites
+2. One factor case
+3. Two factor case
+
+## Prerequites
+
+### Library
+```{r, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(lavaan)
+library(semPlot)
+```
+
+
+## One factor case
+### Data generation
+```{r}
+set.seed(1)
+scis <- rnorm(100, 50, 10)
+arts <- rnorm(100, 50, 10)
+eng <- rnorm(100, arts, 10) %>% round()
+math <- rnorm(100, scis, 10) %>% round()
+sec <- rnorm(100, arts, 10) %>% round()
+sci <- rnorm(100, scis, 10) %>% round()
+soc <- rnorm(100, arts, 10) %>% round()
+data <- data.frame(eng, math, sec, sci, soc)
+data <- apply(data, 2, scale)
+data %>% head()
+```
+
+
+### Confirmatory Factor Analysis (cfa)
+```{r}
+data.model <- 'scis=~math+sci
+arts=~eng+sec+soc'
+model <- cfa(data.model, data=data)
+summary(model,fit.measures=TRUE)
+```
+
+## Structural Equation Modeling
+
+### Analysis
+```{r}
+model2 <- sem(data.model, data=data)
+semPaths(model2, "model", "est", rotation = 2,
+mar=c(3,5,3,7),
+edge.label.cex=1.5,
+sizeMan = 15,
+sizeLat = 15,
+style = "lisrel",
+curve = 3
+)
+```

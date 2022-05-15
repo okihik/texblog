@@ -55,6 +55,7 @@ fa.diagram(model)
 ```
 
 ## Two factor case
+
 ### Data generation
 ```{r}
 set.seed(10)
@@ -69,6 +70,7 @@ data <- data.frame(eng, math, sec, sci, soc)
 data <- apply(data, 2, scale)
 data %>% head()
 ```
+
 ### Data visualization
 ```{r}
 model1 <- fa(data, nfactors = 2, rotate = "none", fm="ml")
