@@ -1,0 +1,68 @@
+---
+title: Hayashi's quantification methods type 1
+author: Akihiko Mori
+date: '2022-05-14'
+slug: []
+categories: []
+tags: 
+- Multivariate Analysis with R
+---
+
+## Purpose
+We will implement Hayashi's quantification methods type 1 using R. 
+Implemented from the generation of data, it can be copied and pasted.
+
+## Contents
+1. Prerequisites
+2. Data generation
+3. Data visualization
+4. Data transformation
+5. Hayashi's quantification methods type 1
+
+## Prerequites
+
+### Library
+```{r, message=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+
+## Data Generation
+```{r}
+set.seed(100)
+N <- 30
+lec <- c(rep("lecA", N), rep("lecB", N), rep("lecC", N))
+e1 <- e2 <- e3 <- rnorm(N, 0, 10)
+data <- data.frame(lec) %>% 
+  mutate(test=ifelse(lec=="lecA", 50+e1, 
+                     ifelse(lec=="lecB", 30+e2, 
+                            80+e3))) %>%
+  mutate(test=round(test))
+data %>% sample_n(5)
+```
+
+## Data Visualization
+```{r}
+data %>%
+  ggplot() +
+  geom_point(aes(lec, test)) +
+  theme_classic(base_family = "") +
+  theme(text=element_text(size=20)) +
+  labs(title="Scatter plot", x=NULL)+
+  ggeasy::easy_center_title()
+```
+
+## (Data transformation)
+```{r}
+data %>%
+  mutate(lecB = ifelse(lec=="lecB", 1, 0)) %>%
+  mutate(lecC = ifelse(lec=="lecC", 1, 0)) %>%
+  sample_n(5)
+```
+
+## Analysis visualization
+```{r}
+model1 <- lm(data=data, test~lec)
+summary(model1)
+```
