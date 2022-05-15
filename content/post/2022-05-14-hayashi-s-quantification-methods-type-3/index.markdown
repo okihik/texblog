@@ -122,7 +122,8 @@ p1 <- ggplot() +
                       label=1:nrow(data)), size=5) + 
   theme_classic(base_family = "")+
   theme(text=element_text(size=20)) +
-  labs(title="plot", x=expression(x[1]), y=expression(x[2]))
+  labs(title="plot", x=expression(x[1]), y=expression(x[2]))+
+  ggeasy::easy_center_title()
 
 p2 <- ggplot() +
   geom_text_repel(aes(model$cscore[,1],
@@ -130,7 +131,8 @@ p2 <- ggplot() +
                       label=colnames(data)), size=5, family="") + 
   theme_classic(base_family = "")+
   theme(text=element_text(size=20)) +
-  labs(title="plot", x=expression(y[1]), y=expression(y[2]))
+  labs(title="plot", x=expression(y[1]), y=expression(y[2]))+
+  ggeasy::easy_center_title()
 
 #grid.arrange(p1, p2)
 p1; p2

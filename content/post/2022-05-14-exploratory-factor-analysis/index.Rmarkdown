@@ -1,0 +1,83 @@
+---
+title: Exploratory Factor Analysis
+author: Akihiko Mori
+date: '2022-05-15'
+slug: []
+categories: []
+tags: - Multivariate Analysis with R
+---
+## Purpose
+We will exploratory factor analysis using R. 
+Implemented from the generation of data, it can be copied and pasted.
+
+## Contents
+1. Prerequisites
+2. One factor case
+3. Two factor case
+
+## Prerequites
+
+### Library
+```{r, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+library(psych)
+```
+
+
+## One factor case
+### Data generation
+```{r}
+set.seed(1)
+f <- rnorm(100, 50, 10) 
+eng <- rnorm(100, f, 3) %>% round()
+math <- rnorm(100, f, 3) %>% round()
+data <- data.frame(eng,math)
+data %>% head()
+```
+### Data visualization
+```{r}
+data %>%
+  ggplot() +
+  geom_point(aes(eng, math))+
+  theme_classic(base_family = "")+
+  theme(text=element_text(size=20)) +
+  labs(title="scatter plot")+
+  ggeasy::easy_center_title()
+```
+
+### Factor Analysis
+```{r}
+model <- fa(r=data, nfactors=1, fm="ml")
+par(family= "")
+fa.diagram(model)
+```
+
+## Two factor case
+### Data generation
+```{r}
+set.seed(10)
+scis <- rnorm(100, 50, 10)
+arts <- rnorm(100, 50, 10)
+eng <- rnorm(100, 0.7*arts+0.3*scis, 5) %>% round()
+math <- rnorm(100, 0.3*arts+0.7*scis, 5) %>% round()
+sec <- rnorm(100, 0.7*arts+0.3*scis, 5) %>% round()
+sci<- rnorm(100, 0.3*arts+0.7*scis, 5) %>% round()
+soc <- rnorm(100, 0.7*arts+0.3*scis, 5) %>% round()
+data <- data.frame(eng, math, sec, sci, soc)
+data <- apply(data, 2, scale)
+data %>% head()
+```
+### Data visualization
+```{r}
+model1 <- fa(data, nfactors = 2, rotate = "none", fm="ml")
+model2 <- fa(data, nfactors = 2, rotate = "varimax", fm="ml")
+model1 ; model2
+```
+
+### Analysis visualization
+```{r}
+fa.diagram(model1)
+fa.diagram(model2)
+```
