@@ -1,0 +1,95 @@
+---
+title: Principal component analysis
+author: Akihiko Mori
+date: '2022-05-14'
+slug: []
+categories: []
+tags: 
+- Multivariate Analysis with R
+---
+
+## Purpose
+
+We will implement single regression analysis using R. 
+Implemented from the creation of data, the code can be copied and pasted.
+
+## Contents
+1. Prerequisites
+2. Two variables
+3. A multivariate case
+
+## Prerequites
+
+### Library
+```{r, message=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+## Two variables
+
+### Data Generation
+```{r}
+set.seed(10)
+English <- rnorm(100, 50, 10) %>% round()
+Math <- rnorm(100, English, 10) %>% round()
+data <- data.frame(English, Math)
+data %>% head()
+```
+
+### Data Visualization
+```{r}
+data %>%
+  ggplot() +
+  geom_point(aes(English, Math))+
+  theme_classic(base_family = "")+
+  theme(text=element_text(size=20)) +
+  labs(title="Scatter plot")+
+  ggeasy::easy_center_title()
+```
+
+### PCA
+```{r}
+model <- prcomp(data, scale = TRUE)
+summary(model)
+```
+
+### Scares
+```{r}
+z <- model$rotation[,1] %*% t(scale(data)) %>% round(2) %>% t() %>% as.data.frame()
+colnames(z) <- "z"
+z %>% head()
+```
+
+## A multivariate case
+
+### Data generation
+```{r}
+set.seed(10)
+English <- rnorm(100, 50, 10) %>% round()
+Math <- rnorm(100, 50, 10) %>% round()
+Second <- rnorm(100, English, 5) %>% round()
+Science <- rnorm(100, Math, 5) %>% round()
+Social <- rnorm(100, Second, 3) %>% round()
+data <- data.frame(English, Math, Second, Science, Social)
+data %>% head()
+```
+
+### PCA
+```{r}
+model <- prcomp(data, scale = TRUE)
+summary(model)
+```
+
+### Biplot
+```{r}
+biplot(model, family="HiraKakuPro-W3")
+```
+
+### Component scores
+```{r}
+z <- t(model$rotation[,1:2]) %*% t(scale(data)) %>% round(2) %>% t() %>% as.data.frame()
+colnames(z) <- c("z1", "z2")
+z %>% head()
+```
+
