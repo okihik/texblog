@@ -14,8 +14,10 @@ Implemented from the generation of data, it can be copied and pasted.
 
 ## Contents
 1. Prerequisites
-2. A single variable case
-3. A multivariate case
+2. Data generation
+3. Data visualization
+4. Cluster Analysis
+5. Analysis visualization
 
 ## Prerequites
 
@@ -84,6 +86,3 @@ data %>%
 ```
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
-
-### LD Analysis
-
