@@ -9,6 +9,9 @@ tags:
 ---
 
 ## Purpose
+I will implement Bayesian estimation of the parameter p of a Bernoulli distribution using R. 
+For the prior distribution, specify a Beta distribution and look for the posterior distribution. 
+Implemented from the creation of data, it can be copied and pasted.
 
 ## TOC
 1. Library

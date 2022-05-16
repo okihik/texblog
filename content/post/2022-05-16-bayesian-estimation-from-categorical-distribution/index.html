@@ -1,0 +1,85 @@
+---
+title: Bayesian Estimation from Categorical Distribution
+author: Akihiko Mori
+date: '2022-05-16'
+slug: []
+categories: []
+tags: 
+- Bayes Statistics
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>I will implement Bayesian estimation of the parameter p of a Categorical distribution using R.
+For the prior distribution, specify a Direct distribution and look for the posterior distribution.
+Implemented from the creation of data, it can be copied and pasted.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>True Distribution</li>
+<li>Prior Distribution</li>
+<li>Data</li>
+<li>Post Distribution</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(ggplot2)
+library(MCMCpack) # rdirichlet</code></pre>
+<pre><code>## Loading required package: coda</code></pre>
+<pre><code>## Loading required package: MASS</code></pre>
+<pre><code>## ##
+## ## Markov Chain Monte Carlo Package (MCMCpack)</code></pre>
+<pre><code>## ## Copyright (C) 2003-2022 Andrew D. Martin, Kevin M. Quinn, and Jong Hee Park</code></pre>
+<pre><code>## ##
+## ## Support provided by the U.S. National Science Foundation</code></pre>
+<pre><code>## ## (Grants SES-0350646 and SES-0350613)
+## ##</code></pre>
+<pre class="r"><code>set.seed(1)</code></pre>
+</div>
+<div id="true-distribution" class="section level2">
+<h2>True Distribution</h2>
+<pre class="r"><code>x &lt;- c(1, 2, 3)
+p &lt;- c(0.1, 0.6, 0.3)
+prob &lt;- p
+
+ggplot() + 
+  geom_bar(aes(x, prob), stat =&quot;identity&quot;) +
+  labs(x=&quot;x&quot;, y=&quot;prob&quot;, title=&quot;Categorical Distribution&quot;)+
+  theme_classic(base_family = &quot;&quot;) +
+  theme(text = element_text(size = 20))+
+  ggeasy::easy_center_title()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="prior-distribution" class="section level2">
+<h2>Prior Distribution</h2>
+<pre class="r"><code>alpha_pre &lt;- c(1, 1, 1)
+p_samples_pre &lt;- rdirichlet(100, alpha_pre)
+
+plot &lt;- ggplot()+
+  geom_point(aes(x=p_samples_pre[,1], y=p_samples_pre[,2]))+
+  labs(x=&quot;1&quot;, y=&quot;2&quot;, title=&quot;Direct Distribution&quot;)+
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;) +
+  theme(text = element_text(size = 24))+
+  lims(x=0:1, y=0:1)+
+  ggeasy::easy_center_title()
+plot</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<pre class="r"><code>data &lt;- which(rmultinom(300, 1, c(0.1, 0.6, 0.3))==1, arr.ind = TRUE)[,1]
+N &lt;- length(data)</code></pre>
+</div>
+<div id="post-distribution" class="section level2">
+<h2>Post Distribution</h2>
+<pre class="r"><code>alpha_pos &lt;- as.vector(table(data)) + alpha_pre
+p_samples_pos &lt;- rdirichlet(100, alpha_pos)
+
+plot + geom_point(aes(x=p_samples_pos[,1], y=p_samples_pos[,2]), col=&quot;blue&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>

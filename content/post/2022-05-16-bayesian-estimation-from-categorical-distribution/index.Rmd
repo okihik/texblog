@@ -1,0 +1,73 @@
+---
+title: Bayesian Estimation from Categorical Distribution
+author: Akihiko Mori
+date: '2022-05-16'
+slug: []
+categories: []
+tags: 
+- Bayes Statistics
+---
+
+## Purpose
+I will implement Bayesian estimation of the parameter p of a Categorical distribution using R. 
+For the prior distribution, specify a Direct distribution and look for the posterior distribution. 
+Implemented from the creation of data, it can be copied and pasted.
+
+## TOC
+1. Library
+2. True Distribution
+3. Prior Distribution
+4. Data
+5. Post Distribution
+
+## Library
+```{r}
+library(ggplot2)
+library(MCMCpack) # rdirichlet
+set.seed(1)
+```
+
+## True Distribution
+```{r}
+x <- c(1, 2, 3)
+p <- c(0.1, 0.6, 0.3)
+prob <- p
+
+ggplot() + 
+  geom_bar(aes(x, prob), stat ="identity") +
+  labs(x="x", y="prob", title="Categorical Distribution")+
+  theme_classic(base_family = "") +
+  theme(text = element_text(size = 20))+
+  ggeasy::easy_center_title()
+```
+
+
+## Prior Distribution
+```{r}
+alpha_pre <- c(1, 1, 1)
+p_samples_pre <- rdirichlet(100, alpha_pre)
+
+plot <- ggplot()+
+  geom_point(aes(x=p_samples_pre[,1], y=p_samples_pre[,2]))+
+  labs(x="1", y="2", title="Direct Distribution")+
+  theme_classic(base_family = "HiraKakuPro-W3") +
+  theme(text = element_text(size = 24))+
+  lims(x=0:1, y=0:1)+
+  ggeasy::easy_center_title()
+plot
+```
+
+## Data
+```{r}
+data <- which(rmultinom(300, 1, c(0.1, 0.6, 0.3))==1, arr.ind = TRUE)[,1]
+N <- length(data)
+```
+
+## Post Distribution
+```{r}
+alpha_pos <- as.vector(table(data)) + alpha_pre
+p_samples_pos <- rdirichlet(100, alpha_pos)
+
+plot + geom_point(aes(x=p_samples_pos[,1], y=p_samples_pos[,2]), col="blue")
+```
+
