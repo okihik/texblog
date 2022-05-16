@@ -1,0 +1,59 @@
+---
+title: Pass Analysis
+author: Akihiko Mori
+date: '2022-05-16'
+slug: []
+categories: []
+tags: 
+- Multivariate Analysis with R
+---
+
+## Purpose
+We will a pass analysis using R. 
+Implemented from the generation of data, it can be copied and pasted.
+
+## Contents
+1. Prerequisites
+2. Data generation
+3. Pass Analysis
+
+## Prerequites
+
+### Library
+```{r, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(lavaan)
+library(semPlot)
+```
+
+## Data generation
+```{r}
+set.seed(1)
+LA <- rnorm(100, 50, 10) %>% round()
+calc <- rnorm(100, 50, 10) %>% round()
+ML <- rnorm(100, 0.7*LA+0.3*calc, 5) %>% round()
+NN <- rnorm(100, 0.2*LA+0.8*calc, 5) %>% round()
+data <- data.frame(LA, calc, ML, NN)
+data <- apply(data, 2, scale)
+data %>% head()
+```
+
+## Pass Analysis
+```{r}
+data.model <- '
+ML ~ LA+calc
+NN ~ LA+calc
+'
+model <- sem(data.model, data=data)
+summary(model)
+semPaths(model, "model", "est", rotation = 2,
+mar=c(5,8,5,14),
+edge.label.cex=2,
+sizeMan = 15,
+sizeLat = 15,
+style = "lisrel",
+curve = 3,
+nCharNodes = 4
+)
+```

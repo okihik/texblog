@@ -4,10 +4,11 @@ author: Akihiko Mori
 date: '2022-05-15'
 slug: []
 categories: []
-tags: - Multivariate Analysis with R
+tags: 
+- Multivariate Analysis with R
 ---
 ## Purpose
-We will exploratory factor analysis using R. 
+We will an exploratory factor analysis using R. 
 Implemented from the generation of data, it can be copied and pasted.
 
 ## Contents
