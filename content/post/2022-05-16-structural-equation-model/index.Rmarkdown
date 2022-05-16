@@ -1,0 +1,63 @@
+---
+title: Structural Equation Model (SEM)
+author: Akihiko Mori
+date: '2022-05-16'
+slug: []
+categories: []
+tags: 
+- Multivariate Analysis with R
+---
+
+## Purpose
+We will a structural equation model/analysis using R. 
+Implemented from the generation of data, it can be copied and pasted.
+
+## Contents
+1. Prerequisites
+2. Data generation
+3. Structural equation model
+
+## Prerequites
+
+### Library
+```{r, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(lavaan)
+library(semPlot)
+```
+
+## Data generation
+```{r}
+set.seed(1)
+math <- rnorm(100, 50, 10)
+programming <- rnorm(100, math, 5)
+calc <- rnorm(100, math, 5) %>% round()
+stat <- rnorm(100, math, 5) %>% round()
+LA <- rnorm(100, math, 5) %>% round()
+Rprog <- rnorm(100, programming, 5) %>% round()
+Python <- rnorm(100, programming, 5) %>% round()
+data <- data.frame(calc, stat, LA, Rprog, Python)
+data <- apply(data, 2, scale)
+data %>% head()
+```
+
+## SEM Analysis
+```{r}
+data.model <- '
+math=~calc+stat+LA
+programming=~Rprog+Python
+math=~programming
+'
+model <- sem(data.model, data)
+summary(model)
+semPaths(model, "model", "est", rotation = 2,
+mar=c(5,6,5,6),
+edge.label.cex=1.0, 
+sizeMan = 12,
+sizeLat = 12,
+style = "lisrel",
+curve = 3,
+nCharNodes = 7
+)
+```
