@@ -18,7 +18,7 @@ Implemented from the creation of data, it can be copied and pasted.
 2. True Distribution
 3. Prior Distribution
 4. Data
-5. Post Distribution
+5. Posterior Distribution
 
 ## Library
 ```{r}

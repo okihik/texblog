@@ -19,7 +19,7 @@ Implemented from the generation of data, the R code can be copied and pasted.
 2. True Distribution
 3. Prior Distribution
 4. Data Generation
-5. Post Distribution
+5. Posterior Distribution
 
 ## Library
 ```{r}
