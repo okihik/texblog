@@ -1,0 +1,74 @@
+---
+title: Bayesian Estimation from Gaussian Distribution
+author: Akihiko Mori
+date: '2022-05-17'
+slug: []
+categories: []
+tags: 
+- Bayes Statistics
+---
+
+## Purpose
+I will implement Bayesian estimation of the parameter $\mu$ of a Gaussian (Normal) distribution using R. 
+For the prior distribution, specify a Gaussian distribution and look for the posterior distribution. 
+Implemented from the creation of data, it can be copied and pasted.
+
+## TOC
+1. Library
+2. True Distribution
+3. Prior Distribution
+4. Data
+5. Post Distribution
+
+## Library
+```{r}
+library(ggplot2)
+set.seed(1)
+```
+
+## True Distribution
+```{r}
+mu <- 170
+lambda <- 1/100
+x <- seq(100 ,200, 1)
+prob <- dnorm(x, mu, 1/sqrt(lambda))
+
+ggplot()+
+  geom_line(aes(x=x, y=prob))+
+  labs(x="x", y="prob", title="Gaussian Distribution")+
+  theme_classic(base_family = "") +
+  theme(text = element_text(size = 20))+
+  ggeasy::easy_center_title()
+```
+
+
+## Prior Distribution
+```{r}
+mu_pre <- 150
+lambda_pre <- 1/10000
+x <- seq(100 ,200, 1)
+mu_prob_pre <- dnorm(x, mu_pre, 1/sqrt(lambda_pre))
+
+plot <- ggplot()+
+  geom_line(aes(x=x, y=mu_prob_pre))+
+  labs(x="μ", y="prob", title="Gaussian Distribution")+
+  theme_classic(base_family = "") +
+  theme(text = element_text(size = 20))
+plot
+```
+
+## Data
+```{r}
+data <- rnorm(30, mu, 1/sqrt(lambda))
+N <- length(data)
+```
+
+## Post Distribution
+```{r}
+lambda_pos <- N*lambda + lambda_pre
+mu_pos <- (lambda*sum(data) + lambda_pre*mu_pre)/lambda_pos
+x <- seq(100 ,200, 1)
+mu_prob_pos <- dnorm(x, mu_pos, 1/sqrt(lambda_pos))
+
+plot + geom_line(aes(x=x, y=mu_prob_pos), col="blue")
+```
