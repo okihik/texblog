@@ -44,15 +44,15 @@ ggplot()+
 
 ## Prior Distribution
 ```{r}
-mu_pre <- 150
-lambda_pre <- 1/10000
-x <- seq(100 ,200, 1)
-mu_prob_pre <- dnorm(x, mu_pre, 1/sqrt(lambda_pre))
+a_pre <- 2
+b_pre <- 1
+x <- seq(0, 0.1, 0.001)
+lambda_prob_pre <- dgamma(x, a_pre, b_pre)
 
 plot <- ggplot()+
-  geom_line(aes(x=x, y=mu_prob_pre))+
-  labs(x="μ", y="prob", title="Gaussian Distribution")+
-  theme_classic(base_family = "") +
+  geom_line(aes(x=x, y=lambda_prob_pre))+
+  labs(x="λ", y="prob", title="Gamma Distribution")+
+  theme_classic(base_family = "")+
   theme(text = element_text(size = 20))
 plot
 ```
@@ -65,10 +65,10 @@ N <- length(data)
 
 ## Post Distribution
 ```{r}
-lambda_pos <- N*lambda + lambda_pre
-mu_pos <- (lambda*sum(data) + lambda_pre*mu_pre)/lambda_pos
-x <- seq(100 ,200, 1)
-mu_prob_pos <- dnorm(x, mu_pos, 1/sqrt(lambda_pos))
+a_pos <- N/2 + a_pre
+b_pos <- sum((data-mu)^2)/2 + b_pre
+x <- seq(0, 0.1, 0.001)
+lambda_prob_pos <- dgamma(x, a_pos, b_pos)
 
-plot + geom_line(aes(x=x, y=mu_prob_pos), col="blue")
+plot + geom_line(aes(x=x, y=lambda_prob_pos), col="blue")
 ```

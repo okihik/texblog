@@ -48,15 +48,15 @@ ggplot()+
 </div>
 <div id="prior-distribution" class="section level2">
 <h2>Prior Distribution</h2>
-<pre class="r"><code>mu_pre &lt;- 150
-lambda_pre &lt;- 1/10000
-x &lt;- seq(100 ,200, 1)
-mu_prob_pre &lt;- dnorm(x, mu_pre, 1/sqrt(lambda_pre))
+<pre class="r"><code>a_pre &lt;- 2
+b_pre &lt;- 1
+x &lt;- seq(0, 0.1, 0.001)
+lambda_prob_pre &lt;- dgamma(x, a_pre, b_pre)
 
 plot &lt;- ggplot()+
-  geom_line(aes(x=x, y=mu_prob_pre))+
-  labs(x=&quot;μ&quot;, y=&quot;prob&quot;, title=&quot;Gaussian Distribution&quot;)+
-  theme_classic(base_family = &quot;&quot;) +
+  geom_line(aes(x=x, y=lambda_prob_pre))+
+  labs(x=&quot;λ&quot;, y=&quot;prob&quot;, title=&quot;Gamma Distribution&quot;)+
+  theme_classic(base_family = &quot;&quot;)+
   theme(text = element_text(size = 20))
 plot</code></pre>
 <p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
@@ -68,11 +68,11 @@ N &lt;- length(data)</code></pre>
 </div>
 <div id="post-distribution" class="section level2">
 <h2>Post Distribution</h2>
-<pre class="r"><code>lambda_pos &lt;- N*lambda + lambda_pre
-mu_pos &lt;- (lambda*sum(data) + lambda_pre*mu_pre)/lambda_pos
-x &lt;- seq(100 ,200, 1)
-mu_prob_pos &lt;- dnorm(x, mu_pos, 1/sqrt(lambda_pos))
+<pre class="r"><code>a_pos &lt;- N/2 + a_pre
+b_pos &lt;- sum((data-mu)^2)/2 + b_pre
+x &lt;- seq(0, 0.1, 0.001)
+lambda_prob_pos &lt;- dgamma(x, a_pos, b_pos)
 
-plot + geom_line(aes(x=x, y=mu_prob_pos), col=&quot;blue&quot;)</code></pre>
+plot + geom_line(aes(x=x, y=lambda_prob_pos), col=&quot;blue&quot;)</code></pre>
 <p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 </div>
