@@ -1,0 +1,108 @@
+---
+title: Bayesian Estimation from Gaussian Distribution ($\mu$,$\lambda$)
+author: Akihiko Mori
+date: '2022-05-17'
+slug: []
+categories: []
+tags: 
+- Bayes Statistics
+---
+
+## Purpose
+I will implement Bayesian estimation of the parameter $\mu$ and $\lambda$ of a Gaussian (Normal) distribution using R. 
+For the prior distribution, specify Gaussian and Gamma distributions and seek the posterior distribution. 
+Implemented from the creation of data, it can be copied and pasted.
+
+## TOC
+1. Library
+2. True Distribution
+3. Prior Distribution
+4. Data
+5. Post Distribution
+
+## Library
+```{r}
+library(ggplot2)
+set.seed(1)
+```
+
+## True Distribution
+```{r}
+mu <- 170
+lambda <- 1/100
+x <- seq(100 ,200, 1)
+prob <- dnorm(x, mu, 1/sqrt(lambda))
+
+ggplot()+
+  geom_line(aes(x=x, y=prob))+
+  labs(x="x", y="prob", title="Gaussian Distribution")+
+  theme_classic(base_family = "") +
+  theme(text = element_text(size = 20))+
+  ggeasy::easy_center_title()
+```
+
+
+## Prior Distribution (Gamma)
+```{r}
+a_pre <- 2
+b_pre <- 1
+x <- seq(0 ,0.1, 0.001)
+lambda_prob_pre <- dgamma(x, a_pre, b_pre)
+lambda_sample_pre <- rgamma(1, a_pre, b_pre)
+
+plot_lambda <- ggplot()+
+  geom_line(aes(x=x, y=lambda_prob_pre))+
+  labs(x="λ", y="prob", title="Gamma Distribution")+
+  theme_classic(base_family = "")+
+  theme(text = element_text(size = 20))+
+  ggeasy::easy_center_title()
+plot_lambda
+```
+## Prior Distribution (Gaussian)
+```{r}
+mu_pre <- 150
+beta_pre <- 0.0001
+x <- seq(100 ,200, 1)
+mu_prob_pre <- dnorm(x, mu_pre, 1/sqrt(beta_pre*lambda_sample_pre))
+
+plot_mu <- ggplot()+
+  geom_line(aes(x=x, y=mu_prob_pre))+
+  labs(x="μ", y="prob", title="Normal (Prior)")+
+  theme_classic(base_family = "") +
+  theme(text = element_text(size = 20))+
+  ggeasy::easy_center_title()
+plot_mu
+```
+
+## Data
+```{r}
+data <- rnorm(30, mu, 1/sqrt(lambda))
+N <- length(data)
+```
+
+## Bayesian Update
+```{r}
+beta_pos <- N + beta_pre
+mu_pos <- (sum(data)+beta_pre*mu_pre)/beta_pos
+a_pos <- N/2 + a_pre
+b_pos <- (sum(data^2)+beta_pre*mu_pre^2-beta_pos*mu_pos^2)/2 + b_pre
+lambda_sample_pos <- rgamma(1, a_pos, b_pos)
+```
+
+
+
+## Post Distribution (Gamma)
+```{r}
+x <- seq(0 ,0.1, 0.001)
+lambda_prob_pos <- dgamma(x, a_pos, b_pos)
+
+plot_lambda + geom_line(aes(x=x, y=lambda_prob_pos), col="blue")
+```
+
+## Post Distribution (Gaussian)
+```{r}
+x <- seq(100 ,200, 1)
+mu_prob_pos <- dnorm(x, mu_pos, 1/sqrt(beta_pos*lambda_sample_pos))
+
+plot_mu + geom_line(aes(x=x, y=mu_prob_pos), col="blue")
+```
