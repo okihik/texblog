@@ -1,0 +1,75 @@
+---
+title: Bayesian Estimation from Multivariate Normal Distribution ($\mu$)
+author: Akihiko Mori
+date: '2022-05-17'
+slug: []
+categories: []
+tags: 
+- Bayes Statistics
+---
+
+## Purpose
+Bayesian estimation of the parameter $\mu$ from multivariate Gaussian distribution (multivariate normal distribution) will be implemented using R. 
+The prior distribution is assumed as a multidimensional Gaussian distribution and 
+seek the posterior distribution. 
+Implemented from the generation of data, the R code can be copied and pasted.
+
+## TOC
+1. Library
+2. True Distribution
+3. Prior Distribution
+4. Data Generation
+5. Post Distribution
+
+## Library
+```{r}
+library(ggplot2)
+library(MCMCpack)
+set.seed(1)
+```
+
+## True Distribution
+```{r}
+mu <- c(170, 60)
+lambda <- solve(matrix(c(100, 80, 80, 100), ncol = 2))
+samples <- mvrnorm(100, mu = mu, Sigma = solve(lambda))
+
+ggplot()+
+  geom_point(aes(x=samples[,1], y=samples[,2]))+
+  labs(x="x", y="prob", title="Gaussian Distribution")+
+  theme_classic(base_family = "") +
+  theme(text = element_text(size = 20))+
+  lims(x=c(140,200), y=c(30,90))+
+  ggeasy::easy_center_title()
+```
+
+
+## Prior Distribution
+```{r}
+mu_pre <- c(150, 50)
+lambda_pre <- solve(matrix(c(1000, 100, 100, 1000), ncol = 2))
+mu_samples_pre <- mvrnorm(100, mu = mu_pre, Sigma = solve(lambda_pre))
+
+plot <- ggplot()+
+  geom_point(aes(x=mu_samples_pre[,1], y=mu_samples_pre[,2]))+
+  labs(x=expression(mu[1]), y=expression(mu[2]), title="Gaussian Distribution")+
+  theme_classic(base_family = "") +
+  theme(text = element_text(size = 20))+
+  lims(x=c(40,250), y=c(-50,160))
+plot
+```
+
+## Data Generation
+```{r}
+data <- mvrnorm(30, mu = mu, Sigma = solve(lambda))
+N <- nrow(data)
+```
+
+## Post Distribution
+```{r}
+lambda_pos <- N*lambda + lambda_pre
+mu_pos <- solve(lambda_pos) %*% (lambda %*% apply(data, 2, sum) + lambda_pre %*% mu_pre)
+mu_samples_pos <- mvrnorm(100, mu = mu_pos, Sigma = solve(lambda_pos))
+
+plot + geom_point(aes(x=mu_samples_pos[,1], y=mu_samples_pos[,2]), col="blue")
+```
