@@ -1,0 +1,78 @@
+---
+title: Bayesian Estimation from Poisson Distribution
+author: Akihiko Mori
+date: '2022-05-17'
+slug: []
+categories: []
+tags: 
+- Bayes Statistics
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>I will implement Bayesian estimation of the parameter <span class="math inline">\(\lambda\)</span> of a Poisson distribution using R.
+For the prior distribution, specify a Gamma distribution and look for the posterior distribution.
+Implemented from the creation of data, it can be copied and pasted.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>True Distribution</li>
+<li>Prior Distribution</li>
+<li>Data</li>
+<li>Post Distribution</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(ggplot2)
+set.seed(1)</code></pre>
+</div>
+<div id="true-distribution" class="section level2">
+<h2>True Distribution</h2>
+<pre class="r"><code>x &lt;- 0:10
+lambda &lt;- 3
+prob &lt;- dpois(x, lambda)
+
+ggplot() + 
+  geom_bar(aes(x, prob), stat =&quot;identity&quot;) +
+  labs(x=&quot;x&quot;, y=&quot;prob&quot;, title=&quot;Poisson Distribution&quot;)+
+  theme_classic(base_family = &quot;&quot;) +
+  theme(text = element_text(size = 20))+
+  ggeasy::easy_center_title()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="prior-distribution" class="section level2">
+<h2>Prior Distribution</h2>
+<pre class="r"><code>a_pre &lt;- 2
+b_pre &lt;- 1
+x &lt;- seq(0, 6, 0.01)
+lambda_prob_pre &lt;- dgamma(x, a_pre, b_pre)
+
+plot &lt;- ggplot()+
+  geom_line(aes(x=x, y=lambda_prob_pre))+
+  labs(x=&quot;λ&quot;, y=&quot;prob&quot;, title=&quot;Gamma Distribution&quot;)+
+  theme_classic(base_family = &quot;&quot;) +
+  theme(text = element_text(size = 20))+
+  ggeasy::easy_center_title()
+plot</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<pre class="r"><code>data &lt;- rpois(30, lambda)
+N &lt;- length(data)</code></pre>
+</div>
+<div id="post-distribution" class="section level2">
+<h2>Post Distribution</h2>
+<pre class="r"><code>a_pos &lt;- sum(data) + a_pre
+b_pos &lt;- N + b_pre
+x &lt;- seq(0, 6, 0.01)
+lambda_prob_pos &lt;- dgamma(x, a_pos, b_pos)
+
+plot + geom_line(aes(x=x, y=lambda_prob_pos), col=&quot;blue&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
