@@ -1,0 +1,158 @@
+---
+title: Normal Linear Model
+author: Akihiko Mori
+date: '2022-05-18'
+slug: []
+categories: []
+tags: 
+- Bayesian Modelling (R and Stan)
+---
+## Purpose
+Bayesian estimation of the GLM, a normal linear model, will be implemented using R and Stan.
+The data will be implemented from the data preparation and can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Model
+3. Data Generation
+4. Stan
+5. Analysis
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(rstan)
+library(bayesplot)
+library(ggpubr)
+
+set.seed(1)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())
+```
+
+## Model
+| Model | Model Equation |
+|-------|----------------------------------|
+| Normal Linear Model | $\mu_n=\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}$ <br />$p(y_n | \mu_n,\sigma) \sim Normal(y_n|\mu_n,\sigma^2)$<br /> |
+| This Model          | $\mu_n=beta_0+\beta_1Age_n+\beta_2Qual_n$ <br />$p(Income_n | \mu,\sigma) \sim Normal(Income_n | \mu_n,\sigma^2)$<br />   |
+| Simulation          |$\mu_n=300+10Age_n+200Qual_n$ <br />$p(Income_n\|\mu,\sigma) \sim Normal(Income_n | \mu_n,100^2)$<br /> |
+
+## Data Generation
+```{r}
+qual <- rbinom(100, 1, 0.3)
+age <- rnorm(100, 50, 20) %>% round()
+income <- rnorm(100, 300 + 10*age + 200*qual, 100) %>% round()
+data <- data.frame(qual, age, income) %>% filter(age>18, age<65)
+data %>% head()
+
+plot <- ggplot() +
+  geom_point(aes(x=data$age, y=data$income, color=factor(data$qual))) + 
+  theme_classic(base_family = "") +
+  theme(text=element_text(size=20))+
+  labs(x="Age", y="Icome", title="Model") +
+  scale_color_manual("Qualification",values=c("red","blue"))+
+  ggeasy::easy_center_title()
+plot
+```
+
+## Stan
+### Stan File
+```{stan output.var="NormalLinearModel.stan"}
+data {
+  int N;
+  vector[N] y;
+  vector[N] x1;
+  vector[N] x2;
+  
+  int N_hat;
+  vector[N_hat] x_hat;
+}
+
+parameters {
+  vector[3] b;
+  real<lower=0> sigma;
+}
+
+transformed parameters{
+  vector[N] mu;
+  mu = b[1] + b[2]*x1 + b[3]*x2;
+}
+
+model{
+  y ~ normal(mu, sigma);
+}
+
+generated quantities{
+  vector[N_hat] mu_hat1;
+  vector[N_hat] mu_hat0;
+  vector[N_hat] y_hat1;
+  vector[N_hat] y_hat0;
+  
+  for(n in 1:N_hat){
+    mu_hat1[n] = b[1] + b[2]*x_hat[n] + b[3];
+    mu_hat0[n] = b[1] + b[2]*x_hat[n];
+    y_hat1[n] = normal_rng(mu_hat1[n], sigma);
+    y_hat0[n] = normal_rng(mu_hat0[n], sigma);
+  }
+}
+```
+
+
+### R for Stan
+```{r}
+x_hat <- seq(min(data$age), max(data$age))
+data_list <- list(
+  N = nrow(data), y = data$income,
+  x1 = data$age, x2 = data$qual,
+  
+  N_hat = length(x_hat), x_hat = x_hat
+)
+
+mcmc_result <- stan(
+  file="NormalLinearModel.stan",
+  data=data_list,
+  seed=1,
+  iter = 1000, warmup = 200, chains = 4, thin=1
+)
+```
+
+## Analysis Results
+### R code
+```{r}
+# Result
+print(mcmc_result, probs = c(0.025, 0.5, 0.975), pars=c("b","sigma"))
+
+## Convergence Check
+mcmc_sample <- rstan::extract(mcmc_result, permuted=FALSE)
+mcmc_combo(mcmc_sample, pars=c("b[1]","b[2]","b[3]","sigma"))
+
+## mu result
+mcmc_sample <- rstan::extract(mcmc_result)
+func <- function(x){
+  return (quantile(x, c(0.025, 0.5, 0.975)))
+}
+mu_hat1 <- apply(mcmc_sample[["mu_hat1"]], 2, func)
+mu_hat0 <- apply(mcmc_sample[["mu_hat0"]], 2, func)
+
+plot_mu <- plot + 
+  labs(title="Estimation of μ") +
+  geom_line(aes(x=x_hat, y=mu_hat1[2,]), col="blue") + 
+  geom_line(aes(x=x_hat, y=mu_hat0[2,]), col="red") +
+  geom_ribbon(aes(x=x_hat, ymin=mu_hat1[1,],ymax=mu_hat1[3,]), alpha=0.5, fill="gray", col="blue")+
+  geom_ribbon(aes(x=x_hat, ymin=mu_hat0[1,],ymax=mu_hat0[3,]), alpha=0.5, fill="gray", col="red")
+plot_mu
+
+## Prediction distribution
+y_hat1 <- apply(mcmc_sample[["y_hat1"]], 2, func)
+y_hat0 <- apply(mcmc_sample[["y_hat0"]], 2, func)
+
+plot_y <- plot +
+  labs(title="Prediction Distribution") +
+  geom_line(aes(x=x_hat, y=y_hat1[2,]), col="blue") + 
+  geom_line(aes(x=x_hat, y=y_hat0[2,]), col="red") +
+  geom_ribbon(aes(x=x_hat, ymin=y_hat1[1,],ymax=y_hat1[3,]), alpha=0.5, fill="gray", col="blue")+
+  geom_ribbon(aes(x=x_hat, ymin=y_hat0[1,],ymax=y_hat0[3,]), alpha=0.5, fill="gray", col="red")
+plot_y
+```
+

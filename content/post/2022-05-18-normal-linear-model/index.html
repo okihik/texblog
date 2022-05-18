@@ -1,0 +1,206 @@
+---
+title: Normal Linear Model
+author: Akihiko Mori
+date: '2022-05-18'
+slug: []
+categories: []
+tags: 
+- Bayesian Modelling (R and Stan)
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>Bayesian estimation of the GLM, a normal linear model, will be implemented using R and Stan.
+The data will be implemented from the data preparation and can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Model</li>
+<li>Data Generation</li>
+<li>Stan</li>
+<li>Analysis</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)
+library(rstan)
+library(bayesplot)
+library(ggpubr)
+
+set.seed(1)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())</code></pre>
+</div>
+<div id="model" class="section level2">
+<h2>Model</h2>
+<table>
+<colgroup>
+<col width="17%" />
+<col width="82%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Model Equation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Normal Linear Model</td>
+<td><span class="math inline">\(\mu_n=\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}\)</span> <br /><span class="math inline">\(p(y_n | \mu_n,\sigma) \sim Normal(y_n|\mu_n,\sigma^2)\)</span><br /></td>
+</tr>
+<tr class="even">
+<td>This Model</td>
+<td><span class="math inline">\(\mu_n=beta_0+\beta_1Age_n+\beta_2Qual_n\)</span> <br /><span class="math inline">\(p(Income_n | \mu,\sigma) \sim Normal(Income_n | \mu_n,\sigma^2)\)</span><br /></td>
+</tr>
+<tr class="odd">
+<td>Simulation</td>
+<td><span class="math inline">\(\mu_n=300+10Age_n+200Qual_n\)</span> <br /><span class="math inline">\(p(Income_n\|\mu,\sigma) \sim Normal(Income_n | \mu_n,100^2)\)</span><br /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>qual &lt;- rbinom(100, 1, 0.3)
+age &lt;- rnorm(100, 50, 20) %&gt;% round()
+income &lt;- rnorm(100, 300 + 10*age + 200*qual, 100) %&gt;% round()
+data &lt;- data.frame(qual, age, income) %&gt;% filter(age&gt;18, age&lt;65)
+data %&gt;% head()</code></pre>
+<pre><code>##   qual age income
+## 1    0  58    925
+## 2    0  38    678
+## 3    0  57    838
+## 4    1  27    677
+## 5    1  43   1030
+## 6    0  29    528</code></pre>
+<pre class="r"><code>plot &lt;- ggplot() +
+  geom_point(aes(x=data$age, y=data$income, color=factor(data$qual))) + 
+  theme_classic(base_family = &quot;&quot;) +
+  theme(text=element_text(size=20))+
+  labs(x=&quot;Age&quot;, y=&quot;Icome&quot;, title=&quot;Model&quot;) +
+  scale_color_manual(&quot;Qualification&quot;,values=c(&quot;red&quot;,&quot;blue&quot;))+
+  ggeasy::easy_center_title()
+plot</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="stan" class="section level2">
+<h2>Stan</h2>
+<div id="stan-file" class="section level3">
+<h3>Stan File</h3>
+<pre class="stan"><code>data {
+  int N;
+  vector[N] y;
+  vector[N] x1;
+  vector[N] x2;
+  
+  int N_hat;
+  vector[N_hat] x_hat;
+}
+
+parameters {
+  vector[3] b;
+  real&lt;lower=0&gt; sigma;
+}
+
+transformed parameters{
+  vector[N] mu;
+  mu = b[1] + b[2]*x1 + b[3]*x2;
+}
+
+model{
+  y ~ normal(mu, sigma);
+}
+
+generated quantities{
+  vector[N_hat] mu_hat1;
+  vector[N_hat] mu_hat0;
+  vector[N_hat] y_hat1;
+  vector[N_hat] y_hat0;
+  
+  for(n in 1:N_hat){
+    mu_hat1[n] = b[1] + b[2]*x_hat[n] + b[3];
+    mu_hat0[n] = b[1] + b[2]*x_hat[n];
+    y_hat1[n] = normal_rng(mu_hat1[n], sigma);
+    y_hat0[n] = normal_rng(mu_hat0[n], sigma);
+  }
+}</code></pre>
+</div>
+<div id="r-for-stan" class="section level3">
+<h3>R for Stan</h3>
+<pre class="r"><code>x_hat &lt;- seq(min(data$age), max(data$age))
+data_list &lt;- list(
+  N = nrow(data), y = data$income,
+  x1 = data$age, x2 = data$qual,
+  
+  N_hat = length(x_hat), x_hat = x_hat
+)
+
+mcmc_result &lt;- stan(
+  file=&quot;NormalLinearModel.stan&quot;,
+  data=data_list,
+  seed=1,
+  iter = 1000, warmup = 200, chains = 4, thin=1
+)</code></pre>
+</div>
+</div>
+<div id="analysis-results" class="section level2">
+<h2>Analysis Results</h2>
+<div id="r-code" class="section level3">
+<h3>R code</h3>
+<pre class="r"><code># Result
+print(mcmc_result, probs = c(0.025, 0.5, 0.975), pars=c(&quot;b&quot;,&quot;sigma&quot;))</code></pre>
+<pre><code>## Inference for Stan model: NormalLinearModel.
+## 4 chains, each with iter=1000; warmup=200; thin=1; 
+## post-warmup draws per chain=800, total post-warmup draws=3200.
+## 
+##         mean se_mean    sd   2.5%    50%  97.5% n_eff Rhat
+## b[1]  225.45    1.45 48.87 128.21 225.00 323.29  1143    1
+## b[2]   11.67    0.03  1.03   9.66  11.67  13.71  1201    1
+## b[3]  200.82    0.56 26.31 149.90 200.84 251.69  2233    1
+## sigma 108.07    0.20  9.04  91.98 107.33 126.88  2069    1
+## 
+## Samples were drawn using NUTS(diag_e) at Wed May 18 13:43:01 2022.
+## For each parameter, n_eff is a crude measure of effective sample size,
+## and Rhat is the potential scale reduction factor on split chains (at 
+## convergence, Rhat=1).</code></pre>
+<pre class="r"><code>## Convergence Check
+mcmc_sample &lt;- rstan::extract(mcmc_result, permuted=FALSE)
+mcmc_combo(mcmc_sample, pars=c(&quot;b[1]&quot;,&quot;b[2]&quot;,&quot;b[3]&quot;,&quot;sigma&quot;))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code>## mu result
+mcmc_sample &lt;- rstan::extract(mcmc_result)
+func &lt;- function(x){
+  return (quantile(x, c(0.025, 0.5, 0.975)))
+}
+mu_hat1 &lt;- apply(mcmc_sample[[&quot;mu_hat1&quot;]], 2, func)
+mu_hat0 &lt;- apply(mcmc_sample[[&quot;mu_hat0&quot;]], 2, func)
+
+plot_mu &lt;- plot + 
+  labs(title=&quot;Estimation of μ&quot;) +
+  geom_line(aes(x=x_hat, y=mu_hat1[2,]), col=&quot;blue&quot;) + 
+  geom_line(aes(x=x_hat, y=mu_hat0[2,]), col=&quot;red&quot;) +
+  geom_ribbon(aes(x=x_hat, ymin=mu_hat1[1,],ymax=mu_hat1[3,]), alpha=0.5, fill=&quot;gray&quot;, col=&quot;blue&quot;)+
+  geom_ribbon(aes(x=x_hat, ymin=mu_hat0[1,],ymax=mu_hat0[3,]), alpha=0.5, fill=&quot;gray&quot;, col=&quot;red&quot;)
+plot_mu</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
+<pre class="r"><code>## Prediction distribution
+y_hat1 &lt;- apply(mcmc_sample[[&quot;y_hat1&quot;]], 2, func)
+y_hat0 &lt;- apply(mcmc_sample[[&quot;y_hat0&quot;]], 2, func)
+
+plot_y &lt;- plot +
+  labs(title=&quot;Prediction Distribution&quot;) +
+  geom_line(aes(x=x_hat, y=y_hat1[2,]), col=&quot;blue&quot;) + 
+  geom_line(aes(x=x_hat, y=y_hat0[2,]), col=&quot;red&quot;) +
+  geom_ribbon(aes(x=x_hat, ymin=y_hat1[1,],ymax=y_hat1[3,]), alpha=0.5, fill=&quot;gray&quot;, col=&quot;blue&quot;)+
+  geom_ribbon(aes(x=x_hat, ymin=y_hat0[1,],ymax=y_hat0[3,]), alpha=0.5, fill=&quot;gray&quot;, col=&quot;red&quot;)
+plot_y</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-3.png" width="672" /></p>
+</div>
+</div>
