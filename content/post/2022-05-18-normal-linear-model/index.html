@@ -53,15 +53,15 @@ options(mc.cores=parallel::detectCores())</code></pre>
 <tbody>
 <tr class="odd">
 <td>Normal Linear Model</td>
-<td><span class="math inline">\(\mu_n=\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}\)</span> <br /><span class="math inline">\(p(y_n | \mu_n,\sigma) \sim Normal(y_n|\mu_n,\sigma^2)\)</span><br /></td>
+<td><span class="math inline">\(\mu_n=\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}\)</span> <br /><span class="math inline">\(p(y_n | \beta,\sigma) \sim Normal(y_n|\mu_n,\sigma^2)\)</span><br /></td>
 </tr>
 <tr class="even">
 <td>This Model</td>
-<td><span class="math inline">\(\mu_n=beta_0+\beta_1Age_n+\beta_2Qual_n\)</span> <br /><span class="math inline">\(p(Income_n | \mu,\sigma) \sim Normal(Income_n | \mu_n,\sigma^2)\)</span><br /></td>
+<td><span class="math inline">\(\mu_n=\beta_0+\beta_1Age_n+\beta_2Qual_n\)</span> <br /><span class="math inline">\(p(Income_n | \beta,\sigma) \sim Normal(Income_n | \mu_n,\sigma^2)\)</span><br /></td>
 </tr>
 <tr class="odd">
 <td>Simulation</td>
-<td><span class="math inline">\(\mu_n=300+10Age_n+200Qual_n\)</span> <br /><span class="math inline">\(p(Income_n|\mu,\sigma) \sim Normal(Income_n | \mu_n,100^2)\)</span><br /></td>
+<td><span class="math inline">\(\mu_n=300+10Age_n+200Qual_n\)</span> <br /><span class="math inline">\(Income_n \sim Normal(Income_n | \mu_n,100^2)\)</span><br /></td>
 </tr>
 </tbody>
 </table>
@@ -166,7 +166,7 @@ print(mcmc_result, probs = c(0.025, 0.5, 0.975), pars=c(&quot;b&quot;,&quot;sigm
 ## b[3]  200.82    0.56 26.31 149.90 200.84 251.69  2233    1
 ## sigma 108.07    0.20  9.04  91.98 107.33 126.88  2069    1
 ## 
-## Samples were drawn using NUTS(diag_e) at Fri May 27 21:53:10 2022.
+## Samples were drawn using NUTS(diag_e) at Sat May 28 10:40:12 2022.
 ## For each parameter, n_eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor on split chains (at 
 ## convergence, Rhat=1).</code></pre>
