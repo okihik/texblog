@@ -84,7 +84,7 @@ data %&gt;% head()</code></pre>
   geom_point(aes(x=data$age, y=data$income, color=factor(data$qual))) + 
   theme_classic(base_family = &quot;&quot;) +
   theme(text=element_text(size=20))+
-  labs(x=&quot;Age&quot;, y=&quot;Icome&quot;, title=&quot;Model&quot;) +
+  labs(x=&quot;Age&quot;, y=&quot;Icome&quot;, title=&quot;Scatter plot&quot;) +
   scale_color_manual(&quot;Qualification&quot;,values=c(&quot;red&quot;,&quot;blue&quot;))+
   ggeasy::easy_center_title()
 plot</code></pre>
@@ -166,7 +166,7 @@ print(mcmc_result, probs = c(0.025, 0.5, 0.975), pars=c(&quot;b&quot;,&quot;sigm
 ## b[3]  200.82    0.56 26.31 149.90 200.84 251.69  2233    1
 ## sigma 108.07    0.20  9.04  91.98 107.33 126.88  2069    1
 ## 
-## Samples were drawn using NUTS(diag_e) at Sat May 28 10:40:12 2022.
+## Samples were drawn using NUTS(diag_e) at Sat May 28 21:31:17 2022.
 ## For each parameter, n_eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor on split chains (at 
 ## convergence, Rhat=1).</code></pre>

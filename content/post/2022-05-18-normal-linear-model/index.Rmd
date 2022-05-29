@@ -50,7 +50,7 @@ plot <- ggplot() +
   geom_point(aes(x=data$age, y=data$income, color=factor(data$qual))) + 
   theme_classic(base_family = "") +
   theme(text=element_text(size=20))+
-  labs(x="Age", y="Icome", title="Model") +
+  labs(x="Age", y="Icome", title="Scatter plot") +
   scale_color_manual("Qualification",values=c("red","blue"))+
   ggeasy::easy_center_title()
 plot
