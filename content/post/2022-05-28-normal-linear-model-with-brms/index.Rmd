@@ -4,7 +4,8 @@ author: Akihiko Mori
 date: '2022-05-28'
 slug: []
 categories: []
-tags: - Bayesian Modelling (R and Stan)
+tags: 
+- Bayesian Modelling (R and Stan)
 ---
 
 ## Purpose
