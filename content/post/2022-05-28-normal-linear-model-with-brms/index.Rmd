@@ -26,6 +26,7 @@ library(ggplot2)
 library(rstan)
 library(brms) # BRMS
 library(patchwork) 
+library(margins)
 
 set.seed(1)
 rstan_options(auto_write=TRUE)
@@ -61,7 +62,7 @@ plot
 ```{r}
 mcmc_result <- brm(
   data = data,
-  formula = income~ age + qual,
+  formula = income ~ age + qual,
   family = gaussian(link = identity),
   seed = 1,
   iter = 1000, warmup = 200, chains = 4, thin=1
@@ -87,7 +88,7 @@ plot(conditional_effects(mcmc_result,
 ## Prediction distribution
 plot(conditional_effects(mcmc_result, 
                          effects="age:qual", 
-                         method="predict"), 
-     points=TRUE)%>%wrap_plots() + 
+                         method="predict"),
+     points=TRUE) %>%wrap_plots() +
   plot_annotation(title="prediction distribution")
 ```
