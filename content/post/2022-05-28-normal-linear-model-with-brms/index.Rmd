@@ -83,12 +83,13 @@ plot(mcmc_result)
 ## mu result
 plot(conditional_effects(mcmc_result, 
                          effects="age:qual"), 
-     points=TRUE)%>%wrap_plots()+plot_annotation(title="μ's Estimation")
+     points=TRUE) %>% wrap_plots() +
+  plot_annotation(title="μ's Estimation")
 
 ## Prediction distribution
 plot(conditional_effects(mcmc_result, 
                          effects="age:qual", 
                          method="predict"),
-     points=TRUE) %>%wrap_plots() +
+     points=TRUE) %>% wrap_plots() +
   plot_annotation(title="prediction distribution")
 ```

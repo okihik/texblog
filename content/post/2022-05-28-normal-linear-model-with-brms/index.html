@@ -158,13 +158,14 @@ plot(mcmc_result)</code></pre>
 <pre class="r"><code>## mu result
 plot(conditional_effects(mcmc_result, 
                          effects=&quot;age:qual&quot;), 
-     points=TRUE)%&gt;%wrap_plots()+plot_annotation(title=&quot;μ&#39;s Estimation&quot;)</code></pre>
+     points=TRUE) %&gt;% wrap_plots() +
+  plot_annotation(title=&quot;μ&#39;s Estimation&quot;)</code></pre>
 <p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-2.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-3.png" width="672" /></p>
 <pre class="r"><code>## Prediction distribution
 plot(conditional_effects(mcmc_result, 
                          effects=&quot;age:qual&quot;, 
                          method=&quot;predict&quot;),
-     points=TRUE) %&gt;%wrap_plots() +
+     points=TRUE) %&gt;% wrap_plots() +
   plot_annotation(title=&quot;prediction distribution&quot;)</code></pre>
 <p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-4.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-5.png" width="672" /></p>
 </div>
