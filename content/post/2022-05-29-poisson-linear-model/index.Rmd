@@ -34,9 +34,9 @@ options(mc.cores=parallel::detectCores())
 ## Model
 | Model | Model Equation |
 |-------|----------------------------------|
-| Poisson Linear Model | $\lambda_n=exp(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM})$ <br />$p(y_n | \beta,\sigma) \sim Poiss(y_n|\lambda_n)$<br /> |
-| This Model          | $\lambda_n=\beta_0+\beta_1Temp_n+\beta_2Holiday_n$ <br />$p(Sales_n | \beta) \sim Poiss(Sales_n | \lambda_n)$<br />   |
-| Simulation          |$\lambda_n=-2+0.2Temp_n+0.5Holiday_n$ <br />$Sales_n \sim Poiss(Sales_n | \lambda_n)$<br /> |
+| Poisson Linear Model | $\lambda_n=exp\left(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}\right)$ <br />$p\left(y_n | \beta\right) \sim Poiss\left(y_n|\lambda_n\right)$<br /> |
+| This Model          | $\lambda_n=exp\left(\beta_0+\beta_1Temp_n+\beta_2Holiday_n\right)$ <br />$p\left(Sales_n | \beta\right) \sim Poiss\left(Sales_n | \lambda_n\right)$<br />   |
+| Simulation          |$\lambda_n=exp\left(-2+0.2Temp_n+0.5Holiday_n\right)$ <br />$Sales_n \sim Poiss\left(Sales_n | \lambda_n\right)$<br /> |
 
 ## Data Generation
 ```{r}

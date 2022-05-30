@@ -51,16 +51,16 @@ options(mc.cores=parallel::detectCores())</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Normal Linear Model</td>
-<td><span class="math inline">\(\lambda_n=exp(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM})\)</span> <br /><span class="math inline">\(p(y_n | \beta,\sigma) \sim Poiss(y_n|\lambda_n)\)</span><br /></td>
+<td>Poisson Linear Model</td>
+<td><span class="math inline">\(\lambda_n=exp\left(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}\right)\)</span> <br /><span class="math inline">\(p\left(y_n | \beta\right) \sim Poiss\left(y_n|\lambda_n\right)\)</span><br /></td>
 </tr>
 <tr class="even">
 <td>This Model</td>
-<td><span class="math inline">\(\lambda_n=\beta_0+\beta_1Temp_n+\beta_2Holiday_n\)</span> <br /><span class="math inline">\(p(Sales_n | \beta) \sim Poiss(Sales_n | \lambda_n)\)</span><br /></td>
+<td><span class="math inline">\(\lambda_n=exp\left(\beta_0+\beta_1Temp_n+\beta_2Holiday_n\right)\)</span> <br /><span class="math inline">\(p\left(Sales_n | \beta\right) \sim Poiss\left(Sales_n | \lambda_n\right)\)</span><br /></td>
 </tr>
 <tr class="odd">
 <td>Simulation</td>
-<td><span class="math inline">\(\lambda_n=-2+0.2Temp_n+0.5Holiday_n\)</span> <br /><span class="math inline">\(Sales_n \sim Poiss(Sales_n | \lambda_n)\)</span><br /></td>
+<td><span class="math inline">\(\lambda_n=exp\left(-2+0.2Temp_n+0.5Holiday_n\right)\)</span> <br /><span class="math inline">\(Sales_n \sim Poiss\left(Sales_n | \lambda_n\right)\)</span><br /></td>
 </tr>
 </tbody>
 </table>
@@ -166,7 +166,7 @@ print(mcmc_result, probs = c(0.025, 0.5, 0.975), pars=&quot;b&quot;)</code></pre
 ## b[2]  0.20       0 0.01  0.18  0.20  0.21  1322    1
 ## b[3]  0.52       0 0.06  0.41  0.52  0.63  2041    1
 ## 
-## Samples were drawn using NUTS(diag_e) at Sun May 29 20:26:03 2022.
+## Samples were drawn using NUTS(diag_e) at Sun May 29 21:24:54 2022.
 ## For each parameter, n_eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor on split chains (at 
 ## convergence, Rhat=1).</code></pre>
