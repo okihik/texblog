@@ -1,0 +1,156 @@
+---
+title: Poisson Linear model
+author: Akihiko Mori
+date: '2022-05-29'
+slug: []
+categories: []
+tags: 
+- Bayesian Modelling (R and Stan)
+---
+
+## Purpose
+Bayesian estimation of the GLM, a Poisson linear model, will be implemented using R and Stan.
+The data will be implemented from the data preparation and can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Model
+3. Data Generation
+4. Stan
+5. Analysis
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(rstan)
+library(bayesplot)
+
+set.seed(1)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())
+```
+
+## Model
+| Model | Model Equation |
+|-------|----------------------------------|
+| Normal Linear Model | $\lambda_n=exp(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM})$ <br />$p(y_n | \beta,\sigma) \sim Poiss(y_n|\lambda_n)$<br /> |
+| This Model          | $\lambda_n=\beta_0+\beta_1Temp_n+\beta_2Holiday_n$ <br />$p(Sales_n | \beta) \sim Poiss(Sales_n | \lambda_n)$<br />   |
+| Simulation          |$\lambda_n=-2+0.2Temp_n+0.5Holiday_n$ <br />$Sales_n \sim Poiss(Sales_n | \lambda_n)$<br /> |
+
+## Data Generation
+```{r}
+temp <- rnorm(100, 20,5) %>% round(1) 
+holiday <- rbinom(100, 1, 2/7)
+lambda <- exp(-2+0.2*temp+0.5*holiday)
+sales <- rpois(100, lambda)
+data　<- data.frame(temp, holiday, sales)
+data %>% head()
+
+plot <- ggplot() +
+  geom_point(aes(x=data$temp, y=data$sales, color=factor(data$holiday))) + 
+  theme_classic(base_family = "") +
+  theme(text=element_text(size=20))+
+  labs(x="Temperature", y="Sale counts", title="Scatter Plot") +
+  scale_color_manual("Holiday",values=c("red","blue"))
+plot
+```
+
+## Stan
+### Stan File
+```{stan output.var="PoissonLinearModel.stan"}
+data {
+  int N;
+  int y[N];
+  vector[N] x1;
+  vector[N] x2;
+  
+  int N_hat;
+  vector[N_hat] x_hat;
+}
+
+parameters {
+  vector[3] b;
+}
+
+transformed parameters{
+  vector[N] lambda;
+  lambda = exp(b[1] + b[2]*x1 + b[3]*x2);
+}
+
+model{
+  y ~ poisson(lambda);
+}
+
+generated quantities{
+  vector[N_hat] lambda_hat1;
+  vector[N_hat] lambda_hat0;
+  int y_hat1[N_hat];
+  int y_hat0[N_hat];
+  
+  for(n in 1:N_hat){
+    lambda_hat1[n] = exp(b[1] + b[2]*x_hat[n] + b[3]);
+    lambda_hat0[n] = exp(b[1] + b[2]*x_hat[n]);
+    y_hat1[n] = poisson_rng(lambda_hat1[n]);
+    y_hat0[n] = poisson_rng(lambda_hat0[n]);
+  }
+}
+```
+
+
+### R for Stan
+```{r}
+x_hat <- seq(min(data$temp), max(data$temp))
+data_list <- list(
+  N = nrow(data), y = data$sales,
+  x1 = data$temp, x2 = data$holiday,
+  
+  N_hat = length(x_hat), x_hat = x_hat
+)
+
+mcmc_result <- stan(
+  file="PoissonLinearModel.stan",
+  data=data_list,
+  seed=10,
+  iter = 2000, warmup = 200, chains = 3, thin=1
+)
+```
+
+## Analysis Results
+### R code
+```{r}
+# Result
+print(mcmc_result, probs = c(0.025, 0.5, 0.975), pars="b")
+
+## Convergence Check
+mcmc_sample <- rstan::extract(mcmc_result, permuted=FALSE)
+mcmc_combo(mcmc_sample, pars=c("b[1]","b[2]","b[3]"))
+
+## lambda result
+mcmc_sample <- rstan::extract(mcmc_result)
+func <- function(x){
+  return (quantile(x, c(0.025, 0.5, 0.975)))
+}
+lambda_hat1 <- apply(mcmc_sample[["lambda_hat1"]], 2, func)
+lambda_hat0 <- apply(mcmc_sample[["lambda_hat0"]], 2, func)
+
+plot_lambda<- plot + 
+  labs(title="λ Estimation") +
+  geom_line(aes(x=x_hat, y=lambda_hat1[2,]), col="blue") + 
+  geom_line(aes(x=x_hat, y=lambda_hat0[2,]), col="red") +
+  geom_ribbon(aes(x=x_hat, ymin=lambda_hat1[1,],ymax=lambda_hat1[3,]), alpha=0.5, fill="gray", col="blue")+
+  geom_ribbon(aes(x=x_hat, ymin=lambda_hat0[1,],ymax=lambda_hat0[3,]), alpha=0.5, fill="gray", col="red")
+plot_lambda
+
+## Prediction distribution
+y_hat1 <- apply(mcmc_sample[["y_hat1"]], 2, func)
+y_hat0 <- apply(mcmc_sample[["y_hat0"]], 2, func)
+
+plot_y <- plot + 
+  labs(title="Prediction Distribution") +
+  geom_line(aes(x=x_hat, y=y_hat1[2,]), col="blue") + 
+  geom_line(aes(x=x_hat, y=y_hat0[2,]), col="red") +
+  geom_ribbon(aes(x=x_hat, ymin=y_hat1[1,],ymax=y_hat1[3,]), alpha=0.5, fill="gray", col="blue")+
+  geom_ribbon(aes(x=x_hat, ymin=y_hat0[1,],ymax=y_hat0[3,]), alpha=0.5, fill="gray", col="red")
+plot_y
+```

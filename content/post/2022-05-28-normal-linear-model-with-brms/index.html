@@ -101,28 +101,6 @@ plot</code></pre>
   iter = 1000, warmup = 200, chains = 4, thin=1
 )</code></pre>
 <pre><code>## Compiling Stan program...</code></pre>
-<pre><code>## Trying to compile a simple C file</code></pre>
-<pre><code>## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
-## clang -arch arm64 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG   -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/Rcpp/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/unsupported&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/BH/include&quot; -I&quot;/Users/am/Library/R/arm64/4.1/library/StanHeaders/include/src/&quot;  -I&quot;/Users/am/Library/R/arm64/4.1/library/StanHeaders/include/&quot;  -I&quot;/Users/am/Library/R/arm64/4.1/library/RcppParallel/include/&quot;  -I&quot;/Users/am/Library/R/arm64/4.1/library/rstan/include&quot; -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include &#39;/Users/am/Library/R/arm64/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp&#39;  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/opt/R/arm64/include   -fPIC  -falign-functions=64 -Wall -g -O2  -c foo.c -o foo.o
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Users/am/Library/R/arm64/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Dense:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Core:88:
-## /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:1: error: unknown type name &#39;namespace&#39;
-## namespace Eigen {
-## ^
-## /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:16: error: expected &#39;;&#39; after top level declarator
-## namespace Eigen {
-##                ^
-##                ;
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Users/am/Library/R/arm64/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Dense:1:
-## /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: &#39;complex&#39; file not found
-## #include &lt;complex&gt;
-##          ^~~~~~~~~
-## 3 errors generated.
-## make: *** [foo.o] Error 1</code></pre>
 <pre><code>## Start sampling</code></pre>
 </div>
 <div id="analysis-results" class="section level2">
