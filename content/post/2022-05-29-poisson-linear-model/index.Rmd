@@ -34,7 +34,7 @@ options(mc.cores=parallel::detectCores())
 ## Model
 | Model | Model Equation |
 |-------|----------------------------------|
-| Normal Linear Model | $\lambda_n=exp(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM})$ <br />$p(y_n | \beta,\sigma) \sim Poiss(y_n|\lambda_n)$<br /> |
+| Poisson Linear Model | $\lambda_n=exp(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM})$ <br />$p(y_n | \beta,\sigma) \sim Poiss(y_n|\lambda_n)$<br /> |
 | This Model          | $\lambda_n=\beta_0+\beta_1Temp_n+\beta_2Holiday_n$ <br />$p(Sales_n | \beta) \sim Poiss(Sales_n | \lambda_n)$<br />   |
 | Simulation          |$\lambda_n=-2+0.2Temp_n+0.5Holiday_n$ <br />$Sales_n \sim Poiss(Sales_n | \lambda_n)$<br /> |
 
