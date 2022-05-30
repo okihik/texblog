@@ -1,0 +1,167 @@
+---
+title: Poisson Linear Model with BRMS
+author: Akihiko Mori
+date: '2022-05-29'
+slug: []
+categories: []
+tags: 
+- Bayesian Modelling (R and Stan)
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>Bayesian estimation of the GLM, a Poisson linear model, will be implemented using R and Stan. This code is implemented with the library of BRMS.
+The data will be implemented from the data preparation and can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Model</li>
+<li>Data Generation</li>
+<li>BRMS</li>
+<li>Analysis</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)
+library(rstan)
+library(brms)
+library(patchwork)
+
+set.seed(1)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())</code></pre>
+</div>
+<div id="model" class="section level2">
+<h2>Model</h2>
+<table>
+<colgroup>
+<col width="17%" />
+<col width="82%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Model Equation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Normal Linear Model</td>
+<td><span class="math inline">\(\mu_n=\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}\)</span> <br /><span class="math inline">\(p(y_n | \beta,\sigma) \sim Normal(y_n|\mu_n,\sigma^2)\)</span><br /></td>
+</tr>
+<tr class="even">
+<td>This Model</td>
+<td><span class="math inline">\(\mu_n=\beta_0+\beta_1Age_n+\beta_2Qual_n\)</span> <br /><span class="math inline">\(p(Income_n | \beta,\sigma) \sim Normal(Income_n | \mu_n,\sigma^2)\)</span><br /></td>
+</tr>
+<tr class="odd">
+<td>Simulation</td>
+<td><span class="math inline">\(\mu_n=300+10Age_n+200Qual_n\)</span> <br /><span class="math inline">\(Income_n \sim Normal(Income_n | \mu_n,100^2)\)</span><br /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>temp &lt;- rnorm(100, 20,5) %&gt;% round(1) 
+holiday &lt;- rbinom(100, 1, 2/7)
+lambda &lt;- exp(-2+0.2*temp+0.5*holiday)
+sales &lt;- rpois(100, lambda)
+data　&lt;- data.frame(temp, holiday, sales)
+data %&gt;% head()</code></pre>
+<pre><code>##   temp holiday sales
+## 1 16.9       0     5
+## 2 20.9       0     5
+## 3 15.8       0     3
+## 4 28.0       0    36
+## 5 21.6       0    17
+## 6 15.9       0     5</code></pre>
+<pre class="r"><code>plot &lt;- ggplot() +
+  geom_point(aes(x=data$temp, y=data$sales, color=factor(data$holiday))) + 
+  theme_classic(base_family = &quot;&quot;) +
+  theme(text=element_text(size=20))+
+  labs(x=&quot;Temperature&quot;, y=&quot;Sale counts&quot;, title=&quot;Scatter Plot&quot;) +
+  scale_color_manual(&quot;Holiday&quot;,values=c(&quot;red&quot;,&quot;blue&quot;))
+plot</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="brms" class="section level2">
+<h2>BRMS</h2>
+<pre class="r"><code>mcmc_result &lt;- brm(
+  data = data,
+  formula = sales ~ temp + holiday,
+  family = poisson,
+  seed = 1,
+  iter = 1000, warmup = 200, chains = 4, thin=1
+)</code></pre>
+<pre><code>## Compiling Stan program...</code></pre>
+<pre><code>## Trying to compile a simple C file</code></pre>
+<pre><code>## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
+## clang -arch arm64 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG   -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/Rcpp/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/unsupported&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/BH/include&quot; -I&quot;/Users/am/Library/R/arm64/4.1/library/StanHeaders/include/src/&quot;  -I&quot;/Users/am/Library/R/arm64/4.1/library/StanHeaders/include/&quot;  -I&quot;/Users/am/Library/R/arm64/4.1/library/RcppParallel/include/&quot;  -I&quot;/Users/am/Library/R/arm64/4.1/library/rstan/include&quot; -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include &#39;/Users/am/Library/R/arm64/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp&#39;  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/opt/R/arm64/include   -fPIC  -falign-functions=64 -Wall -g -O2  -c foo.c -o foo.o
+## In file included from &lt;built-in&gt;:1:
+## In file included from /Users/am/Library/R/arm64/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
+## In file included from /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Dense:1:
+## In file included from /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Core:88:
+## /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:1: error: unknown type name &#39;namespace&#39;
+## namespace Eigen {
+## ^
+## /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:16: error: expected &#39;;&#39; after top level declarator
+## namespace Eigen {
+##                ^
+##                ;
+## In file included from &lt;built-in&gt;:1:
+## In file included from /Users/am/Library/R/arm64/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
+## In file included from /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Dense:1:
+## /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: &#39;complex&#39; file not found
+## #include &lt;complex&gt;
+##          ^~~~~~~~~
+## 3 errors generated.
+## make: *** [foo.o] Error 1</code></pre>
+<pre><code>## Start sampling</code></pre>
+</div>
+<div id="analysis-results" class="section level2">
+<h2>Analysis Results</h2>
+<div id="r-code" class="section level3">
+<h3>R code</h3>
+<pre class="r"><code># Result
+print(mcmc_result)</code></pre>
+<pre><code>##  Family: poisson 
+##   Links: mu = log 
+## Formula: sales ~ temp + holiday 
+##    Data: data (Number of observations: 100) 
+##   Draws: 4 chains, each with iter = 1000; warmup = 200; thin = 1;
+##          total post-warmup draws = 3200
+## 
+## Population-Level Effects: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept    -1.90      0.16    -2.22    -1.60 1.00     1412     2014
+## temp          0.20      0.01     0.18     0.21 1.00     1637     2068
+## holiday       0.52      0.06     0.41     0.63 1.00     1712     1884
+## 
+## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+<pre class="r"><code>## Convergence Check
+theme_set(theme_classic(base_size = 10, base_family = &quot;&quot;))
+plot(mcmc_result)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code>## mu result
+plot(conditional_effects(mcmc_result, 
+                         effects=&quot;temp:holiday&quot;), 
+     points=TRUE) %&gt;% wrap_plots() +
+  plot_annotation(title=&quot;λ&#39;s Estimation&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-2.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-3.png" width="672" /></p>
+<pre class="r"><code>## Prediction distribution
+plot(conditional_effects(mcmc_result, 
+                         effects=&quot;temp:holiday&quot;, 
+                         method=&quot;predict&quot;),
+     points=TRUE) %&gt;% wrap_plots() +
+  plot_annotation(title=&quot;prediction distribution&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-4.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-5.png" width="672" /></p>
+</div>
+</div>
