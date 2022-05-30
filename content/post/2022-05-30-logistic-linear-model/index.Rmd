@@ -1,0 +1,141 @@
+---
+title: Logistic Linear Model
+author: Akihiko Mori
+date: '2022-05-30'
+slug: []
+categories: []
+tags:
+  - Bayesian Modelling (R and Stan)
+---
+## Purpose
+Bayesian estimation of the GLM, a Logistic linear model, will be implemented using R and Stan.
+The data will be implemented from the data preparation and can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Model
+3. Data Generation
+4. Stan
+5. Analysis
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(rstan)
+library(bayesplot)
+
+set.seed(1)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())
+```
+
+## Model
+| Model | Model Equation |
+|-------|----------------------------------|
+| Poisson Linear Model | $p_n=sigmoid\left(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}\right)$ <br />$p\left(y_n | \beta\right) \sim Bern\left(y_n|p_n\right)$<br /> |
+| This Model          | $p_n=sigmoid\left(\beta_0+\beta_1Age_n+\beta_2Qual_n\right)$ <br />$p\left(Pass_n | \beta\right) \sim Bern\left(Pass_n | p_n\right)$<br />   |
+| Simulation          |$p_n=sigmoid\left(10-0.4Age_n+7Qual_n\right)$ <br />$Pass_n \sim Bern\left(Pass_n | p_n\right)$<br /> |
+
+## Data Generation
+```{r}
+qual <- rbinom(100, 1, 0.3)
+age <- rnorm(100, 50, 20) %>% round()
+p <- 1/(1+exp(-(10-0.4*age + 7*qual)))
+pass <- rbinom(100, 1, p)
+data <- data.frame(qual, age, pass) %>% filter(age>18, age<65)
+data %>% head()
+
+plot <- ggplot() +
+  geom_point(aes(x=data$age, y=data$pass, color=factor(data$qual))) + 
+  theme_classic(base_family = "") +
+  theme(text=element_text(size=20))+
+  labs(x="Age", y="Pass", title="Scatter plot") +
+  scale_color_manual("Qualification",values=c("red","blue"))+
+  ggeasy::easy_center_title()
+plot
+```
+
+## Stan
+### Stan File
+```{stan output.var="LogisticLinearModel.stan"}
+data {
+  int N;
+  int y[N];
+  vector[N] x1;
+  vector[N] x2;
+  
+  int N_hat;
+  vector[N_hat] x_hat;
+}
+
+parameters {
+  vector[3] b;
+}
+
+transformed parameters{
+  vector[N] p;
+  p = inv_logit(b[1] + b[2]*x1 + b[3]*x2);
+}
+
+model{
+  y ~ bernoulli(p);
+}
+
+generated quantities{
+  vector[N_hat] p_hat1;
+  vector[N_hat] p_hat0;
+  
+  for(n in 1:N_hat){
+    p_hat1[n] = inv_logit(b[1] + b[2]*x_hat[n] + b[3]);
+    p_hat0[n] = inv_logit(b[1] + b[2]*x_hat[n]);
+  }
+}
+```
+
+
+### R for Stan
+```{r}
+x_hat <- seq(min(data$age), max(data$age))
+data_list <- list(
+  N = nrow(data), y = data$pass,
+  x1 = data$age, x2 = data$qual,
+  
+  N_hat = length(x_hat), x_hat = x_hat
+)
+
+mcmc_result <- stan(
+  file="LogisticLinearModel.stan",
+  data=data_list,
+  seed=1,
+  iter = 1000, warmup = 200, chains = 4, thin=1
+)
+```
+
+## Analysis Results
+### R code
+```{r}
+# Result
+print(mcmc_result, probs = c(0.025, 0.5, 0.975), pars=c("b"))
+
+## Convergence Check
+mcmc_sample <- rstan::extract(mcmc_result, permuted=FALSE)
+mcmc_combo(mcmc_sample, pars=c("b[1]","b[2]","b[3]"))
+
+## p result
+mcmc_sample <- rstan::extract(mcmc_result)
+func <- function(x){
+  return (quantile(x, c(0.025, 0.5, 0.975)))
+}
+p_hat1 <- apply(mcmc_sample[["p_hat1"]], 2, func)
+p_hat0 <- apply(mcmc_sample[["p_hat0"]], 2, func)
+
+## Prediction distribution
+plot_p <- plot + 
+  labs(title="p Estimation") +
+  geom_line(aes(x=x_hat, y=p_hat1[2,]), col="blue") + 
+  geom_line(aes(x=x_hat, y=p_hat0[2,]), col="red") +
+  geom_ribbon(aes(x=x_hat, ymin=p_hat1[1,],ymax=p_hat1[3,]), alpha=0.5, fill="gray", col="blue")+
+  geom_ribbon(aes(x=x_hat, ymin=p_hat0[1,],ymax=p_hat0[3,]), alpha=0.5, fill="gray", col="red")
+plot_p
+```
