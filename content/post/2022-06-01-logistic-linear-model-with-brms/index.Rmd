@@ -1,0 +1,94 @@
+---
+title: Logistic Linear Model with BRMS
+author: Akihiko Mori
+date: '2022-06-01'
+slug: []
+categories: []
+tags:
+  - Bayesian Modelling (R and Stan)
+---
+## Purpose
+Bayesian estimation of the GLM, a Logistic linear model, will be implemented using R and Stan. This code is implemented with the library of BRMS.
+The data will be implemented from the data preparation and can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Model
+3. Data Generation
+4. BRMS
+5. Analysis
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(rstan)
+library(brms)
+library(patchwork)
+
+set.seed(1)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())
+```
+
+## Model
+| Model | Model Equation |
+|-------|----------------------------------|
+| Poisson Linear Model | $p_n=sigmoid\left(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}\right)$ <br />$p\left(y_n | \beta\right) \sim Bern\left(y_n|p_n\right)$<br /> |
+| This Model          | $p_n=sigmoid\left(\beta_0+\beta_1Age_n+\beta_2Qual_n\right)$ <br />$p\left(Pass_n | \beta\right) \sim Bern\left(Pass_n | p_n\right)$<br />   |
+| Simulation          |$p_n=sigmoid\left(10-0.4Age_n+7Qual_n\right)$ <br />$Pass_n \sim Bern\left(Pass_n | p_n\right)$<br /> |
+
+## Data Generation
+```{r}
+qual <- rbinom(100, 1, 0.3)
+age <- rnorm(100, 50, 20) %>% round()
+p <- 1/(1+exp(-(10-0.4*age + 7*qual)))
+pass <- rbinom(100, 1, p)
+data <- data.frame(qual, age, pass) %>% filter(age>18, age<65)
+data %>% head()
+
+plot <- ggplot() +
+  geom_point(aes(x=data$age, y=data$pass, color=factor(data$qual))) + 
+  theme_classic(base_family = "") +
+  theme(text=element_text(size=20))+
+  labs(x="Age", y="Pass", title="Scatter plot") +
+  scale_color_manual("Qualification",values=c("red","blue"))+
+  ggeasy::easy_center_title()
+plot
+```
+
+## BRMS
+```{r}
+mcmc_result <- brm(
+  data = data,
+  formula = pass ~ age + qual,
+  family = bernoulli(),
+  seed = 1,
+  iter = 1000, warmup = 200, chains = 4, thin=1
+)
+```
+
+
+## Analysis Results
+### R code
+```{r}
+# Result
+print(mcmc_result)
+
+## Convergence Check
+theme_set(theme_classic(base_size = 10, base_family = "HiraKakuProN-W3"))
+plot(mcmc_result)
+
+## mu result
+plot(conditional_effects(mcmc_result, 
+                         effects="age:qual"), 
+     points=TRUE) %>% wrap_plots() +
+  plot_annotation(title="p's Estimation")
+
+## Prediction distribution
+plot(conditional_effects(mcmc_result, 
+                         effects="age:qual", 
+                         method="predict"),
+     points=TRUE) %>% wrap_plots() +
+  plot_annotation(title="prediction distribution")
+```

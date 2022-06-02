@@ -1,0 +1,168 @@
+---
+title: Logistic Linear Model with BRMS
+author: Akihiko Mori
+date: '2022-06-01'
+slug: []
+categories: []
+tags:
+  - Bayesian Modelling (R and Stan)
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>Bayesian estimation of the GLM, a Logistic linear model, will be implemented using R and Stan. This code is implemented with the library of BRMS.
+The data will be implemented from the data preparation and can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Model</li>
+<li>Data Generation</li>
+<li>BRMS</li>
+<li>Analysis</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)
+library(rstan)
+library(brms)
+library(patchwork)
+
+set.seed(1)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())</code></pre>
+</div>
+<div id="model" class="section level2">
+<h2>Model</h2>
+<table>
+<colgroup>
+<col width="17%" />
+<col width="82%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Model Equation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Poisson Linear Model</td>
+<td><span class="math inline">\(p_n=sigmoid\left(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}\right)\)</span> <br /><span class="math inline">\(p\left(y_n | \beta\right) \sim Bern\left(y_n|p_n\right)\)</span><br /></td>
+</tr>
+<tr class="even">
+<td>This Model</td>
+<td><span class="math inline">\(p_n=sigmoid\left(\beta_0+\beta_1Age_n+\beta_2Qual_n\right)\)</span> <br /><span class="math inline">\(p\left(Pass_n | \beta\right) \sim Bern\left(Pass_n | p_n\right)\)</span><br /></td>
+</tr>
+<tr class="odd">
+<td>Simulation</td>
+<td><span class="math inline">\(p_n=sigmoid\left(10-0.4Age_n+7Qual_n\right)\)</span> <br /><span class="math inline">\(Pass_n \sim Bern\left(Pass_n | p_n\right)\)</span><br /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>qual &lt;- rbinom(100, 1, 0.3)
+age &lt;- rnorm(100, 50, 20) %&gt;% round()
+p &lt;- 1/(1+exp(-(10-0.4*age + 7*qual)))
+pass &lt;- rbinom(100, 1, p)
+data &lt;- data.frame(qual, age, pass) %&gt;% filter(age&gt;18, age&lt;65)
+data %&gt;% head()</code></pre>
+<pre><code>##   qual age pass
+## 1    0  58    0
+## 2    0  38    0
+## 3    0  57    0
+## 4    1  27    1
+## 5    1  43    0
+## 6    0  29    0</code></pre>
+<pre class="r"><code>plot &lt;- ggplot() +
+  geom_point(aes(x=data$age, y=data$pass, color=factor(data$qual))) + 
+  theme_classic(base_family = &quot;&quot;) +
+  theme(text=element_text(size=20))+
+  labs(x=&quot;Age&quot;, y=&quot;Pass&quot;, title=&quot;Scatter plot&quot;) +
+  scale_color_manual(&quot;Qualification&quot;,values=c(&quot;red&quot;,&quot;blue&quot;))+
+  ggeasy::easy_center_title()
+plot</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="brms" class="section level2">
+<h2>BRMS</h2>
+<pre class="r"><code>mcmc_result &lt;- brm(
+  data = data,
+  formula = pass ~ age + qual,
+  family = bernoulli(),
+  seed = 1,
+  iter = 1000, warmup = 200, chains = 4, thin=1
+)</code></pre>
+<pre><code>## Compiling Stan program...</code></pre>
+<pre><code>## Trying to compile a simple C file</code></pre>
+<pre><code>## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
+## clang -arch arm64 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG   -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/Rcpp/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/unsupported&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/BH/include&quot; -I&quot;/Users/am/Library/R/arm64/4.1/library/StanHeaders/include/src/&quot;  -I&quot;/Users/am/Library/R/arm64/4.1/library/StanHeaders/include/&quot;  -I&quot;/Users/am/Library/R/arm64/4.1/library/RcppParallel/include/&quot;  -I&quot;/Users/am/Library/R/arm64/4.1/library/rstan/include&quot; -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include &#39;/Users/am/Library/R/arm64/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp&#39;  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/opt/R/arm64/include   -fPIC  -falign-functions=64 -Wall -g -O2  -c foo.c -o foo.o
+## In file included from &lt;built-in&gt;:1:
+## In file included from /Users/am/Library/R/arm64/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
+## In file included from /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Dense:1:
+## In file included from /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Core:88:
+## /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:1: error: unknown type name &#39;namespace&#39;
+## namespace Eigen {
+## ^
+## /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:16: error: expected &#39;;&#39; after top level declarator
+## namespace Eigen {
+##                ^
+##                ;
+## In file included from &lt;built-in&gt;:1:
+## In file included from /Users/am/Library/R/arm64/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
+## In file included from /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Dense:1:
+## /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: &#39;complex&#39; file not found
+## #include &lt;complex&gt;
+##          ^~~~~~~~~
+## 3 errors generated.
+## make: *** [foo.o] Error 1</code></pre>
+<pre><code>## Start sampling</code></pre>
+</div>
+<div id="analysis-results" class="section level2">
+<h2>Analysis Results</h2>
+<div id="r-code" class="section level3">
+<h3>R code</h3>
+<pre class="r"><code># Result
+print(mcmc_result)</code></pre>
+<pre><code>##  Family: bernoulli 
+##   Links: mu = logit 
+## Formula: pass ~ age + qual 
+##    Data: data (Number of observations: 79) 
+##   Draws: 4 chains, each with iter = 1000; warmup = 200; thin = 1;
+##          total post-warmup draws = 3200
+## 
+## Population-Level Effects: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept     9.82      2.96     4.72    16.17 1.00     1020     1540
+## age          -0.36      0.10    -0.57    -0.20 1.01      763     1177
+## qual          5.69      1.68     2.91     9.25 1.01      713      924
+## 
+## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+<pre class="r"><code>## Convergence Check
+theme_set(theme_classic(base_size = 10, base_family = &quot;HiraKakuProN-W3&quot;))
+plot(mcmc_result)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code>## mu result
+plot(conditional_effects(mcmc_result, 
+                         effects=&quot;age:qual&quot;), 
+     points=TRUE) %&gt;% wrap_plots() +
+  plot_annotation(title=&quot;p&#39;s Estimation&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-2.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-3.png" width="672" /></p>
+<pre class="r"><code>## Prediction distribution
+plot(conditional_effects(mcmc_result, 
+                         effects=&quot;age:qual&quot;, 
+                         method=&quot;predict&quot;),
+     points=TRUE) %&gt;% wrap_plots() +
+  plot_annotation(title=&quot;prediction distribution&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-4.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-5.png" width="672" /></p>
+</div>
+</div>
