@@ -34,9 +34,9 @@ options(mc.cores=parallel::detectCores())
 ## Model
 | Model | Model Equation |
 |-------|----------------------------------|
-| Generalized Linear Mixed Model (Random Intercept) | $\lambda_n=exp\left(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}+\textbf{r_n}\right)$ <br />$p\left(y_n | \beta\right) \sim Poiss\left(y_n|\lambda_n\right)$<br /> |
-| This Model          | $\lambda_n=exp\left(\beta_0+\beta_1Temp_n+\beta_2Holiday_n+\textbf{r_n}\right)$ <br />$p\left(y_n | \beta\right) \sim Poiss\left(y_n | \lambda_n\right)$<br />   |
-| Simulation          |$\textbf{r_n} \sim Norm\left(0,0.6\right)$ <br /> $\lambda_n=exp\left(-2+0.2Temp_n+0.5Holiday_n+\textbf{r_n}\right)$<br /> <br />$Sales_n \sim Poiss\left(Sales_n | \lambda_n\right)$<br /> |
+| Generalized Linear Mixed Model (Random Intercept) | $\lambda_n=exp\left(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}+\textbf{r}_n\right)$ <br />$p\left(y_n | \beta\right) \sim Poiss\left(y_n|\lambda_n\right)$<br /> |
+| This Model          | $\lambda_n=exp\left(\beta_0+\beta_1Temp_n+\beta_2Holiday_n+\textbf{r}_n\right)$ <br />$p\left(y_n | \beta\right) \sim Poiss\left(y_n | \lambda_n\right)$<br />   |
+| Simulation          |$\textbf{r}_n \sim Norm\left(0,0.6\right)$ <br /> $\lambda_n=exp\left(-2+0.2Temp_n+0.5Holiday_n+\textbf{r}_n\right)$<br /> $Sales_n \sim Poiss\left(Sales_n | \lambda_n\right)$<br /> |
 
 ## Data Generation
 ```{r}
