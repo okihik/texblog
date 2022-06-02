@@ -1,0 +1,183 @@
+---
+title: Generalized Linear Mixed Model (Random Intercept 2)
+author: Akihiko Mori
+date: '2022-06-02'
+slug: []
+categories: []
+tags:
+  - Bayesian Modelling (R and Stan)
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>Bayesian estimation of the GLM, a Generalized Linear Mixed Model - Random Intercept - each variable, will be implemented using R and Stan.
+The data will be implemented from the data preparation and can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Model</li>
+<li>Data Generation</li>
+<li>Stan</li>
+<li>Analysis</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)
+library(rstan)
+library(bayesplot)
+
+set.seed(1)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())</code></pre>
+</div>
+<div id="model" class="section level2">
+<h2>Model</h2>
+<table>
+<colgroup>
+<col width="17%" />
+<col width="82%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Model Equation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Generalized Linear Mixed Model (Random Intercept)</td>
+<td><span class="math inline">\(\lambda_n=exp\left(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}+\textbf{r}_k\right)\)</span> <br /><span class="math inline">\(p\left(y_n | \beta\right) \sim Poiss\left(y_n|\lambda_n\right)\)</span><br /></td>
+</tr>
+<tr class="even">
+<td>This Model</td>
+<td><span class="math inline">\(\lambda_n=exp\left(\beta_0+\beta_1Temp_n+\beta_2Holiday_n+\textbf{r}_k\right)\)</span> <br /><span class="math inline">\(p\left(y_n | \beta\right) \sim Poiss\left(y_n | \lambda_n\right)\)</span><br /></td>
+</tr>
+<tr class="odd">
+<td>Simulation</td>
+<td><span class="math inline">\(\textbf{r}_k \sim Norm\left(0,0.6\right)\)</span> <br /> <span class="math inline">\(\lambda_n=exp\left(-2+0.2Temp_n+0.5Holiday_n+\textbf{r}_k\right)\)</span><br /> <span class="math inline">\(Sales_n \sim Poiss\left(Sales_n | \lambda_n\right)\)</span><br /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>temp &lt;- rnorm(100, 20,5) %&gt;% round(1) 
+holiday &lt;- rbinom(100, 1, 2/7)
+shop &lt;- runif(100, 1, 4) %&gt;% round()
+shopRandEffect &lt;- rnorm(4, 0, 1)
+data　&lt;- data.frame(temp, holiday, shop) %&gt;% 
+  mutate(r=ifelse(shop==1, 
+                  shopRandEffect[1], 
+                  ifelse(shop==2, 
+                         shopRandEffect[2],
+                         ifelse(shop==3,
+                                shopRandEffect[3],
+                                shopRandEffect[4] ))))%&gt;%
+  mutate(lambda=exp(-2+0.2*temp+0.5*holiday+r))
+data$sales &lt;- rpois(100, data$lambda)
+data %&gt;% select(temp, holiday, shop, sales) %&gt;% head()</code></pre>
+<pre><code>##   temp holiday shop sales
+## 1 16.9       0    3     9
+## 2 20.9       0    1    11
+## 3 15.8       0    2    19
+## 4 28.0       0    2   197
+## 5 21.6       0    2    58
+## 6 15.9       0    4     2</code></pre>
+<pre class="r"><code>plot &lt;- ggplot() +
+  geom_point(data=data,aes(x=temp, y=sales, color=factor(holiday))) + 
+  theme_classic(base_family = &quot;&quot;) +
+  theme(text=element_text(size=20))+
+  labs(x=&quot;Temperature&quot;, y=&quot;Sale Counts&quot;, title=&quot;Scatter Plot&quot;) +
+  scale_color_manual(&quot;Qualification&quot;,values=c(&quot;red&quot;,&quot;blue&quot;)) + 
+  facet_wrap(.~ shop)
+plot</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="stan" class="section level2">
+<h2>Stan</h2>
+<div id="stan-file" class="section level3">
+<h3>Stan File</h3>
+<pre class="stan"><code>data {
+  int N;
+  int y[N];
+  vector[N] x1;
+  vector[N] x2;
+  
+  int K;
+  int&lt;lower=1, upper=K&gt; x3[N];
+}
+
+parameters {
+  vector[3] b;
+  
+  vector[K] r;
+  real&lt;lower=0&gt; sigma;
+}
+
+transformed parameters{
+  vector[N] lambda;
+  lambda = exp(b[1] + b[2]*x1 + b[3]*x2 + r[x3]);
+}
+
+model{
+  r ~ normal(0, sigma);
+  y ~ poisson(lambda);
+}</code></pre>
+</div>
+<div id="r-for-stan" class="section level3">
+<h3>R for Stan</h3>
+<pre class="r"><code>data_list &lt;- list(
+  N = nrow(data), K = 4, y = data$sales,
+  x1 = data$temp, x2 = data$holiday, x3 = data$shop
+)
+
+mcmc_result &lt;- stan(
+  file=&quot;GLM2int.stan&quot;,
+  data=data_list,
+  seed=1,
+  iter = 2000, warmup = 200, chains = 4, thin=1
+)</code></pre>
+<pre><code>## Warning in readLines(file, warn = TRUE): incomplete final line found on &#39;/Users/
+## am/Documents/texblog/texblog/content/post/2022-06-02-generalized-linear-mixed-
+## model-random-intercept-2/GLM2int.stan&#39;</code></pre>
+<pre><code>## Warning: There were 292 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
+## https://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded</code></pre>
+<pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+</div>
+</div>
+<div id="analysis-results" class="section level2">
+<h2>Analysis Results</h2>
+<div id="r-code" class="section level3">
+<h3>R code</h3>
+<pre class="r"><code># Result
+print(mcmc_result, probs = c(0.025, 0.5, 0.975), pars=c(&quot;b&quot;,&quot;sigma&quot;, &quot;r&quot;))</code></pre>
+<pre><code>## Inference for Stan model: eb461d988756f398c9cacf85d3a43c1a.
+## 4 chains, each with iter=2000; warmup=200; thin=1; 
+## post-warmup draws per chain=1800, total post-warmup draws=7200.
+## 
+##        mean se_mean   sd  2.5%   50% 97.5% n_eff Rhat
+## b[1]  -1.29    0.04 1.21 -3.70 -1.30  1.29   737 1.01
+## b[2]   0.20    0.00 0.00  0.20  0.20  0.21  6934 1.00
+## b[3]   0.56    0.00 0.03  0.50  0.56  0.62  3287 1.00
+## sigma  1.99    0.07 2.08  0.62  1.44  6.96   882 1.00
+## r[1]  -0.45    0.04 1.20 -3.01 -0.45  1.96   737 1.01
+## r[2]   0.88    0.04 1.20 -1.70  0.89  3.28   736 1.01
+## r[3]   0.76    0.04 1.20 -1.82  0.76  3.16   735 1.01
+## r[4]  -1.20    0.04 1.20 -3.79 -1.19  1.20   737 1.01
+## 
+## Samples were drawn using NUTS(diag_e) at Thu Jun  2 13:25:35 2022.
+## For each parameter, n_eff is a crude measure of effective sample size,
+## and Rhat is the potential scale reduction factor on split chains (at 
+## convergence, Rhat=1).</code></pre>
+<pre class="r"><code>## Convergence Check
+mcmc_sample &lt;- rstan::extract(mcmc_result, permuted=FALSE)
+mcmc_combo(mcmc_sample, pars=c(&quot;b[1]&quot;,&quot;b[2]&quot;,&quot;b[3]&quot;,&quot;sigma&quot;))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
+</div>

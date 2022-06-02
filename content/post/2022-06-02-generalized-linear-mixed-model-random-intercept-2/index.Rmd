@@ -1,0 +1,124 @@
+---
+title: Generalized Linear Mixed Model (Random Intercept 2)
+author: Akihiko Mori
+date: '2022-06-02'
+slug: []
+categories: []
+tags:
+  - Bayesian Modelling (R and Stan)
+---
+## Purpose
+Bayesian estimation of the GLM, a Generalized Linear Mixed Model - Random Intercept - each variable, will be implemented using R and Stan.
+The data will be implemented from the data preparation and can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Model
+3. Data Generation
+4. Stan
+5. Analysis
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(rstan)
+library(bayesplot)
+
+set.seed(1)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())
+```
+
+## Model
+| Model | Model Equation |
+|-------|----------------------------------|
+| Generalized Linear Mixed Model (Random Intercept) | $\lambda_n=exp\left(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}+\textbf{r}_k\right)$ <br />$p\left(y_n | \beta\right) \sim Poiss\left(y_n|\lambda_n\right)$<br /> |
+| This Model          | $\lambda_n=exp\left(\beta_0+\beta_1Temp_n+\beta_2Holiday_n+\textbf{r}_k\right)$ <br />$p\left(y_n | \beta\right) \sim Poiss\left(y_n | \lambda_n\right)$<br />   |
+| Simulation          |$\textbf{r}_k \sim Norm\left(0,0.6\right)$ <br /> $\lambda_n=exp\left(-2+0.2Temp_n+0.5Holiday_n+\textbf{r}_k\right)$<br /> $Sales_n \sim Poiss\left(Sales_n | \lambda_n\right)$<br /> |
+
+## Data Generation
+```{r}
+temp <- rnorm(100, 20,5) %>% round(1) 
+holiday <- rbinom(100, 1, 2/7)
+shop <- runif(100, 1, 4) %>% round()
+shopRandEffect <- rnorm(4, 0, 1)
+data　<- data.frame(temp, holiday, shop) %>% 
+  mutate(r=ifelse(shop==1, 
+                  shopRandEffect[1], 
+                  ifelse(shop==2, 
+                         shopRandEffect[2],
+                         ifelse(shop==3,
+                                shopRandEffect[3],
+                                shopRandEffect[4] ))))%>%
+  mutate(lambda=exp(-2+0.2*temp+0.5*holiday+r))
+data$sales <- rpois(100, data$lambda)
+data %>% select(temp, holiday, shop, sales) %>% head()
+
+plot <- ggplot() +
+  geom_point(data=data,aes(x=temp, y=sales, color=factor(holiday))) + 
+  theme_classic(base_family = "") +
+  theme(text=element_text(size=20))+
+  labs(x="Temperature", y="Sale Counts", title="Scatter Plot") +
+  scale_color_manual("Qualification",values=c("red","blue")) + 
+  facet_wrap(.~ shop)
+plot
+```
+
+## Stan
+### Stan File
+```{stan output.var="GLM2int.stan"}
+data {
+  int N;
+  int y[N];
+  vector[N] x1;
+  vector[N] x2;
+  
+  int K;
+  int<lower=1, upper=K> x3[N];
+}
+
+parameters {
+  vector[3] b;
+  
+  vector[K] r;
+  real<lower=0> sigma;
+}
+
+transformed parameters{
+  vector[N] lambda;
+  lambda = exp(b[1] + b[2]*x1 + b[3]*x2 + r[x3]);
+}
+
+model{
+  r ~ normal(0, sigma);
+  y ~ poisson(lambda);
+}
+```
+
+
+### R for Stan
+```{r}
+data_list <- list(
+  N = nrow(data), K = 4, y = data$sales,
+  x1 = data$temp, x2 = data$holiday, x3 = data$shop
+)
+
+mcmc_result <- stan(
+  file="GLM2int.stan",
+  data=data_list,
+  seed=1,
+  iter = 2000, warmup = 200, chains = 4, thin=1
+)
+```
+
+## Analysis Results
+### R code
+```{r}
+# Result
+print(mcmc_result, probs = c(0.025, 0.5, 0.975), pars=c("b","sigma", "r"))
+
+## Convergence Check
+mcmc_sample <- rstan::extract(mcmc_result, permuted=FALSE)
+mcmc_combo(mcmc_sample, pars=c("b[1]","b[2]","b[3]","sigma"))
+```
