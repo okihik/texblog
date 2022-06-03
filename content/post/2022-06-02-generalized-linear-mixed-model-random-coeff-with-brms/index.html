@@ -1,0 +1,230 @@
+---
+title: Generalized Linear Mixed Model (Random Coeff.) with BRMS
+author: Akihiko Mori
+date: '2022-06-02'
+slug: []
+categories: []
+tags:
+  - Bayesian Modelling (R and Stan)
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>Bayesian estimation of the GLM, a Generalized Linear Mixed Model - Random Coefficient, will be implemented using R and Stan. This code is implemented with the library of BRMS.
+The data will be implemented from the data preparation and can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Model</li>
+<li>Data Generation</li>
+<li>BRMS</li>
+<li>Analysis</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)
+library(rstan)
+library(brms)
+library(patchwork)
+
+set.seed(1)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())</code></pre>
+</div>
+<div id="model" class="section level2">
+<h2>Model</h2>
+<table>
+<colgroup>
+<col width="17%" />
+<col width="82%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Model Equation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Generalized Linear Mixed Model (Random Intercept)</td>
+<td><span class="math inline">\(\lambda_n=exp\left(\beta_0+\left(\beta_1+\textbf{r}_k\right)x_{n1}+\cdots +\beta_{M}x_{nM}\right)\)</span> <br /><span class="math inline">\(p\left(y_n | \beta\right) \sim Poiss\left(y_n|\lambda_n\right)\)</span><br /></td>
+</tr>
+<tr class="even">
+<td>This Model</td>
+<td><span class="math inline">\(\lambda_n=exp\left(\beta_0+\beta_1Temp_n+\left(\beta_2++\textbf{r}_k\right)Holiday_n\right)\)</span> <br /><span class="math inline">\(p\left(y_n | \beta\right) \sim Poiss\left(y_n | \lambda_n\right)\)</span><br /></td>
+</tr>
+<tr class="odd">
+<td>Simulation</td>
+<td><span class="math inline">\(\textbf{r}_k \sim Norm\left(0,1\right)\)</span> <br /> <span class="math inline">\(\lambda_n=exp\left(-2+0.2Temp_n+\left(0.5+\textbf{r}_k\right)Holiday_n\right)\)</span><br /> <span class="math inline">\(Sales_n \sim Poiss\left(Sales_n | \lambda_n\right)\)</span><br /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>temp &lt;- rnorm(100, 20,5) %&gt;% round(1) 
+holiday &lt;- rbinom(100, 1, 2/7)
+shop &lt;- runif(100, 1, 4) %&gt;% round()
+r1 &lt;- rnorm(4, 0, 0.6)
+r2 &lt;- rnorm(4, 0, 0.4)
+data　&lt;- data.frame(temp, holiday, shop) %&gt;% 
+  mutate(r=ifelse(shop==1, 
+                  r1[1], 
+                  ifelse(shop==2, 
+                         r1[2],
+                         ifelse(shop==3,
+                                r1[3],
+                                r1[4] ))))%&gt;%
+  mutate(r=ifelse(shop==1, 
+                  r1[1], 
+                  ifelse(shop==2, 
+                         r1[2],
+                         ifelse(shop==3,
+                                r1[3],
+                                r1[4] ))))%&gt;%
+    mutate(lambda=exp(-2+0.2*temp+(0.5+r1)*holiday+r2)) %&gt;%
+  mutate(holiday=factor(holiday))
+data$sales &lt;- rpois(100, data$lambda)
+data %&gt;% select(temp, holiday, shop, sales) %&gt;% head()</code></pre>
+<pre><code>##   temp holiday shop sales
+## 1 16.9       0    3     1
+## 2 20.9       0    1    21
+## 3 15.8       0    2     4
+## 4 28.0       0    2    45
+## 5 21.6       0    2     2
+## 6 15.9       0    4     8</code></pre>
+<pre class="r"><code>data$sales &lt;- rpois(100, data$lambda)
+data %&gt;% select(temp, holiday, shop, sales) %&gt;% head()</code></pre>
+<pre><code>##   temp holiday shop sales
+## 1 16.9       0    3     3
+## 2 20.9       0    1    25
+## 3 15.8       0    2     4
+## 4 28.0       0    2    43
+## 5 21.6       0    2     7
+## 6 15.9       0    4     6</code></pre>
+<pre class="r"><code>plot &lt;- ggplot() +
+  geom_point(data=data,aes(x=temp, y=sales, color=factor(holiday))) + 
+  theme_classic(base_family = &quot;&quot;) +
+  theme(text=element_text(size=20))+
+  labs(x=&quot;Temperature&quot;, y=&quot;Sale Counts&quot;, title=&quot;Scatter Plot&quot;) +
+  scale_color_manual(&quot;Qualification&quot;,values=c(&quot;red&quot;,&quot;blue&quot;)) + 
+  facet_wrap(.~ shop)
+plot</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="brms" class="section level2">
+<h2>BRMS</h2>
+<pre class="r"><code>mcmc_result &lt;- brm(
+  data = data,
+  formula = sales ~ temp + holiday + (holiday||shop),
+  family = poisson(),
+  seed = 1,
+  iter = 1000, warmup = 200, chains = 4, thin=1
+)</code></pre>
+<pre><code>## Compiling Stan program...</code></pre>
+<pre><code>## Trying to compile a simple C file</code></pre>
+<pre><code>## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
+## clang -arch arm64 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG   -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/Rcpp/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/unsupported&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/BH/include&quot; -I&quot;/Users/am/Library/R/arm64/4.1/library/StanHeaders/include/src/&quot;  -I&quot;/Users/am/Library/R/arm64/4.1/library/StanHeaders/include/&quot;  -I&quot;/Users/am/Library/R/arm64/4.1/library/RcppParallel/include/&quot;  -I&quot;/Users/am/Library/R/arm64/4.1/library/rstan/include&quot; -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include &#39;/Users/am/Library/R/arm64/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp&#39;  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/opt/R/arm64/include   -fPIC  -falign-functions=64 -Wall -g -O2  -c foo.c -o foo.o
+## In file included from &lt;built-in&gt;:1:
+## In file included from /Users/am/Library/R/arm64/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
+## In file included from /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Dense:1:
+## In file included from /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Core:88:
+## /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:1: error: unknown type name &#39;namespace&#39;
+## namespace Eigen {
+## ^
+## /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:16: error: expected &#39;;&#39; after top level declarator
+## namespace Eigen {
+##                ^
+##                ;
+## In file included from &lt;built-in&gt;:1:
+## In file included from /Users/am/Library/R/arm64/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
+## In file included from /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Dense:1:
+## /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: &#39;complex&#39; file not found
+## #include &lt;complex&gt;
+##          ^~~~~~~~~
+## 3 errors generated.
+## make: *** [foo.o] Error 1</code></pre>
+<pre><code>## Start sampling</code></pre>
+<pre><code>## Warning: There were 43 divergent transitions after warmup. See
+## https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+## to find out why this is a problem and how to eliminate them.</code></pre>
+<pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+<pre><code>## Warning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.
+## Running the chains for more iterations may help. See
+## https://mc-stan.org/misc/warnings.html#tail-ess</code></pre>
+</div>
+<div id="analysis-results" class="section level2">
+<h2>Analysis Results</h2>
+<div id="r-code" class="section level3">
+<h3>R code</h3>
+<pre class="r"><code># Result
+print(mcmc_result)</code></pre>
+<pre><code>## Warning: There were 43 divergent transitions after warmup. Increasing
+## adapt_delta above 0.8 may help. See http://mc-stan.org/misc/
+## warnings.html#divergent-transitions-after-warmup</code></pre>
+<pre><code>##  Family: poisson 
+##   Links: mu = log 
+## Formula: sales ~ temp + holiday + (holiday || shop) 
+##    Data: data (Number of observations: 100) 
+##   Draws: 4 chains, each with iter = 1000; warmup = 200; thin = 1;
+##          total post-warmup draws = 3200
+## 
+## Group-Level Effects: 
+## ~shop (Number of levels: 4) 
+##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sd(Intercept)     0.39      0.31     0.12     1.24 1.00      441      273
+## sd(holiday1)      0.87      0.48     0.33     2.14 1.00      997     1206
+## 
+## Population-Level Effects: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept    -1.67      0.27    -2.25    -1.15 1.01      505      219
+## temp          0.20      0.01     0.19     0.21 1.00     2795     1916
+## holiday1      1.27      0.45     0.29     2.21 1.01      870      881
+## 
+## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+<pre class="r"><code>ranef(mcmc_result)</code></pre>
+<pre><code>## $shop
+## , , Intercept
+## 
+##      Estimate Est.Error       Q2.5     Q97.5
+## 1 -0.28844940 0.2350882 -0.7751900 0.2061956
+## 2  0.18774219 0.2331116 -0.2782525 0.6937009
+## 3  0.04607557 0.2343231 -0.4227661 0.5568978
+## 4  0.05860202 0.2356323 -0.4150580 0.5814570
+## 
+## , , holiday1
+## 
+##     Estimate Est.Error       Q2.5     Q97.5
+## 1  0.4298941 0.4632080 -0.4982642 1.4494658
+## 2  0.2106310 0.4577304 -0.7315029 1.1952408
+## 3  0.2880019 0.4588106 -0.6747087 1.2588317
+## 4 -0.7772502 0.4640761 -1.7487957 0.1915109</code></pre>
+<pre class="r"><code>## Convergence Check
+theme_set(theme_classic(base_size = 10, base_family = &quot;&quot;))
+plot(mcmc_result)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code>## λ result
+condition &lt;- data.frame(shop=1:4)
+plot(conditional_effects(mcmc_result, effects=&quot;temp:holiday&quot;,re_formula=NULL,
+                         conditions = condition), points=TRUE, ncol=2) %&gt;%
+  wrap_plots() + plot_annotation(title=&quot;λ&#39;s Estimation&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-2.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-3.png" width="672" /></p>
+<pre class="r"><code>## Prediction distribution
+plot(conditional_effects(mcmc_result, 
+                         effects=&quot;temp:holiday&quot;,
+                         re_formula=NULL,
+                         conditions = condition, 
+                         method=&quot;predict&quot;), 
+     points=TRUE, ncol=2)%&gt;%
+  wrap_plots() + plot_annotation(title=&quot;prediction distribution&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-4.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-5.png" width="672" /></p>
+</div>
+</div>

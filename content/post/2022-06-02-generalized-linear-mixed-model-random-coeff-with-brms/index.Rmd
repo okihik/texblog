@@ -1,0 +1,118 @@
+---
+title: Generalized Linear Mixed Model (Random Coeff.) with BRMS
+author: Akihiko Mori
+date: '2022-06-02'
+slug: []
+categories: []
+tags:
+  - Bayesian Modelling (R and Stan)
+---
+## Purpose
+Bayesian estimation of the GLM, a Generalized Linear Mixed Model - Random Coefficient, will be implemented using R and Stan. This code is implemented with the library of BRMS.
+The data will be implemented from the data preparation and can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Model
+3. Data Generation
+4. BRMS
+5. Analysis
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(rstan)
+library(brms)
+library(patchwork)
+
+set.seed(1)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())
+```
+
+
+## Model
+| Model | Model Equation |
+|-------|----------------------------------|
+| Generalized Linear Mixed Model (Random Intercept) | $\lambda_n=exp\left(\beta_0+\left(\beta_1+\textbf{r}_k\right)x_{n1}+\cdots +\beta_{M}x_{nM}\right)$ <br />$p\left(y_n | \beta\right) \sim Poiss\left(y_n|\lambda_n\right)$<br /> |
+| This Model          | $\lambda_n=exp\left(\beta_0+\beta_1Temp_n+\left(\beta_2++\textbf{r}_k\right)Holiday_n\right)$ <br />$p\left(y_n | \beta\right) \sim Poiss\left(y_n | \lambda_n\right)$<br />   |
+| Simulation          |$\textbf{r}_k \sim Norm\left(0,1\right)$ <br /> $\lambda_n=exp\left(-2+0.2Temp_n+\left(0.5+\textbf{r}_k\right)Holiday_n\right)$<br /> $Sales_n \sim Poiss\left(Sales_n | \lambda_n\right)$<br /> |
+
+## Data Generation
+```{r}
+temp <- rnorm(100, 20,5) %>% round(1) 
+holiday <- rbinom(100, 1, 2/7)
+shop <- runif(100, 1, 4) %>% round()
+r1 <- rnorm(4, 0, 0.6)
+r2 <- rnorm(4, 0, 0.4)
+data　<- data.frame(temp, holiday, shop) %>% 
+  mutate(r=ifelse(shop==1, 
+                  r1[1], 
+                  ifelse(shop==2, 
+                         r1[2],
+                         ifelse(shop==3,
+                                r1[3],
+                                r1[4] ))))%>%
+  mutate(r=ifelse(shop==1, 
+                  r1[1], 
+                  ifelse(shop==2, 
+                         r1[2],
+                         ifelse(shop==3,
+                                r1[3],
+                                r1[4] ))))%>%
+    mutate(lambda=exp(-2+0.2*temp+(0.5+r1)*holiday+r2)) %>%
+  mutate(holiday=factor(holiday))
+data$sales <- rpois(100, data$lambda)
+data %>% select(temp, holiday, shop, sales) %>% head()
+data$sales <- rpois(100, data$lambda)
+data %>% select(temp, holiday, shop, sales) %>% head()
+
+plot <- ggplot() +
+  geom_point(data=data,aes(x=temp, y=sales, color=factor(holiday))) + 
+  theme_classic(base_family = "") +
+  theme(text=element_text(size=20))+
+  labs(x="Temperature", y="Sale Counts", title="Scatter Plot") +
+  scale_color_manual("Qualification",values=c("red","blue")) + 
+  facet_wrap(.~ shop)
+plot
+```
+
+## BRMS
+```{r}
+mcmc_result <- brm(
+  data = data,
+  formula = sales ~ temp + holiday + (holiday||shop),
+  family = poisson(),
+  seed = 1,
+  iter = 1000, warmup = 200, chains = 4, thin=1
+)
+```
+
+## Analysis Results
+### R code
+```{r}
+# Result
+print(mcmc_result)
+ranef(mcmc_result)
+
+## Convergence Check
+theme_set(theme_classic(base_size = 10, base_family = ""))
+plot(mcmc_result)
+
+## λ result
+condition <- data.frame(shop=1:4)
+plot(conditional_effects(mcmc_result, effects="temp:holiday",re_formula=NULL,
+                         conditions = condition), points=TRUE, ncol=2) %>%
+  wrap_plots() + plot_annotation(title="λ's Estimation")
+
+
+## Prediction distribution
+plot(conditional_effects(mcmc_result, 
+                         effects="temp:holiday",
+                         re_formula=NULL,
+                         conditions = condition, 
+                         method="predict"), 
+     points=TRUE, ncol=2)%>%
+  wrap_plots() + plot_annotation(title="prediction distribution")
+```
