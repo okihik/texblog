@@ -1,0 +1,275 @@
+---
+title: Time-Varying Coefficients Model - State-Space Model
+author: Akihiko Mori
+date: '2022-06-03'
+slug: []
+categories: []
+tags:
+  - Bayesian Modelling (R and Stan)
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>Bayesian estimation of a Time-Varying Coefficients model, a state space model,
+will be implemented using R and Stan.
+The code can be reproduced by copy and paste since it is implemented from data creation.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Model</li>
+<li>Data Generation</li>
+<li>Stan</li>
+<li>Analysis</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)
+library(rstan)
+library(bayesplot)
+library(gridExtra)
+
+set.seed(2)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())</code></pre>
+</div>
+<div id="model" class="section level2">
+<h2>Model</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Model Equation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Local Level Model</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><span class="math inline">\(\mu_t \sim Norm\left(\mu_{t-1},\sigma^2_w\right)\)</span><br />
+<span class="math inline">\(\beta_t \sim Norm\left(\beta_{t-1},\sigma^2_\tau\right)\)</span><br />
+<span class="math inline">\(\alpha_t = \mu_t+\beta_t\cdot x_t\)</span><br />
+<span class="math inline">\(y_t \sim Norm\left(\alpha_t,\sigma^2_v\right)\)</span><br />|
+| Simulation|
+<span class="math inline">\(\mu_t \sim Norm\left(\mu_{t-1},5^2_w\right)\)</span><br />
+<span class="math inline">\(\beta_t \sim Norm\left(\beta_{t-1},1^2_\tau\right)\)</span><br />
+<span class="math inline">\(\alpha_t = \mu_t+\beta_t\cdot x_t\)</span><br />
+<span class="math inline">\(y_t \sim Norm\left(\alpha_t,3^2_v\right)\)</span><br />|</p>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code># Data Generation
+time &lt;- seq(as.POSIXct(&quot;2021/05/01&quot;), as.POSIXct(&quot;2021/08/01&quot;), &quot;days&quot;)
+x &lt;- rnorm(length(time), 10, 1)
+y &lt;- c()
+mu &lt;- c()
+b &lt;- c()
+mu[1] &lt;- rnorm(1, 80, 5) %&gt;% round(1)
+b[1] &lt;- rnorm(1, 10, 1) %&gt;% round(1)
+T &lt;- length(time)
+
+for(t in 2:T){
+  mu[t] &lt;- rnorm(1, mu[t-1], 5)
+  b[t] &lt;- rnorm(1, b[t-1], 1)
+}
+
+alpha &lt;- mu + b*x
+
+for(t in 1:t){
+  y[t] &lt;- rnorm(1, alpha[t], 3)
+}
+data &lt;- data.frame(time, x, y)
+data %&gt;% head()</code></pre>
+<pre><code>##         time         x        y
+## 1 2021-05-01  9.103085 150.7780
+## 2 2021-05-02 10.184849 179.5689
+## 3 2021-05-03 11.587845 180.3586
+## 4 2021-05-04  8.869624 162.6319
+## 5 2021-05-05  9.919748 166.3218
+## 6 2021-05-06 10.132420 161.9800</code></pre>
+<pre class="r"><code>## Data Visualization
+plot &lt;- data %&gt;% 
+  ggplot(aes(x=time)) +
+  theme_classic(base_family = &quot;&quot;) +
+  theme(text = element_text(size = 10))+
+  scale_x_datetime(date_labels = &quot;%m/%d&quot;)+
+  labs(x=&quot;Time&quot;)
+
+plot1 &lt;- plot + 
+  geom_point(aes(y=y))+
+  geom_line(aes(y=y)) +
+  labs(y=&quot;Output&quot;,title=&quot;Trend of Output&quot;)
+
+plot2 &lt;- plot + 
+  geom_point(aes(y=x))+
+  geom_line(aes(y=x)) +
+  labs(y=&quot;Input&quot;,title=&quot;Trend of Input&quot;)
+
+grid.arrange(plot1, plot2)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre class="r"><code>## Parameters Visualization
+plot_alpha_sim &lt;- plot + 
+  geom_point(aes(y=alpha))+
+  geom_line(aes(y=alpha)) +
+  labs(y=&quot;α&quot;,title=&quot;α Trend&quot;)
+
+plot_mu_sim &lt;- plot + 
+  geom_point(aes(y=mu))+
+  geom_line(aes(y=mu)) +
+  labs(y=&quot;μ&quot;,title=&quot;μ Trend&quot;)
+
+plot_b_sim &lt;- plot + 
+  geom_point(aes(y=b))+
+  geom_line(aes(y=b)) +
+  labs(y=&quot;β&quot;,title=&quot;β Trend&quot;)
+
+grid.arrange(plot_alpha_sim, plot_mu_sim, plot_b_sim)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
+</div>
+<div id="stan" class="section level2">
+<h2>Stan</h2>
+<div id="stan-file" class="section level3">
+<h3>Stan File</h3>
+<pre class="stan"><code>data {
+  int T;
+  vector[T] x;
+  vector[T] y;
+}
+
+parameters {
+  vector&lt;lower=0&gt;[T] mu;
+  vector&lt;lower=0&gt;[T] b;
+  real&lt;lower=0&gt; sigma_w;
+  real&lt;lower=0&gt; sigma_v;
+  real&lt;lower=0&gt; sigma_t;
+}
+
+transformed parameters{
+  vector[T] alpha;
+  for(t in 1:T){
+    alpha[t] = mu[t] + b[t]*x[t];
+  }
+}
+
+model {
+  mu[2:T] ~ normal(mu[1:(T-1)], sigma_w);
+  b[2:T] ~ normal(b[1:(T-1)], sigma_t);
+  y ~ normal(alpha, sigma_v);
+}
+
+generated quantities{
+  vector[T] y_pred;
+  for(t in 1:T){
+    y_pred[t] = normal_rng(alpha[t], sigma_v);
+  }
+}</code></pre>
+</div>
+<div id="r-for-stan" class="section level3">
+<h3>R for Stan</h3>
+<pre class="r"><code>data_list &lt;- list(
+  T = nrow(data),
+  x = data$x,
+  y = data$y
+)
+
+mcmc_result &lt;- stan(
+  file=&quot;timeVaryCoeffModel.stan&quot;,
+  data=data_list,
+  seed=10,
+  iter = 2000, warmup = 200, chains = 3, thin=1
+)</code></pre>
+<pre><code>## Warning: There were 707 divergent transitions after warmup. See
+## https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+## to find out why this is a problem and how to eliminate them.</code></pre>
+<pre><code>## Warning: There were 1 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
+## https://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded</code></pre>
+<pre><code>## Warning: There were 3 chains where the estimated Bayesian Fraction of Missing Information was low. See
+## https://mc-stan.org/misc/warnings.html#bfmi-low</code></pre>
+<pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+<pre><code>## Warning: The largest R-hat is 1.48, indicating chains have not mixed.
+## Running the chains for more iterations may help. See
+## https://mc-stan.org/misc/warnings.html#r-hat</code></pre>
+<pre><code>## Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.
+## Running the chains for more iterations may help. See
+## https://mc-stan.org/misc/warnings.html#bulk-ess</code></pre>
+<pre><code>## Warning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.
+## Running the chains for more iterations may help. See
+## https://mc-stan.org/misc/warnings.html#tail-ess</code></pre>
+</div>
+</div>
+<div id="analysis-results" class="section level2">
+<h2>Analysis Results</h2>
+<div id="r-code" class="section level3">
+<h3>R code</h3>
+<pre class="r"><code># Result
+print(mcmc_result, pars=c(&quot;sigma_w&quot;, &quot;sigma_v&quot;, &quot;sigma_t&quot;), 
+      probs = c(0.025, 0.5, 0.975))</code></pre>
+<pre><code>## Inference for Stan model: db2bef7e96144f590dc6d6551be1b88f.
+## 3 chains, each with iter=2000; warmup=200; thin=1; 
+## post-warmup draws per chain=1800, total post-warmup draws=5400.
+## 
+##         mean se_mean   sd 2.5%  50% 97.5% n_eff Rhat
+## sigma_w 3.77    0.60 2.31 1.31 3.45  8.77    15 1.34
+## sigma_v 4.12    0.71 1.82 1.30 4.14  7.17     7 1.34
+## sigma_t 0.97    0.04 0.16 0.65 0.95  1.26    15 1.16
+## 
+## Samples were drawn using NUTS(diag_e) at Fri Jun  3 10:24:35 2022.
+## For each parameter, n_eff is a crude measure of effective sample size,
+## and Rhat is the potential scale reduction factor on split chains (at 
+## convergence, Rhat=1).</code></pre>
+<pre class="r"><code>## Convergence Check
+mcmc_sample &lt;- rstan::extract(mcmc_result, permuted=FALSE)
+mcmc_combo(mcmc_sample, pars=c(&quot;sigma_w&quot;,&quot;sigma_v&quot;, &quot;sigma_t&quot;))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code>## Parameter results
+mcmc_sample &lt;- rstan::extract(mcmc_result)
+func &lt;- function(x){
+  return (quantile(x, c(0.025, 0.5, 0.975)))
+}
+## α result
+alpha &lt;- apply(mcmc_sample[[&quot;alpha&quot;]], 2, func)
+plot_alpha &lt;- plot + 
+  geom_point(aes(y=y))+
+  geom_line(aes(y=alpha[2,]), col=&quot;blue&quot;) + 
+  geom_ribbon(aes(ymin=alpha[1,],ymax=alpha[3,]), 
+              alpha=0.5, fill=&quot;gray&quot;, col=&quot;blue&quot;)+
+  labs(y=&quot;α&quot;,title=&quot;α Trend&quot;)
+
+## μ result
+mu &lt;- apply(mcmc_sample[[&quot;mu&quot;]], 2, func)
+plot_mu &lt;- plot + 
+  geom_line(aes(y=mu[2,]), col=&quot;blue&quot;) + 
+  geom_ribbon(aes(ymin=mu[1,],ymax=mu[3,]), 
+              alpha=0.5, fill=&quot;gray&quot;, col=&quot;blue&quot;) +
+  labs(y=&quot;μ&quot;,title=&quot;μ Trend&quot;)
+
+## result
+b &lt;- apply(mcmc_sample[[&quot;b&quot;]], 2, func)
+plot_b &lt;- plot + 
+  geom_line(aes(y=b[2,]), col=&quot;blue&quot;) + 
+  geom_ribbon(aes(ymin=b[1,],ymax=b[3,]), 
+              alpha=0.5, fill=&quot;gray&quot;, col=&quot;blue&quot;) +
+  labs(y=&quot;β&quot;,title=&quot;β Trend&quot;)
+
+grid.arrange(plot_alpha, plot_mu, plot_b)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
+<pre class="r"><code># Prediction Distribution
+y_pred &lt;- apply(mcmc_sample[[&quot;y_pred&quot;]], 2, func)
+
+plot + 
+  geom_point(aes(y=y)) +
+  geom_line(aes(y=y_pred[2,]), col=&quot;blue&quot;) + 
+  geom_ribbon(aes(ymin=y_pred[1,],ymax=y_pred[3,]), 
+              alpha=0.5, fill=&quot;gray&quot;, col=&quot;blue&quot;) +
+  labs(y=&quot;Output&quot;,title=&quot;Prediction Distribution&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-3.png" width="672" /></p>
+</div>
+</div>
