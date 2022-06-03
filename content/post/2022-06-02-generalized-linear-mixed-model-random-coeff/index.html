@@ -1,5 +1,5 @@
 ---
-title: Generalized Linear Mixed Model (Random Intercept 2)
+title: Generalized Linear Mixed Model (Random Coeff.)
 author: Akihiko Mori
 date: '2022-06-02'
 slug: []
@@ -12,7 +12,7 @@ tags:
 
 <div id="purpose" class="section level2">
 <h2>Purpose</h2>
-<p>Bayesian estimation of the GLM, a Generalized Linear Mixed Model - Random Intercept - each variable, will be implemented using R and Stan.
+<p>Bayesian estimation of the GLM, a Generalized Linear Mixed Model (Random Coefficients), will be implemented using R and Stan.
 The data will be implemented from the data preparation and can be reproduced by copy and paste.</p>
 </div>
 <div id="toc" class="section level2">
@@ -52,15 +52,15 @@ options(mc.cores=parallel::detectCores())</code></pre>
 <tbody>
 <tr class="odd">
 <td>Generalized Linear Mixed Model (Random Intercept)</td>
-<td><span class="math inline">\(\lambda_n=exp\left(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}+\textbf{r}_k\right)\)</span> <br /><span class="math inline">\(p\left(y_n | \beta\right) \sim Poiss\left(y_n|\lambda_n\right)\)</span><br /></td>
+<td><span class="math inline">\(\lambda_n=exp\left(\beta_0+\left(\beta_1+\textbf{r}_k\right)x_{n1}+\cdots +\beta_{M}x_{nM}\right)\)</span> <br /><span class="math inline">\(p\left(y_n | \beta\right) \sim Poiss\left(y_n|\lambda_n\right)\)</span><br /></td>
 </tr>
 <tr class="even">
 <td>This Model</td>
-<td><span class="math inline">\(\lambda_n=exp\left(\beta_0+\beta_1Temp_n+\beta_2Holiday_n+\textbf{r}_k\right)\)</span> <br /><span class="math inline">\(p\left(y_n | \beta\right) \sim Poiss\left(y_n | \lambda_n\right)\)</span><br /></td>
+<td><span class="math inline">\(\lambda_n=exp\left(\beta_0+\beta_1Temp_n+\left(\beta_2++\textbf{r}_k\right)Holiday_n\right)\)</span> <br /><span class="math inline">\(p\left(y_n | \beta\right) \sim Poiss\left(y_n | \lambda_n\right)\)</span><br /></td>
 </tr>
 <tr class="odd">
 <td>Simulation</td>
-<td><span class="math inline">\(\textbf{r}_k \sim Norm\left(0,0.6\right)\)</span> <br /> <span class="math inline">\(\lambda_n=exp\left(-2+0.2Temp_n+0.5Holiday_n+\textbf{r}_k\right)\)</span><br /> <span class="math inline">\(Sales_n \sim Poiss\left(Sales_n | \lambda_n\right)\)</span><br /></td>
+<td><span class="math inline">\(\textbf{r}_k \sim Norm\left(0,1\right)\)</span> <br /> <span class="math inline">\(\lambda_n=exp\left(-2+0.2Temp_n+\left(0.5+\textbf{r}_k\right)Holiday_n\right)\)</span><br /> <span class="math inline">\(Sales_n \sim Poiss\left(Sales_n | \lambda_n\right)\)</span><br /></td>
 </tr>
 </tbody>
 </table>
@@ -79,16 +79,16 @@ data　&lt;- data.frame(temp, holiday, shop) %&gt;%
                          ifelse(shop==3,
                                 shopRandEffect[3],
                                 shopRandEffect[4] ))))%&gt;%
-  mutate(lambda=exp(-2+0.2*temp+0.5*holiday+r))
+  mutate(lambda=exp(-2+0.2*temp+(0.5+r)*holiday))
 data$sales &lt;- rpois(100, data$lambda)
 data %&gt;% select(temp, holiday, shop, sales) %&gt;% head()</code></pre>
 <pre><code>##   temp holiday shop sales
-## 1 16.9       0    3     9
-## 2 20.9       0    1    11
-## 3 15.8       0    2    19
-## 4 28.0       0    2   197
-## 5 21.6       0    2    58
-## 6 15.9       0    4     2</code></pre>
+## 1 16.9       0    3     0
+## 2 20.9       0    1    14
+## 3 15.8       0    2     8
+## 4 28.0       0    2    34
+## 5 21.6       0    2    11
+## 6 15.9       0    4     3</code></pre>
 <pre class="r"><code>plot &lt;- ggplot() +
   geom_point(data=data,aes(x=temp, y=sales, color=factor(holiday))) + 
   theme_classic(base_family = &quot;&quot;) +
@@ -115,14 +115,14 @@ plot</code></pre>
 
 parameters {
   vector[3] b;
-  
   vector[K] r;
+  
   real&lt;lower=0&gt; sigma;
 }
 
 transformed parameters{
   vector[N] lambda;
-  lambda = exp(b[1] + b[2]*x1 + b[3]*x2 + r[x3]);
+  lambda = exp(b[1] + b[2]*x1 + (b[3] + r[x3]).*x2);
 }
 
 model{
@@ -138,15 +138,15 @@ model{
 )
 
 mcmc_result &lt;- stan(
-  file=&quot;GLM2int.stan&quot;,
+  file=&quot;GLM1coef.stan&quot;,
   data=data_list,
-  seed=1,
-  iter = 2000, warmup = 200, chains = 4, thin=1
+  seed=10,
+  iter = 2000, warmup = 200, chains = 3, thin=1
 )</code></pre>
 <pre><code>## Warning in readLines(file, warn = TRUE): incomplete final line found on &#39;/Users/
 ## am/Documents/texblog/texblog/content/post/2022-06-02-generalized-linear-mixed-
-## model-random-intercept-2/GLM2int.stan&#39;</code></pre>
-<pre><code>## Warning: There were 292 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
+## model-random-coeff/GLM1coef.stan&#39;</code></pre>
+<pre><code>## Warning: There were 1 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
 ## https://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded</code></pre>
 <pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
 </div>
@@ -156,22 +156,22 @@ mcmc_result &lt;- stan(
 <div id="r-code" class="section level3">
 <h3>R code</h3>
 <pre class="r"><code># Result
-print(mcmc_result, probs = c(0.025, 0.5, 0.975), pars=c(&quot;b&quot;,&quot;sigma&quot;, &quot;r&quot;))</code></pre>
-<pre><code>## Inference for Stan model: eb461d988756f398c9cacf85d3a43c1a.
-## 4 chains, each with iter=2000; warmup=200; thin=1; 
-## post-warmup draws per chain=1800, total post-warmup draws=7200.
+print(mcmc_result, probs = c(0.025, 0.5, 0.975), pars=c(&quot;b&quot;,&quot;sigma&quot;,&quot;r&quot;))</code></pre>
+<pre><code>## Inference for Stan model: c1d53628b6bc27194fe78c0e01759e6d.
+## 3 chains, each with iter=2000; warmup=200; thin=1; 
+## post-warmup draws per chain=1800, total post-warmup draws=5400.
 ## 
 ##        mean se_mean   sd  2.5%   50% 97.5% n_eff Rhat
-## b[1]  -1.29    0.04 1.21 -3.70 -1.30  1.29   737 1.01
-## b[2]   0.20    0.00 0.00  0.20  0.20  0.21  6934 1.00
-## b[3]   0.56    0.00 0.03  0.50  0.56  0.62  3287 1.00
-## sigma  1.99    0.07 2.08  0.62  1.44  6.96   882 1.00
-## r[1]  -0.45    0.04 1.20 -3.01 -0.45  1.96   737 1.01
-## r[2]   0.88    0.04 1.20 -1.70  0.89  3.28   736 1.01
-## r[3]   0.76    0.04 1.20 -1.82  0.76  3.16   735 1.01
-## r[4]  -1.20    0.04 1.20 -3.79 -1.19  1.20   737 1.01
+## b[1]  -1.88    0.00 0.14 -2.15 -1.87 -1.61  2424 1.00
+## b[2]   0.20    0.00 0.01  0.18  0.20  0.21  2452 1.00
+## b[3]   1.32    0.08 1.38 -1.34  1.25  4.29   331 1.02
+## sigma  2.16    0.12 2.22  0.66  1.53  7.17   336 1.01
+## r[1]  -0.58    0.08 1.38 -3.51 -0.51  2.09   333 1.02
+## r[2]   0.79    0.08 1.38 -2.20  0.86  3.47   331 1.02
+## r[3]   0.81    0.08 1.39 -2.19  0.87  3.47   331 1.02
+## r[4]  -1.31    0.08 1.38 -4.31 -1.24  1.35   334 1.02
 ## 
-## Samples were drawn using NUTS(diag_e) at Thu Jun  2 22:42:50 2022.
+## Samples were drawn using NUTS(diag_e) at Thu Jun  2 22:39:36 2022.
 ## For each parameter, n_eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor on split chains (at 
 ## convergence, Rhat=1).</code></pre>
@@ -179,11 +179,11 @@ print(mcmc_result, probs = c(0.025, 0.5, 0.975), pars=c(&quot;b&quot;,&quot;sigm
 mcmc_sample &lt;- rstan::extract(mcmc_result, permuted=FALSE)
 mcmc_combo(mcmc_sample, pars=c(&quot;b[1]&quot;,&quot;b[2]&quot;,&quot;b[3]&quot;,&quot;sigma&quot;))</code></pre>
 <p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
-<pre class="r"><code>## lambda result
-mcmc_sample &lt;- rstan::extract(mcmc_result)
-func &lt;- function(x){
-  return (quantile(x, c(0.025, 0.5, 0.975)))
-}
+<pre class="r"><code># ## lambda result
+# mcmc_sample &lt;- rstan::extract(mcmc_result)
+# func &lt;- function(x){
+#   return (quantile(x, c(0.025, 0.5, 0.975)))
+# }
 # lambda_hat1 &lt;- apply(mcmc_sample[[&quot;lambda_hat1&quot;]], 2, func)
 # lambda_hat0 &lt;- apply(mcmc_sample[[&quot;lambda_hat0&quot;]], 2, func)
 # r &lt;- quantile(mcmc_sample[[&quot;r&quot;]], c(0.025, 0.5, 0.975))

@@ -1,5 +1,5 @@
 ---
-title: Generalized Linear Mixed Model (Random Intercept 2)
+title: Generalized Linear Mixed Model (Random Coeff.)
 author: Akihiko Mori
 date: '2022-06-02'
 slug: []
@@ -8,7 +8,7 @@ tags:
   - Bayesian Modelling (R and Stan)
 ---
 ## Purpose
-Bayesian estimation of the GLM, a Generalized Linear Mixed Model - Random Intercept - each variable, will be implemented using R and Stan.
+Bayesian estimation of the GLM, a Generalized Linear Mixed Model (Random Coefficients), will be implemented using R and Stan.
 The data will be implemented from the data preparation and can be reproduced by copy and paste.
 
 ## TOC
@@ -33,9 +33,9 @@ options(mc.cores=parallel::detectCores())
 ## Model
 | Model | Model Equation |
 |-------|----------------------------------|
-| Generalized Linear Mixed Model (Random Intercept) | $\lambda_n=exp\left(\beta_0+\beta_1x_{n1}+\cdots +\beta_{M}x_{nM}+\textbf{r}_k\right)$ <br />$p\left(y_n | \beta\right) \sim Poiss\left(y_n|\lambda_n\right)$<br /> |
-| This Model          | $\lambda_n=exp\left(\beta_0+\beta_1Temp_n+\beta_2Holiday_n+\textbf{r}_k\right)$ <br />$p\left(y_n | \beta\right) \sim Poiss\left(y_n | \lambda_n\right)$<br />   |
-| Simulation          |$\textbf{r}_k \sim Norm\left(0,0.6\right)$ <br /> $\lambda_n=exp\left(-2+0.2Temp_n+0.5Holiday_n+\textbf{r}_k\right)$<br /> $Sales_n \sim Poiss\left(Sales_n | \lambda_n\right)$<br /> |
+| Generalized Linear Mixed Model (Random Intercept) | $\lambda_n=exp\left(\beta_0+\left(\beta_1+\textbf{r}_k\right)x_{n1}+\cdots +\beta_{M}x_{nM}\right)$ <br />$p\left(y_n | \beta\right) \sim Poiss\left(y_n|\lambda_n\right)$<br /> |
+| This Model          | $\lambda_n=exp\left(\beta_0+\beta_1Temp_n+\left(\beta_2++\textbf{r}_k\right)Holiday_n\right)$ <br />$p\left(y_n | \beta\right) \sim Poiss\left(y_n | \lambda_n\right)$<br />   |
+| Simulation          |$\textbf{r}_k \sim Norm\left(0,1\right)$ <br /> $\lambda_n=exp\left(-2+0.2Temp_n+\left(0.5+\textbf{r}_k\right)Holiday_n\right)$<br /> $Sales_n \sim Poiss\left(Sales_n | \lambda_n\right)$<br /> |
 
 ## Data Generation
 ```{r}
@@ -51,7 +51,7 @@ data　<- data.frame(temp, holiday, shop) %>%
                          ifelse(shop==3,
                                 shopRandEffect[3],
                                 shopRandEffect[4] ))))%>%
-  mutate(lambda=exp(-2+0.2*temp+0.5*holiday+r))
+  mutate(lambda=exp(-2+0.2*temp+(0.5+r)*holiday))
 data$sales <- rpois(100, data$lambda)
 data %>% select(temp, holiday, shop, sales) %>% head()
 
@@ -67,7 +67,7 @@ plot
 
 ## Stan
 ### Stan File
-```{stan output.var="GLM2int.stan"}
+```{stan output.var="GLM1coef.stan"}
 data {
   int N;
   int y[N];
@@ -80,14 +80,14 @@ data {
 
 parameters {
   vector[3] b;
-  
   vector[K] r;
+  
   real<lower=0> sigma;
 }
 
 transformed parameters{
   vector[N] lambda;
-  lambda = exp(b[1] + b[2]*x1 + b[3]*x2 + r[x3]);
+  lambda = exp(b[1] + b[2]*x1 + (b[3] + r[x3]).*x2);
 }
 
 model{
@@ -105,10 +105,10 @@ data_list <- list(
 )
 
 mcmc_result <- stan(
-  file="GLM2int.stan",
+  file="GLM1coef.stan",
   data=data_list,
-  seed=1,
-  iter = 2000, warmup = 200, chains = 4, thin=1
+  seed=10,
+  iter = 2000, warmup = 200, chains = 3, thin=1
 )
 ```
 
@@ -116,17 +116,17 @@ mcmc_result <- stan(
 ### R code
 ```{r}
 # Result
-print(mcmc_result, probs = c(0.025, 0.5, 0.975), pars=c("b","sigma", "r"))
+print(mcmc_result, probs = c(0.025, 0.5, 0.975), pars=c("b","sigma","r"))
 
 ## Convergence Check
 mcmc_sample <- rstan::extract(mcmc_result, permuted=FALSE)
 mcmc_combo(mcmc_sample, pars=c("b[1]","b[2]","b[3]","sigma"))
 
-## lambda result
-mcmc_sample <- rstan::extract(mcmc_result)
-func <- function(x){
-  return (quantile(x, c(0.025, 0.5, 0.975)))
-}
+# ## lambda result
+# mcmc_sample <- rstan::extract(mcmc_result)
+# func <- function(x){
+#   return (quantile(x, c(0.025, 0.5, 0.975)))
+# }
 # lambda_hat1 <- apply(mcmc_sample[["lambda_hat1"]], 2, func)
 # lambda_hat0 <- apply(mcmc_sample[["lambda_hat0"]], 2, func)
 # r <- quantile(mcmc_sample[["r"]], c(0.025, 0.5, 0.975))
