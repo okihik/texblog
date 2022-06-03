@@ -4,5 +4,145 @@ author: Akihiko Mori
 date: '2022-06-03'
 slug: []
 categories: []
-tags: []
+tags:
+  - Bayesian Modelling (R and Stan)
 ---
+## Purpose
+Bayesian estimation of a local level model, a state space model, 
+will be implemented using R and Stan. 
+The code can be reproduced by copy and paste since it is implemented from data creation.
+
+## TOC
+1. Library
+2. Model
+3. Data Generation
+4. Stan
+5. Analysis
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(rstan)
+library(bayesplot)
+
+set.seed(1)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())
+```
+
+## Model
+| Model | Model Equation |
+|-------|----------------------------------|
+| Local Level Model| $\mu_t \sim Norm\left(\mu_{t-1},\sigma^2_w\right)$ <br /> $y_t \sim Norm\left(\mu_t,\sigma^2_v\right)$<br />|
+| Simulation| $\mu_t \sim Norm\left(\mu_{t-1},5^2_w\right)$ <br /> $y_t \sim Norm\left(\mu_t,3^2_v\right)$<br />|
+
+## Data Generation
+```{r}
+time  <- seq(as.POSIXct("2021/05/01"), as.POSIXct("2021/08/01"), "days")
+y     <- c()
+mu    <- c()
+mu[1] <- rnorm(1, 200, 10) %>% round(1)
+T <- length(time)
+for(t in 2:T){
+  mu[t] <- rnorm(1, mu[t-1], 5)
+}
+for(t in 1:T){
+  y[t] <- rnorm(1, mu[t], 3) 
+}
+data <- data.frame(time, y)
+data %>% head()
+
+plot <- ggplot() +
+  geom_point(aes(x=data$time, y=data$y))+
+  geom_line(aes(x=data$time, y=data$y))+
+  theme_classic(base_family = "") +
+  theme(text = element_text(size = 30))+
+  labs(x="Time",y="Y",title="Trend of Y") +
+  scale_x_datetime(date_labels = "%m/%d")
+plot
+```
+
+## Stan
+### Stan File
+```{stan output.var="localLevelModel.stan"}
+data {
+  int T;
+  vector[T] y;
+  
+  int T_pred;
+}
+
+parameters {
+  vector[T] mu;
+  real<lower=0> sigma_w;
+  real<lower=0> sigma_v;
+}
+
+model {
+  mu[2:T] ~ normal(mu[1:(T-1)], sigma_w);
+  y ~ normal(mu, sigma_v);
+}
+
+generated quantities{
+  vector[T+T_pred] mu_pred;
+  vector[T+T_pred] y_pred;
+  
+  mu_pred[1:T] = mu;
+  for(t in 1:T_pred){
+    mu_pred[T+t] = normal_rng(mu_pred[T+t-1], sigma_w);
+  }
+  for(t in 1:(T+T_pred)){
+    y_pred[t] = normal_rng(mu_pred[t], sigma_v);
+  }
+}
+```
+
+### R for Stan
+```{r}
+data_list <- list(
+  T = nrow(data), K = 4, y = data$y,
+  T_pred = 10
+)
+
+mcmc_result <- stan(
+  file="localLevelModel.stan",
+  data=data_list,
+  seed=10,
+  iter = 2000, warmup = 200, chains = 3, thin=1
+)
+```
+
+## Analysis Results
+### R code
+```{r}
+# Result
+print(mcmc_result, pars=c("sigma_w", "sigma_v"), probs = c(0.025, 0.5, 0.975))
+
+## Convergence Check
+mcmc_sample <- rstan::extract(mcmc_result, permuted=FALSE)
+mcmc_combo(mcmc_sample, pars=c("sigma_w","sigma_v"))
+
+## μ result
+mcmc_sample <- rstan::extract(mcmc_result)
+func <- function(x){
+  return (quantile(x, c(0.025, 0.5, 0.975)))
+}
+mu_pred <- apply(mcmc_sample[["mu_pred"]], 2, func)
+Time_pred <- seq(as.POSIXct("2021/05/01"), as.POSIXct("2021/08/11"), "days")
+
+plot + 
+  labs(title="μ Estimation") +
+  geom_line(aes(x=Time_pred, y=mu_pred[2,]), col="blue") + 
+  geom_ribbon(aes(x=Time_pred, ymin=mu_pred[1,], ymax=mu_pred[3,]), 
+              alpha=0.5, fill="gray", col="blue")
+
+# Prediction Distribution
+y_pred <- apply(mcmc_sample[["y_pred"]], 2, func)
+
+plot +
+  labs(title="Prediction Distribution") +
+  geom_line(aes(x=Time_pred, y=y_pred[2,]), col="blue") + 
+  geom_ribbon(aes(x=Time_pred, ymin=y_pred[1,], ymax=y_pred[3,]), 
+              alpha=0.5, fill="gray", col="blue")
+```

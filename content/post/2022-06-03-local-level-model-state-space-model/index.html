@@ -1,0 +1,196 @@
+---
+title: Local Level Model - State-Space Model
+author: Akihiko Mori
+date: '2022-06-03'
+slug: []
+categories: []
+tags:
+  - Bayesian Modelling (R and Stan)
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>Bayesian estimation of a local level model, a state space model,
+will be implemented using R and Stan.
+The code can be reproduced by copy and paste since it is implemented from data creation.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Model</li>
+<li>Data Generation</li>
+<li>Stan</li>
+<li>Analysis</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)
+library(rstan)
+library(bayesplot)
+
+set.seed(1)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())</code></pre>
+</div>
+<div id="model" class="section level2">
+<h2>Model</h2>
+<table>
+<colgroup>
+<col width="17%" />
+<col width="82%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Model Equation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Local Level Model</td>
+<td><span class="math inline">\(\mu_t \sim Norm\left(\mu_{t-1},\sigma^2_w\right)\)</span> <br /> <span class="math inline">\(y_t \sim Norm\left(\mu_t,\sigma^2_v\right)\)</span><br /></td>
+</tr>
+<tr class="even">
+<td>Simulation</td>
+<td><span class="math inline">\(\mu_t \sim Norm\left(\mu_{t-1},5^2_w\right)\)</span> <br /> <span class="math inline">\(y_t \sim Norm\left(\mu_t,3^2_v\right)\)</span><br /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>time  &lt;- seq(as.POSIXct(&quot;2021/05/01&quot;), as.POSIXct(&quot;2021/08/01&quot;), &quot;days&quot;)
+y     &lt;- c()
+mu    &lt;- c()
+mu[1] &lt;- rnorm(1, 200, 10) %&gt;% round(1)
+T &lt;- length(time)
+for(t in 2:T){
+  mu[t] &lt;- rnorm(1, mu[t-1], 5)
+}
+for(t in 1:T){
+  y[t] &lt;- rnorm(1, mu[t], 3) 
+}
+data &lt;- data.frame(time, y)
+data %&gt;% head()</code></pre>
+<pre><code>##         time        y
+## 1 2021-05-01 195.8006
+## 2 2021-05-02 199.3787
+## 3 2021-05-03 192.1155
+## 4 2021-05-04 194.5867
+## 5 2021-05-05 198.3442
+## 6 2021-05-06 192.2878</code></pre>
+<pre class="r"><code>plot &lt;- ggplot() +
+  geom_point(aes(x=data$time, y=data$y))+
+  geom_line(aes(x=data$time, y=data$y))+
+  theme_classic(base_family = &quot;&quot;) +
+  theme(text = element_text(size = 30))+
+  labs(x=&quot;Time&quot;,y=&quot;Y&quot;,title=&quot;Trend of Y&quot;) +
+  scale_x_datetime(date_labels = &quot;%m/%d&quot;)
+plot</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="stan" class="section level2">
+<h2>Stan</h2>
+<div id="stan-file" class="section level3">
+<h3>Stan File</h3>
+<pre class="stan"><code>data {
+  int T;
+  vector[T] y;
+  
+  int T_pred;
+}
+
+parameters {
+  vector[T] mu;
+  real&lt;lower=0&gt; sigma_w;
+  real&lt;lower=0&gt; sigma_v;
+}
+
+model {
+  mu[2:T] ~ normal(mu[1:(T-1)], sigma_w);
+  y ~ normal(mu, sigma_v);
+}
+
+generated quantities{
+  vector[T+T_pred] mu_pred;
+  vector[T+T_pred] y_pred;
+  
+  mu_pred[1:T] = mu;
+  for(t in 1:T_pred){
+    mu_pred[T+t] = normal_rng(mu_pred[T+t-1], sigma_w);
+  }
+  for(t in 1:(T+T_pred)){
+    y_pred[t] = normal_rng(mu_pred[t], sigma_v);
+  }
+}</code></pre>
+</div>
+<div id="r-for-stan" class="section level3">
+<h3>R for Stan</h3>
+<pre class="r"><code>data_list &lt;- list(
+  T = nrow(data), K = 4, y = data$y,
+  T_pred = 10
+)
+
+mcmc_result &lt;- stan(
+  file=&quot;localLevelModel.stan&quot;,
+  data=data_list,
+  seed=10,
+  iter = 2000, warmup = 200, chains = 3, thin=1
+)</code></pre>
+<pre><code>## Warning in readLines(file, warn = TRUE): incomplete final line found on &#39;/Users/
+## am/Documents/texblog/texblog/content/post/2022-06-03-local-level-model-state-
+## space-model/localLevelModel.stan&#39;</code></pre>
+</div>
+</div>
+<div id="analysis-results" class="section level2">
+<h2>Analysis Results</h2>
+<div id="r-code" class="section level3">
+<h3>R code</h3>
+<pre class="r"><code># Result
+print(mcmc_result, pars=c(&quot;sigma_w&quot;, &quot;sigma_v&quot;), probs = c(0.025, 0.5, 0.975))</code></pre>
+<pre><code>## Inference for Stan model: a8ed5f90935a93d6479f9ba57fb0a824.
+## 3 chains, each with iter=2000; warmup=200; thin=1; 
+## post-warmup draws per chain=1800, total post-warmup draws=5400.
+## 
+##         mean se_mean   sd 2.5%  50% 97.5% n_eff Rhat
+## sigma_w 3.66    0.03 0.64 2.56 3.62  5.09   629    1
+## sigma_v 3.21    0.02 0.57 2.02 3.23  4.29   621    1
+## 
+## Samples were drawn using NUTS(diag_e) at Fri Jun  3 07:45:55 2022.
+## For each parameter, n_eff is a crude measure of effective sample size,
+## and Rhat is the potential scale reduction factor on split chains (at 
+## convergence, Rhat=1).</code></pre>
+<pre class="r"><code>## Convergence Check
+mcmc_sample &lt;- rstan::extract(mcmc_result, permuted=FALSE)
+mcmc_combo(mcmc_sample, pars=c(&quot;sigma_w&quot;,&quot;sigma_v&quot;))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code>## μ result
+mcmc_sample &lt;- rstan::extract(mcmc_result)
+func &lt;- function(x){
+  return (quantile(x, c(0.025, 0.5, 0.975)))
+}
+mu_pred &lt;- apply(mcmc_sample[[&quot;mu_pred&quot;]], 2, func)
+Time_pred &lt;- seq(as.POSIXct(&quot;2021/05/01&quot;), as.POSIXct(&quot;2021/08/11&quot;), &quot;days&quot;)
+
+plot + 
+  labs(title=&quot;μ Estimation&quot;) +
+  geom_line(aes(x=Time_pred, y=mu_pred[2,]), col=&quot;blue&quot;) + 
+  geom_ribbon(aes(x=Time_pred, ymin=mu_pred[1,], ymax=mu_pred[3,]), 
+              alpha=0.5, fill=&quot;gray&quot;, col=&quot;blue&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
+<pre class="r"><code># Prediction Distribution
+y_pred &lt;- apply(mcmc_sample[[&quot;y_pred&quot;]], 2, func)
+
+plot +
+  labs(title=&quot;Prediction Distribution&quot;) +
+  geom_line(aes(x=Time_pred, y=y_pred[2,]), col=&quot;blue&quot;) + 
+  geom_ribbon(aes(x=Time_pred, ymin=y_pred[1,], ymax=y_pred[3,]), 
+              alpha=0.5, fill=&quot;gray&quot;, col=&quot;blue&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-3.png" width="672" /></p>
+</div>
+</div>
