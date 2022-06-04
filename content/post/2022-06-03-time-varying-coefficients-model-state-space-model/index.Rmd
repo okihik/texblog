@@ -36,16 +36,8 @@ options(mc.cores=parallel::detectCores())
 ## Model
 | Model | Model Equation |
 |-------|----------------------------------|
-| Local Level Model|
-$\mu_t \sim Norm\left(\mu_{t-1},\sigma^2_w\right)$<br />
-$\beta_t \sim Norm\left(\beta_{t-1},\sigma^2_\tau\right)$<br />
-$\alpha_t = \mu_t+\beta_t\cdot x_t$<br />
-$y_t \sim Norm\left(\alpha_t,\sigma^2_v\right)$<br />|
-| Simulation|
-$\mu_t \sim Norm\left(\mu_{t-1},5^2_w\right)$<br />
-$\beta_t \sim Norm\left(\beta_{t-1},1^2_\tau\right)$<br />
-$\alpha_t = \mu_t+\beta_t\cdot x_t$<br />
-$y_t \sim Norm\left(\alpha_t,3^2_v\right)$<br />|
+| Time-Varying Coefficients Model|$\mu_t \sim Norm\left(\mu_{t-1},\sigma^2_w\right)$<br />$\beta_t \sim Norm\left(\beta_{t-1},\sigma^2_\tau\right)$<br />$\alpha_t = \mu_t+\beta_t\cdot x_t$<br />$y_t \sim Norm\left(\alpha_t,\sigma^2_v\right)$<br />|
+| Simulation|$\mu_t \sim Norm\left(\mu_{t-1},5^2_w\right)$<br />$\beta_t \sim Norm\left(\beta_{t-1},1^2_\tau\right)$<br />$\alpha_t = \mu_t+\beta_t\cdot x_t$<br />$y_t \sim Norm\left(\alpha_t,3^2_v\right)$<br />|
 
 ## Data Generation
 ```{r}
