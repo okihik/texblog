@@ -158,9 +158,8 @@ plot_mu <- plot +
               alpha=0.5, fill="gray", col="blue") +
   labs(x="Time",y="μ",title="μ Trend")
 
-delta <- apply(mcmc_sample[["delta"]], 2, func)
-
 ## δ result
+delta <- apply(mcmc_sample[["delta"]], 2, func)
 plot_delta <- plot + 
   geom_line(aes(y=delta[2,]), col="blue") + 
   geom_ribbon(aes(ymin=delta[1,],ymax=delta[3,]), 

@@ -1,0 +1,203 @@
+---
+title: Seasonal Model - State-Space Model
+author: Akihiko Mori
+date: '2022-06-04'
+slug: []
+categories: []
+tags:
+  - Bayesian Modelling (R and Stan)
+---
+## Purpose
+Bayesian estimation of a seasonal model, a state space model, 
+will be implemented using R and Stan. 
+The code can be reproduced by copy and paste since it is implemented from data creation.
+
+## TOC
+1. Library
+2. Model
+3. Data Generation
+4. Stan
+5. Analysis
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(rstan)
+library(bayesplot)
+library(gridExtra)
+
+set.seed(1)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())
+```
+
+## Model
+| Model | Model Equation |
+|-------|----------------------------------|
+|Seasonal Model|$\mu_t \sim Norm\left(\mu_{t-1},\sigma^2_w\right)$<br />$\gamma_t \sim Norm\left(\sum^{t-1}_{k=t-(K-1)}\gamma_{k},\sigma^2_s\right)$<br />$\alpha_t = \mu_t+\gamma_t$<br />$y_t \sim Norm\left(\alpha_t,\sigma^2_v\right)$<br />|
+| Simulation|$\mu_t \sim Norm\left(\mu_{t-1},5^2\right)$<br />$\gamma_t \sim Norm\left(\sum^{t-1}_{k=t-(K-1)}\gamma_{k},1^2\right)$<br />$\alpha_t = \mu_t+\gamma_t$<br />$y_t \sim Norm\left(\alpha_t,3^2\right)$<br />|
+
+## Data Generation
+```{r}
+# Data Generation
+time <- seq(as.POSIXct("2021/05/01"), as.POSIXct("2021/08/01"), "days")
+y <- c()
+mu <- c()
+gamma <- c()
+mu[1] <- rnorm(1, 200, 10) %>% round(1)
+gamma[1:6] <- c(-70,-50,20,30,60,90)/2
+T <- length(time)
+
+for(t in 2:T){
+  mu[t] <- rnorm(1, mu[t-1], 5)
+}
+for(t in 7:T){
+  gamma[t] <- rnorm(1, -sum(gamma[(t-6):(t-1)]), 1)
+}
+
+alpha = mu + gamma
+
+for(t in 1:T){
+  y[t] <- rnorm(1, alpha[t], 3)
+}
+data <- data.frame(time, y)
+data %>% head()
+
+## Data Visualization
+plot <- data %>% 
+  ggplot(aes(x=time)) +
+  theme_classic(base_family = "") +
+  theme(text = element_text(size = 10)) +
+  scale_x_datetime(date_labels = "%m/%d")
+
+plot + 
+  geom_point(aes(y=y))+
+  geom_line(aes(y=y)) +
+  labs(x="Time", y="Output",title="Output Trend")
+
+## Parameters Visualization
+plot_alpha_sim <- plot + 
+  geom_point(aes(y=alpha))+
+  geom_line(aes(y=alpha)) +
+  labs(x="Time", y="α",title="α Trend")
+
+plot_mu_sim <- plot + 
+  geom_point(aes(y=mu))+
+  geom_line(aes(y=mu)) +
+  labs(x="Time", y="μ",title="μ Trend")
+
+plot_gamma_sim <- plot + 
+  geom_point(aes(y=gamma))+
+  geom_line(aes(y=gamma)) +
+  labs(x="Time", y="γ",title="γ Trend")
+
+grid.arrange(plot_alpha_sim, plot_mu_sim, plot_gamma_sim)
+```
+
+## Stan
+### Stan File
+```{stan output.var="seasonalModel.stan"}
+data {
+  int T;
+  vector[T] y;
+}
+
+parameters {
+  vector[T] mu;
+  vector[T] gamma;
+  real<lower=0> sigma_w;
+  real<lower=0> sigma_s;
+  real<lower=0> sigma_v;
+}
+
+transformed parameters{
+  vector[T] alpha;
+  alpha = mu + gamma;
+}
+
+model {
+  mu[2:T] ~ normal(mu[1:(T-1)], sigma_w);
+  for(t in 7:T){
+    gamma[t] ~ normal(-sum(gamma[(t-6):(t-1)]), sigma_s);
+  }
+  y ~ normal(alpha, sigma_v);
+}
+
+generated quantities{
+  vector[T] y_pred;
+  for(t in 1:T){
+    y_pred[t] = normal_rng(alpha[t], sigma_v);
+  }
+}
+```
+
+### R for Stan
+```{r}
+data_list <- list(
+  T = nrow(data),
+  y = data$y
+)
+
+mcmc_result <- stan(
+  file="seasonalModel.stan",
+  data=data_list,
+  seed=1,
+  iter = 2000, warmup = 200, chains = 3, thin=1
+)
+```
+
+## Analysis Results
+### R code
+```{r}
+# Result
+print(mcmc_result, pars=c("sigma_w", "sigma_v", "sigma_s"), 
+      probs = c(0.025, 0.5, 0.975))
+
+## Convergence Check
+mcmc_sample <- rstan::extract(mcmc_result, permuted=FALSE)
+mcmc_combo(mcmc_sample, pars=c("sigma_w","sigma_v","sigma_s"))
+
+## Parameter results
+mcmc_sample <- rstan::extract(mcmc_result)
+func <- function(x){
+  return (quantile(x, c(0.025, 0.5, 0.975)))
+}
+
+## α result
+alpha <- apply(mcmc_sample[["alpha"]], 2, func)
+plot_alpha <- plot + 
+  geom_point(aes(y=y))+
+  geom_line(aes(y=alpha[2,]), col="blue") + 
+  geom_ribbon(aes(ymin=alpha[1,],ymax=alpha[3,]), 
+              alpha=0.5, fill="gray", col="blue")+
+  labs(x="Time",y="α",title="α Trend")
+
+## μ result
+mu <- apply(mcmc_sample[["mu"]], 2, func)
+plot_mu <- plot + 
+  geom_line(aes(y=mu[2,]), col="blue") + 
+  geom_ribbon(aes(ymin=mu[1,],ymax=mu[3,]), 
+              alpha=0.5, fill="gray", col="blue")+
+  labs(x="Time",y="μ",title="μ Trend")
+
+## γ result
+gamma <- apply(mcmc_sample[["gamma"]], 2, func)
+plot_gamma <- plot + 
+  geom_line(aes(y=gamma[2,]), col="blue") + 
+  geom_ribbon(aes(ymin=gamma[1,],ymax=gamma[3,]),
+              alpha=0.5, fill="gray", col="blue")+
+  labs(x="Time",y="γ",title="γ Trend")
+
+gridExtra::grid.arrange(plot_alpha, plot_mu, plot_gamma)
+
+# Prediction Distribution
+y_pred <- apply(mcmc_sample[["y_pred"]], 2, func)
+
+plot + 
+  geom_point(aes(y=y))+
+  geom_line(aes(y=y_pred[2,]), col="blue") + 
+  geom_ribbon(aes(ymin=y_pred[1,],ymax=y_pred[3,]), 
+              alpha=0.5, fill="gray", col="blue") +
+  labs(x="Time",y="output",title="Prediction Distribution")
+```
