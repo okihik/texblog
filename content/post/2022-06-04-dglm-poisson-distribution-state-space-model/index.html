@@ -1,5 +1,5 @@
 ---
-title: DGLM (Poisson Distribution) - State-Space Model
+title: Dynamic Generalized Linear Model (Poisson Distribution) - State-Space Model
 author: Akihiko Mori
 date: '2022-06-04'
 slug: []
@@ -12,7 +12,7 @@ tags:
 
 <div id="purpose" class="section level2">
 <h2>Purpose</h2>
-<p>Bayesian estimation of the DGLM (Poisson distribution), a state space model,
+<p>Bayesian estimation of the Dynamic Generalized Linear Model (Poisson distribution), a state space model,
 will be implemented using R and Stan.
 The implementation is done from data creation,
 so it can be reproduced by copy and paste.</p>
@@ -208,7 +208,7 @@ print(mcmc_result, pars=c(&quot;sigma_w&quot;, &quot;sigma_s&quot;),
 ## sigma_w 0.35    0.06 0.07 0.25 0.38  0.41     2 26.72
 ## sigma_s 0.21    0.02 0.03 0.17 0.22  0.23     2 11.17
 ## 
-## Samples were drawn using NUTS(diag_e) at Sat Jun  4 19:10:55 2022.
+## Samples were drawn using NUTS(diag_e) at Sun Jun  5 10:57:14 2022.
 ## For each parameter, n_eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor on split chains (at 
 ## convergence, Rhat=1).</code></pre>
