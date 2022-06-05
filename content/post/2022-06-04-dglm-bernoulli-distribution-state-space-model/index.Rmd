@@ -60,8 +60,6 @@ for(t in 1:T){
 data <- data.frame(time, y)
 data %>% head()
 
-
-
 ## Data Visualization
 plot <- data %>% 
   ggplot(aes(x=time)) +

@@ -1,0 +1,262 @@
+---
+title: DGLM (Poisson Distribution) - State-Space Model
+author: Akihiko Mori
+date: '2022-06-04'
+slug: []
+categories: []
+tags:
+  - Bayesian Modelling (R and Stan)
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>Bayesian estimation of the DGLM (Poisson distribution), a state space model,
+will be implemented using R and Stan.
+The implementation is done from data creation,
+so it can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Model</li>
+<li>Data Generation</li>
+<li>Stan</li>
+<li>Analysis</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)
+library(rstan)
+library(bayesplot)
+library(gridExtra)
+
+set.seed(2)
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())</code></pre>
+</div>
+<div id="model" class="section level2">
+<h2>Model</h2>
+<table>
+<colgroup>
+<col width="17%" />
+<col width="82%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Model Equation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Time-Varying Coefficients Model</td>
+<td><span class="math inline">\(\mu_t \sim Norm\left(\mu_{t-1},\sigma^2_w\right)\)</span><br /><span class="math inline">\(\gamma_t = Norm\left(\sum^{t-1}_{k=t-(K-1)}\gamma_t,\sigma^2_s\right)\)</span><br /><span class="math inline">\(\lambda_t=exp\left(\mu_t+\gamma_t\right)\)</span><br /><span class="math inline">\(y_t \sim Poiss\left(\gamma_t\right)\)</span><br /></td>
+</tr>
+<tr class="even">
+<td>Simulation</td>
+<td><span class="math inline">\(\mu_t \sim Norm\left(\mu_{t-1},0.3^2\right)\)</span><br /><span class="math inline">\(\gamma_t = Norm\left(\sum^{t-1}_{k=t-(K-1)}\gamma_t,0.1^2\right)\)</span><br /><span class="math inline">\(\lambda_t=exp\left(\mu_t+\gamma_t\right)\)</span><br /><span class="math inline">\(y_t \sim Poiss\left(\gamma_t\right)\)</span><br /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code># Data Generation
+time &lt;- seq(as.POSIXct(&quot;2021/05/01&quot;), as.POSIXct(&quot;2021/08/01&quot;), &quot;days&quot;)
+y  &lt;- c()
+mu &lt;- c()
+gamma &lt;- c()
+mu[1] &lt;- 0
+gamma[1:6] &lt;- c(-7,-5,2,3,6,9)/10 
+T &lt;- length(time)
+
+for(t in 2:T){
+  mu[t] &lt;- rnorm(1, mu[t-1], 0.3)
+}
+for(t in 7:T){
+  gamma[t] &lt;- rnorm(1, -sum(gamma[(t-6):(t-1)]), 0.1)
+}
+lambda &lt;- exp(mu + gamma)
+for(t in 1:T){
+  y[t] &lt;- rpois(1, lambda[t])
+}
+data &lt;- data.frame(time, y)
+data %&gt;% head()</code></pre>
+<pre><code>##         time y
+## 1 2021-05-01 0
+## 2 2021-05-02 1
+## 3 2021-05-03 0
+## 4 2021-05-04 1
+## 5 2021-05-05 0
+## 6 2021-05-06 0</code></pre>
+<pre class="r"><code>## Data Visualization
+plot &lt;- data %&gt;% 
+  ggplot(aes(x=time)) +
+  theme_classic(base_family = &quot;&quot;) +
+  theme(text = element_text(size = 10))+
+  scale_x_datetime(date_labels = &quot;%m/%d&quot;)
+
+plot + 
+  geom_point(aes(y=y))+
+  geom_line(aes(y=y)) +
+  labs(x=&quot;Time&quot;,y=&quot;Output&quot;,title=&quot;Output Trend&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre class="r"><code>## Parameter Visualization
+plot_lambda_sim &lt;- plot + 
+  geom_point(aes(y=lambda))+
+  geom_line(aes(y=lambda)) +
+  labs(x=&quot;Time&quot;,y=&quot;λ&quot;,title=&quot;λ Trend&quot;)
+
+plot_mu_sim &lt;- plot + 
+  geom_point(aes(y=mu))+
+  geom_line(aes(y=mu)) +
+  labs(x=&quot;Time&quot;,y=&quot;μ&quot;,title=&quot;μ Trend&quot;)
+
+plot_gamma_sim &lt;- plot + 
+  geom_point(aes(y=gamma))+
+  geom_line(aes(y=gamma)) +
+  labs(x=&quot;Time&quot;,y=&quot;γ&quot;,title=&quot;γ Trend&quot;)
+
+grid.arrange(plot_lambda_sim, plot_mu_sim, plot_gamma_sim)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
+</div>
+<div id="stan" class="section level2">
+<h2>Stan</h2>
+<div id="stan-file" class="section level3">
+<h3>Stan File</h3>
+<pre class="stan"><code>data {
+  int T;
+  int y[T];
+}
+
+parameters {
+  vector[T] mu;
+  vector[T] gamma;
+  real&lt;lower=0&gt; sigma_w;
+  real&lt;lower=0&gt; sigma_s;
+  real&lt;lower=0&gt; sigma_v;
+}
+
+transformed parameters{
+  vector[T] lambda;
+  lambda = exp(mu+gamma);
+}
+
+model {
+  mu[2:T] ~ normal(mu[1:(T-1)], sigma_w);
+  for(t in 7:T){
+    gamma[t] ~ normal(-sum(gamma[(t-6):(t-1)]), sigma_s);
+  }
+  y ~ poisson(lambda);
+}
+
+generated quantities{
+  int y_pred[T];
+  for(t in 1:T){
+    y_pred[t] = poisson_rng(lambda[t]);
+  }
+}</code></pre>
+</div>
+<div id="r-for-stan" class="section level3">
+<h3>R for Stan</h3>
+<pre class="r"><code>data_list &lt;- list(
+  T = nrow(data),
+  y = data$y
+)
+
+mcmc_result &lt;- stan(
+  file=&quot;DGLMpois.stan&quot;,
+  data=data_list,
+  seed=1,
+  iter = 2000, warmup = 200, chains = 3, thin=1
+)</code></pre>
+<pre><code>## Warning in readLines(file, warn = TRUE): incomplete final line found on &#39;/Users/
+## am/Documents/texblog/texblog/content/post/2022-06-04-dglm-poisson-distribution-
+## state-space-model/DGLMpois.stan&#39;</code></pre>
+<pre><code>## Warning: There were 5400 divergent transitions after warmup. See
+## https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+## to find out why this is a problem and how to eliminate them.</code></pre>
+<pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+<pre><code>## Warning: The largest R-hat is 3.71, indicating chains have not mixed.
+## Running the chains for more iterations may help. See
+## https://mc-stan.org/misc/warnings.html#r-hat</code></pre>
+<pre><code>## Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.
+## Running the chains for more iterations may help. See
+## https://mc-stan.org/misc/warnings.html#bulk-ess</code></pre>
+<pre><code>## Warning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.
+## Running the chains for more iterations may help. See
+## https://mc-stan.org/misc/warnings.html#tail-ess</code></pre>
+</div>
+</div>
+<div id="analysis-results" class="section level2">
+<h2>Analysis Results</h2>
+<div id="r-code" class="section level3">
+<h3>R code</h3>
+<pre class="r"><code># Result
+print(mcmc_result, pars=c(&quot;sigma_w&quot;, &quot;sigma_s&quot;), 
+      probs = c(0.025, 0.5, 0.975))</code></pre>
+<pre><code>## Inference for Stan model: dbc4b2f39ea9cd644de8e32572882733.
+## 3 chains, each with iter=2000; warmup=200; thin=1; 
+## post-warmup draws per chain=1800, total post-warmup draws=5400.
+## 
+##         mean se_mean   sd 2.5%  50% 97.5% n_eff  Rhat
+## sigma_w 0.35    0.06 0.07 0.25 0.38  0.41     2 26.72
+## sigma_s 0.21    0.02 0.03 0.17 0.22  0.23     2 11.17
+## 
+## Samples were drawn using NUTS(diag_e) at Sat Jun  4 19:10:55 2022.
+## For each parameter, n_eff is a crude measure of effective sample size,
+## and Rhat is the potential scale reduction factor on split chains (at 
+## convergence, Rhat=1).</code></pre>
+<pre class="r"><code>## Convergence Check
+mcmc_sample &lt;- rstan::extract(mcmc_result, permuted=FALSE)
+mcmc_combo(mcmc_sample, pars=c(&quot;sigma_w&quot;,&quot;sigma_s&quot;))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code>## Parameter results
+mcmc_sample &lt;- rstan::extract(mcmc_result)
+func &lt;- function(x){
+  return (quantile(x, c(0.025, 0.5, 0.975)))
+}
+
+## λ result
+lambda &lt;- apply(mcmc_sample[[&quot;lambda&quot;]], 2, func)
+plot_lambda &lt;- plot + 
+  geom_line(aes(y=lambda[2,]), col=&quot;blue&quot;) + 
+  geom_ribbon(aes(ymin=lambda[1,],ymax=lambda[3,]), 
+              alpha=0.5, fill=&quot;gray&quot;, col=&quot;blue&quot;) +
+  labs(x=&quot;Time&quot;,y=&quot;λ&quot;,title=&quot;λ Trend&quot;)
+
+## μ result
+mu &lt;- apply(mcmc_sample[[&quot;mu&quot;]], 2, func)
+plot_mu &lt;- plot + 
+  geom_line(aes(y=mu[2,]), col=&quot;blue&quot;) + 
+  geom_ribbon(aes(ymin=mu[1,],ymax=mu[3,]), 
+              alpha=0.5, fill=&quot;gray&quot;, col=&quot;blue&quot;)+
+  labs(x=&quot;Time&quot;,y=&quot;μ&quot;,title=&quot;μ Trend&quot;)
+
+## y result
+gamma &lt;- apply(mcmc_sample[[&quot;gamma&quot;]], 2, func)
+plot_gamma &lt;- plot + 
+  geom_line(aes(y=gamma[2,]), col=&quot;blue&quot;) + 
+  geom_ribbon(aes(ymin=gamma[1,],ymax=gamma[3,]), 
+              alpha=0.5, fill=&quot;gray&quot;, col=&quot;blue&quot;)+
+  labs(x=&quot;Time&quot;,y=&quot;γ&quot;,title=&quot;γ Trend&quot;)
+
+gridExtra::grid.arrange(plot_lambda, plot_mu, plot_gamma)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
+<pre class="r"><code>## Prediction Distribution
+y_pred &lt;- apply(mcmc_sample[[&quot;y_pred&quot;]], 2, func)
+
+plot + 
+  geom_point(aes(y=y))+
+  geom_line(aes(y=y_pred[2,]), col=&quot;blue&quot;) + 
+  geom_ribbon(aes(ymin=y_pred[1,],ymax=y_pred[3,]), 
+              alpha=0.5, fill=&quot;gray&quot;, col=&quot;blue&quot;) +
+  labs(x=&quot;Time&quot;,y=&quot;Output&quot;,title=&quot;Output Trend&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-3.png" width="672" /></p>
+</div>
+</div>
