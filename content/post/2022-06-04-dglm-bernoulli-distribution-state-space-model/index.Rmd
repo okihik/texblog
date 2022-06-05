@@ -9,7 +9,7 @@ tags:
 ---
 
 ## Purpose
-Bayesian estimation of the DGLM (Bernoulli distribution), a state space model, 
+Bayesian estimation of the Dynamic Generalized Linear Model (Bernoulli distribution), a state space model, 
 will be implemented using R and Stan. 
 The implementation is done from data creation, 
 so it can be reproduced by copy and paste.
