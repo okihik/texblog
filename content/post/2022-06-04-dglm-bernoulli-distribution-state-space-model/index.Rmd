@@ -1,5 +1,5 @@
 ---
-title: DGLM (Bernoulli distribution) - State-Space Model
+title: Dynamic Generalized Linear Model (Bernoulli distribution) - State-Space Model
 author: Akihiko Mori
 date: '2022-06-04'
 slug: []

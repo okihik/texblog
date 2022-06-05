@@ -1,5 +1,5 @@
 ---
-title: DGLM (Poisson Distribution) - State-Space Model
+title: Dynamic Generalized Linear Model (Poisson Distribution) - State-Space Model
 author: Akihiko Mori
 date: '2022-06-04'
 slug: []
