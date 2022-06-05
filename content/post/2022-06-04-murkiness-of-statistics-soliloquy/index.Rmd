@@ -1,0 +1,162 @@
+---
+title: Murkiness of Statistics (Soliloquy)
+author: Akihiko Mori
+date: '2022-06-04'
+slug: []
+categories: []
+tags:
+  - soliloquy
+---
+
+I first touched on statistics when I was doing text mining research on the policy-making process under the guidance of my supervisor at a graduate school in Japan. When I was doing the research, I was not very enthusiastic about it. Perhaps it was because I was exposed to statistics for the first time, fishing through the literature and the Internet, and swallowing my knowledge of statistics in bits and pieces, but I had a bad aftertaste that is hard to describe. That feeling did not change even after I settled down to research and sat down to study. I thought it might be the true nature of the murkiness that blends in when one tries to adapt statistics to reality.
+
+Let me begin by describing what statistics is all about. Since statistical inference and machine learning, while culturally quite divergent, are technically identical, it is probably safe to assume that the following discussion applies to both in broad strokes.
+
+The problem statement for statistical inference is that, given data $\{x_1,...,x_n\}$, we are trying to infer the probability distribution that is generating that data. In other words, we assume the existence of a true distribution $q(x)$, and we try to estimate the true distribution from the data, assuming that the data are obtained according to that distribution. Even if we say we infer it, we cannot ineptly infer anything from the data, since there are an infinite number of distributions that generate that data. Therefore, the strategy is to assume a family of probability distributions, called a model, and to look for the one that is closest to the true distribution among them. At this point, we do not assume the existence of a true distribution in the model. This is because the true distribution $q(x)$ is very complex and cannot be captured by the categories we can represent as a model. Nevertheless, we make inferences by the model in the hope that we can partially explain the true distribution.
+
+In the context of machine learning, unsupervised learning is classified as supervised or unsupervised learning, but unsupervised learning is exactly the same setup as above. Supervised learning guesses the conditional probability $q(y|x)$ of being label data y for training data x. In situations where the distribution $q(x)$ of $x$ is known, $q(x,y)=q(y|x)q(x)$, and by thinking of the $x$, $y$ pair $(x,y)$ as sample data, the same setup can be discussed .
+
+If you cannot imagine the true distribution or the model, consider, for example, the case of inferring the distribution of height of all Japanese people from the data of 100 Japanese people's height. In this case, the true distribution is the distribution of "the height of all Japanese. In reality, since the population slightly increases or decreases during the time when height is sampled, it is ambiguous what the "distribution of the height of all Japanese people" is, which would fluctuate accordingly. However, the margin of error is probably small, so please let that go. We can assume that the model is roughly what is called a 00 distribution. For example, a normal distribution is uniquely determined by the center and variance, and these two parameters make up a family of probability distributions. When we say that the normal distribution model is used to estimate the distribution of the overall height of the Japanese, it is to determine the parameters of the normal distribution that seem to be closest to the distribution of the overall height of the Japanese. However, one should not assume that this will accurately determine the distribution of the overall Japanese height. This is because the normal distribution assumes that negative heights are also possible.
+
+The closeness of the model to the true distribution $q(x)$ is measured by something called the Kullback-Leibler divergence (also called relative entropy and I-divergence). In general, when $q(x)$ and $p(x)$ are probability distributions, the Kullback-Leibler divergence is defined as:
+
+$$
+KL(q \mid \mid p) = \int q(x) \log{\frac{q(x)}{p(x)}}dx.
+$$
+
+$KL(q∣∣p)≥0$, and it only falls to $0$ if $q=p$.
+The significance of taking this as a measure of closeness can be understood by Sanov's theorem.
+Sanov's theorem asserts that, roughly speaking, "If data $\{x_1,...,x_n,...\}$, are obtained by probability distribution $q(x)$, then the "probability" of being caught falsely claiming that they are obtained from another probability distribution $p(x)$ is approximately $e^{-nKL(q∣∣p)}$.
+According to the law of large numbers, as the number of samples increases, the shape of $q(x)$ becomes increasingly clear. On the other hand, however, the difference from $p(x)$ becomes exponentially different, which can be interpreted as the speed of $KL(q∣∣p)$.
+The proof of Sanov's Theorem is tough, so I would recommend either to accept the proof for a finite number of possible values, or swallow it as such.
+
+Indeed, what we can compute is a comparison of the empirical distribution $q_{em}(x) = \frac{1}{n}\sum_{i=1}^{n} \delta_{x_i}$ and the probability distribution $p_w(x) = p(x | w)$ corresponding to the parameter $w$ of the model
+
+$$L_n = KL(q_{em} \mid \mid p_w) = -\frac{1}{n}\sum_{i=1}^{n} \log{p(x_i|w)}.$$
+
+The challenge of statistical inference is to rely on this comparison to evaluate the goodness (or rather the badness) of the guesses.
+And to do so, it is essential to take the perspective that the sampling of the data is probabilistically fluctuating: 
+a small $L_n$ means that the probability distribution was close, 
+but this does not rule out the possibility that it has been fitted only to a particular sample of data. 
+Such a situation is called overfitting or overlearning, and to measure the degree of overfitting, we must look at the behaviour of the value of $L_n$ when another sample is performed. Conversely, by looking at the behaviour of the $L_n$ values, we can give a statistical measure of the goodness of the model.
+
+Now, statistical exposition is often spoken of in terms of dichotomies such as objective vs. subjective probability, or, by the same token, frequentism vs. Bayesianism, which is a major obstacle to understanding statistics.
+How sterile this opposition is was explained by statistician Akaike around 1970, and with that, statistics by principle was considered to be over.
+Nevertheless, many still offer explanations based on principle.
+Personally, objective probability is worse; so, I would like to talk about my thinking about the evils of objective probability first.
+
+First of all, I think the name "objective" probability is a bad name. 
+It gives the illusion that there is an objectively correct way to guess. 
+Actual guessing requires making several "subjective" choices. 
+Nevertheless, those that explain objective probability describe it in a way that hides it.
+
+Objective probabilists usually use a method called maximum likelihood estimation.
+The likelihood can be expressed as $\prod_{i=1}^{n}p(x_i|w)=e^{-nL_n}$ using $L_n$, and determining the parameter that maximizes this value is called maximum likelihood estimation. There is no particular complaint about maximum likelihood estimation, since its purpose is the same as minimizing the value of Kullback-Libler divergence. 
+The only thing I would venture to say is that the strategy of "estimating a probability distribution that is difficult to uncover" is not in itself a "guarantee of objective correctness".
+However, we sometimes find statements that try to conceal the fact that maximum likelihood estimation is even used.
+
+For example, in explanations of regression analysis, 
+we are suddenly presented with a mean squared error and 
+told that the best parameters can be estimated by minimizing it. 
+Occasionally, the Gauss-Markov theorem is cited and explained as if it were the best method. 
+They then give the illusion that they can make a correct guess without any assumptions. 
+However, minimizing the mean squared error is making the critical assumption that the error follows a normal distribution. 
+Let me illustrate this in a special case.
+
+Given the data $(x_1,y_1),\cdots,(x_n,y_n)$, 
+assume that a linear regression analysis is performed on this given data. 
+Then $y=ax+b$ with certain parameters $a$ and $b$, 
+and that the errors follow a normal distribution. 
+Therefore the probability of being y when x is represented by 
+$$p(y|x, a, b) = \frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y - (ax + b))^2}{2\sigma^2}\right)$$
+where $\sigma$ is a positive real number.
+The likelihood at this time is:
+$$\prod_{i = 1}^{n} p(y_i|x_i, a, b) 
+= 
+\prod_{i = 1}^{n}\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left( 
+-\frac{(y_i - (ax_i + b))^2}{2\sigma^2} 
+\right).$$
+Taking the log of the RHS, we get
+$$\log\left( 
+\prod_{i = 1}^{n}\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y_i - (ax_i + b))^2}{2\sigma^2}\right) 
+\right) \\ 
+= \sum_{i=1}^{n} -\frac{(y_i - (ax_i + b))^2}{2\sigma^2} + 
+n\log\left(\frac{1}{\sqrt{2\pi\sigma^2}}\right) $$
+Since $log$ is a monotonically increasing function, 
+the values of $a$ and $b$ for which the likelihood is maximized are equal to the values of a and b for which the last term is maximized. 
+The last term is maximized when $\sum_{i=0}^{n} (y_i - (ax_i + b))^2$ is minimized, that is, when the mean-square error is minimized.
+From the above, it is clear that the least mean-square error method is equivalent to maximum likelihood estimation assuming that the errors are normally distributed.
+
+Would it then be reasonable to assume that the error is normally distributed? If the error is known to occur only in the positive direction, it is more reasonable to use a distribution that is distributed only for positive values, such as the gamma or χ2 distribution, rather than the normal distribution. In cases where there are outliers, it is better to choose a model that allows for outliers, such as the Laplace distribution, than to assume a normal distribution, even if the error is equally distributed in both the positive and negative directions. However, this can only be determined by looking at reality and not from the data alone. In other words, statistical inferences allow us to make inferences by making "subjective" choices that cannot be validated within the scope of statistics, and their validity cannot be determined without a reality check.
+
+Next, regarding the subjective probability, the damage done to me personally was relatively minor, since I failed to understand any of this in the first place.
+Still, I will complain about the fact that there are many strange statements.
+Usually, subjective probability refers to Bayesian statistics. So I will begin with a brief explanation of Bayesian statistics.
+
+Bayesian estimation is to assume that the parameters of a model are only probabilistically known. To do so, the strategy is to set up a prior probability distribution of the parameters, $\psi(w)$, in advance and update it according to the likelihood. In other words, when the data $X^n=\{x_1,...,x_n\}$ are obtained, the posterior distribution $p(w|Xn)$ is defined as:
+
+$$p(w|X^n) = \frac{\exp(-nL_n) \psi(w)} {\int \exp(-nL_n) \psi(w) dw}$$
+Then, the final predicted distribution is:
+$$p(x|X^n) = \int p(x|w)p(w|X^n) dw$$
+where the mean is weighted by the posterior distribution for the model.
+
+Viewing this equation, 
+the smaller the $L_n$ parameter $w$, 
+the larger the posterior distribution, 
+which is reflected in the predictive distribution. 
+Therefore, it can be said that, like maximum likelihood estimation, 
+it aims to minimize the amount of Kullback-Leibler divergence. 
+However, the difference is that maximum likelihood estimation is based only on the point with the largest likelihood, 
+whereas Bayesian estimation uses information from all points.
+
+Subjective probabilists usually explain that they consider the data to be constant and the parameters to be variables, but "the data are constant" is obviously wrong.
+It is argued that the Bayesian statistical framework cannot account for fluctuations in $L_n$, but it is clear from the equation that Ln affects $p(x|X^n)$.
+Another explanation is that the prior distribution is determined by subjectivity, which is also a strange claim. There is a method of avoiding overfitting by adding an $L_2$ regularization term in maximum likelihood estimation, 
+which is equivalent to MAP estimation of the prior distribution as a normal distribution. 
+Thus, one has two choices: either one believes that $L_2$ regularization is a subjective method, 
+or one believes that the prior distribution is not merely subjective and should be set according to the problem, but the latter is more constructive.
+Also, some people explain Bayes' theorem as if it is important in Bayesian estimation, but Bayes' theorem is not inherently difficult, 
+since it can be obtained by appropriately transforming the defining equation of conditional probability.
+If you focus on such things, 
+it will in fact be difficult to understand the whole thing. 
+Most of the explanations given above are unnatural explanations, 
+so it is better not to read them. 
+Of course, it is good to think of subjective probability and to model it using Bayesian statistics, but on the contrary, 
+it is a clear mistake to claim that Bayesian statistics is subjective probability.
+
+I pointed out above the problem with objective and subjective probability. 
+I believe it is due to the desire for correctness. 
+Objective probability conceals assumptions in the estimation in order to assert the correctness of the estimation. 
+Subjective probability asserts that even if the probability differs between you and me, it is due to subjectivity and I am right.
+Or perhaps the objective probabilist is just bringing up subjective probability as a scapegoat. 
+This may be the true nature of the murkiness. 
+However, as I pointed out, several assumptions must be "subjectively" chosen for a guess, and their validity cannot be guaranteed by statistics alone. 
+So, if one really wants to guarantee the validity of a guess, one must publish and expose to the public all the assumptions used in the guess. 
+Or, better yet, we should discard validity and take full advantage of the property of statistics that allows us to guess even with reasonable assumptions. 
+In natural language processing, methods such as Ngram and Word2Vec no longer attempt to capture the characteristics of language. 
+Rather, they are boldly stripping it down to get useful results. 
+The fearlessness of this approach almost knocks me out.
+
+Finally, I would like to discuss the hypothesis of statistics, 
+the existence of a "true distribution" and the "Kullback-Leibler divergence minimization" in terms of artificial intelligence. 
+To what extent can the true distribution be informative? 
+Ideally, everything that is datable, i.e., humanly describable or measurable, is considered to have arisen from the true distribution. 
+So, does the datatable non-existent exist? 
+If it does not exist, it means that everything we want to know is describable, and there is no need to use statistics. 
+So, we assume that the datatable impossible exists. 
+Then we can say that the purpose of minimizing the Kullback-Leibler divergence content is to pass the Turing test.
+The minimization of the Kullback-Leibler divergence content was to be estimated on the basis that the slower it is exposed, the better. 
+This means that, at the level of events that can be described by a human, the slower the machine is exposed, the better. 
+It has been argued that the Turing test cannot determine human intelligence, and we will concede that.
+The statistical challenge, then, is to say, "Can we estimate the non-dataable domain from only the datable? 
+There are methods of incorporating latent variables, variables that are not directly observed, into models, and they are used in clustering, neural networks, etc.
+In the case of clustering, by imposing an arbitrary structure on the latent variable, it is given meaning. Neural networks, on the other hand, aim only at minimizing the amount of Kullback-Leibler divergence and do not concern themselves with the meaning of the latent variable. 
+Is it possible, then, that "something" exists that self-expands and transforms itself without imposing a structure on the latent variable, and that by reading the meaning of the latent variable, we can step into an area that is not datable? There is no other way to determine the validity of such a hypothesis than to examine the behavior of $L_n$ in statistics.
+It would be like confronting a fighter plane with a knife.
+
+
+
+
+
+
+
