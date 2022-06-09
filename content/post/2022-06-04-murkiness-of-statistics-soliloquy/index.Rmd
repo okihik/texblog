@@ -154,9 +154,3 @@ In the case of clustering, by imposing an arbitrary structure on the latent vari
 Is it possible, then, that "something" exists that self-expands and transforms itself without imposing a structure on the latent variable, and that by reading the meaning of the latent variable, we can step into an area that is not datable? There is no other way to determine the validity of such a hypothesis than to examine the behavior of $L_n$ in statistics.
 It would be like confronting a fighter plane with a knife.
 
-
-
-
-
-
-
