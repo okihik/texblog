@@ -20,7 +20,7 @@ The main cause of this was the fact that corporations had excess savings. This w
 
 The global financial crisis that followed the so-called "Lehman Shock" caused the excess of corporate savings to shrink once, but it grew again in the 2010s. Offsetting this was the current account surplus. In the macroeconomic balance:
 
-Excess Savings = Fiscal Deficit + Current Account Surplus
+*Excess Savings = Fiscal Deficit + Current Account Surplus*
 
 So, while this is arithmetically obvious, the nature of the surplus has changed dramatically: until the 2000s, it was net exports, but in the 2010s it was replaced by outward foreign direct investment (income balance surplus).
 
