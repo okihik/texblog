@@ -1,0 +1,41 @@
+---
+title: 'Inbound People and Capital for ¥150/$'
+author: Akihiko Mori
+date: '2022-06-17'
+slug: []
+categories: []
+tags:
+  - soliloquy
+---
+
+With interest rates rising all over the world, the BOJ decided to maintain its 0.25% yield curve control at its June 17, 2022 Monetary Policy Meeting, returning the yield curve to the ¥134/$ level. This is unusual for monetary policy, but in the long run, the IS balance may be balanced at around 150 yen to the dollar.
+
+## Unwinding Overvalued Yen since 1990s
+
+Looking at the exchange rate since 1980, ¥150 per dollar is not an extreme depreciation of the yen, and is the same level as around the time of the Plaza Accord in 1985. At the time, Japan had a large current account surplus, and the world demanded that the yen appreciate further. As a result, the yen appreciated to about 80 yen to the dollar in 1995, and a prolonged recession began at that time.
+
+The main cause of this was the fact that corporations had excess savings. This was the effect of a decrease in net debt (debt - savings) at the end of the 1990s as banks collected their debts in the liquidation of non-performing loans, but it continued after the late 2000s when the disposal of non-performing loans was completed.
+
+## JPY 150 of Natural Exchange Rate
+
+The global financial crisis that followed the so-called "Lehman Shock" caused the excess of corporate savings to shrink once, but it grew again in the 2010s. Offsetting this was the current account surplus. In the macroeconomic balance:
+
+Excess Savings = Fiscal Deficit + Current Account Surplus
+
+So, while this is arithmetically obvious, the nature of the surplus has changed dramatically: until the 2000s, it was net exports, but in the 2010s it was replaced by outward foreign direct investment (income balance surplus).
+
+The reason for the continued excess savings is that the exchange rate is higher than the level at which the IS balance is in equilibrium, and the current account surplus does not fill the demand shortfall; if the rate at which the IS balance is in equilibrium were called the natural exchange rate, which is the same as the natural rate of interest, it would be much lower than the current level.
+
+Especially in 2020, the forced saving of benefits has resulted in a large savings surplus (lack of demand), and to offset this, foreign demand (current account surplus) would need to be much larger. a depreciation of the yen beyond 140 yen to the dollar would not only increase exports, but also increase the yen-denominated profits of overseas subsidiaries, which in turn would increase their surpluses.
+
+So the profits of global companies in the Nikkei Index will increase, but since import prices will rise, the operations of small and medium-sized companies such as retailers will deteriorate, and workers will be poorer because inflation will lower real wages. This widening of disparities will become a social problem in the future.
+
+## Inbound Capital to Boost Investment in Japan
+
+BOJ Governor Kuroda's aim since he took office nine years ago has been to target a weaker yen. However, in reality, the cheap money supplied by the BOJ went to foreign direct investment and did not lead to domestic employment.
+
+The current depreciation of the yen will also have little effect on increasing domestic employment. To increase employment, it is necessary to increase inbound tourism by ending restrictions on the entry of coronas, restarting nuclear power plants to lower electricity prices, and leveraging savings through inbound capital from inward direct investments such as semiconductors. Lowering corporate taxes would also make Tokyo a financial center for Asia.
+
+Japanese companies that have left for Asia may come back to Japan if the yen is reduced to about 150 yen, given the geopolitical risks in China and Taiwan. This (in Governor Kuroda's image) would not force the BOJ to weaken the yen, but rather jump to another equilibrium, so if multiple equilibria exist, the IS balance would be stable and the budget deficit would disappear.
+
+However, there are also significant risks. The current JGB price is a JGB bubble supported by the BOJ, and there is a possibility that the bubble will burst due to short-selling by hedge funds. In the very long term, the aging of Japan's population will lead to a shortage of savings and a current account deficit. It is necessary to accumulate capital while it is still available and to consider how to design a lifestyle for future generations by reversing the capital accumulation.
