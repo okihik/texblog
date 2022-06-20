@@ -1,0 +1,76 @@
+---
+title: Bayeian Estimation  with Bernoulli Distribution
+author: Akihiko Mori
+date: '2022-06-20'
+slug: []
+categories: []
+tags:
+  - Bayesian Statistics (R)
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>Bayesian estimation of the parameter p of the Bernoulli distribution will be implemented using R.
+For the prior distribution, a beta distribution will be specified, and the posterior distribution will be obtained.
+We will implement this from data generation, so it can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>True Distribution</li>
+<li>Prior Distribution</li>
+<li>Data Generation</li>
+<li>Posterior Distribution</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(ggplot2)
+set.seed(1)</code></pre>
+</div>
+<div id="true-distribution" class="section level2">
+<h2>True Distribution</h2>
+<pre class="r"><code>x &lt;- 0:1
+p &lt;- 0.8
+prob &lt;- dbinom(x, 1, p)
+
+ggplot() + 
+  geom_bar(aes(x, prob), stat =&quot;identity&quot;) +
+  labs(x=&quot;x&quot;, y=&quot;prob&quot;, title=&quot;Bernoulli Distribution&quot;)+
+  theme_classic(base_family = &quot;&quot;) +
+  theme(text = element_text(size = 24))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="prior-distribution" class="section level2">
+<h2>Prior Distribution</h2>
+<pre class="r"><code>a_pre &lt;- 2
+b_pre &lt;- 2
+x &lt;- seq(0,1, 0.01)
+p_prob_pre &lt;- dbeta(x, a_pre, b_pre)
+
+plot &lt;- ggplot()+
+  geom_line(aes(x=x, y=p_prob_pre))+
+  labs(x=&quot;p&quot;, y=&quot;prob&quot;, title=&quot;Beta Distribution&quot;)+
+  theme_classic(base_family = &quot;&quot;) +
+  theme(text = element_text(size = 24))
+plot</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>data &lt;- rbinom(30, 1, p)
+N &lt;- length(data)</code></pre>
+</div>
+<div id="posterior-distribution" class="section level2">
+<h2>Posterior Distribution</h2>
+<pre class="r"><code>a_pos &lt;- sum(data) + a_pre
+b_pos &lt;- N - sum(data) + b_pre
+x &lt;- seq(0,1, 0.01)
+p_prob_pos &lt;- dbeta(x, a_pos, b_pos)
+
+plot + geom_line(aes(x=x, y=p_prob_pos), col=&quot;blue&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>

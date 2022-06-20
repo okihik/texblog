@@ -1,5 +1,5 @@
 ---
-title: 'Inbound People and Capital for ¥150/$'
+title: 'Welcome to People and Capital for ¥150/$'
 author: Akihiko Mori
 date: '2022-06-17'
 slug: []
