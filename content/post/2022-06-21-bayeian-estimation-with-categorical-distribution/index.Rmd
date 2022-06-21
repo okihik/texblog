@@ -1,0 +1,8 @@
+---
+title: Bayeian Estimation  with Categorical Distribution
+author: Akihiko Mori
+date: '2022-06-21'
+slug: []
+categories: []
+tags: []
+---
