@@ -1,0 +1,77 @@
+---
+title: Bayeian Estimation  with Gaussian Distribution (μ)
+author: Akihiko Mori
+date: '2022-06-22'
+slug: []
+categories: []
+tags:
+  - Bayesian Statistics (R)
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>Bayesian estimation of the parameter μ of the Gaussian (Normal) distribution will be implemented using R.
+For the prior distribution, a Gaussian distribution will be specified, and the posterior distribution will be obtained.
+This will implement this from data generation, so it can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>True Distribution</li>
+<li>Prior Distribution</li>
+<li>Data Generation</li>
+<li>Posterior Distribution</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(ggplot2)
+set.seed(1)</code></pre>
+</div>
+<div id="true-distribution" class="section level2">
+<h2>True Distribution</h2>
+<pre class="r"><code>mu &lt;- 170
+lambda &lt;- 1/100
+x &lt;- seq(100 ,200, 1)
+prob &lt;- dnorm(x, mu, 1/sqrt(lambda))
+
+ggplot()+
+  geom_line(aes(x=x, y=prob))+
+  labs(x=&quot;x&quot;, y=&quot;prob&quot;, title=&quot;Gaussian Distribution&quot;)+
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;) +
+  theme(text = element_text(size = 24))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="prior-distribution" class="section level2">
+<h2>Prior Distribution</h2>
+<pre class="r"><code>mu_pre &lt;- 150
+lambda_pre &lt;- 1/10000
+x &lt;- seq(100 ,200, 1)
+mu_prob_pre &lt;- dnorm(x, mu_pre, 1/sqrt(lambda_pre))
+
+plot &lt;- ggplot()+
+  geom_line(aes(x=x, y=mu_prob_pre))+
+  labs(x=&quot;μ&quot;, y=&quot;prob&quot;, title=&quot;Gaussian Distribution&quot;)+
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;) +
+  theme(text = element_text(size = 24))
+plot</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>data &lt;- rnorm(30, mu, 1/sqrt(lambda))
+N &lt;- length(data)</code></pre>
+</div>
+<div id="posterior-distribution" class="section level2">
+<h2>Posterior Distribution</h2>
+<pre class="r"><code>lambda_pos &lt;- N*lambda + lambda_pre
+mu_pos &lt;- (lambda*sum(data) + lambda_pre*mu_pre)/lambda_pos
+x &lt;- seq(100 ,200, 1)
+mu_prob_pos &lt;- dnorm(x, mu_pos, 1/sqrt(lambda_pos))
+
+plot + geom_line(aes(x=x, y=mu_prob_pos), col=&quot;blue&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
