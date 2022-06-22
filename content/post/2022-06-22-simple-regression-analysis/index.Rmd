@@ -1,0 +1,68 @@
+---
+title: Simple Regression Analysis
+author: Akihiko Mori
+date: '2022-06-22'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+## Purpose
+A single regression analysis will be implemented using R. 
+The data will be implemented from the data generation, 
+so it can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Data Generation
+3. Data Visualization
+4. Analysis
+5. Results of Analysis
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+## Data Generation
+```{r, message=FALSE}
+set.seed(10)
+age <- rnorm(100, 40, 20) 
+err <- rnorm(100, 0, 50) 
+income <- 5*age + 300 + err
+data <-data.frame(age, income) %>%
+  filter(18<age&age<60) %>%
+  mutate(age=round(age), income=round(income))
+data %>% head()
+```
+
+
+## Data Visualization
+```{r, message=FALSE}
+x <- seq(20,60,1)
+ggplot()+
+  geom_point(aes(data$age, data$income))+
+  theme_classic(base_family = "HiraKakuPro-W3") +
+  theme(text=element_text(size=30)) +
+  labs(x="age", y="income", title="Simple Regression Analysis")
+```
+
+
+## Simple Regression Analysis
+```{r}
+model <- lm(data=data, income~age)
+summary(model)
+```
+
+## Results of Analysis
+```{r}
+x <- seq(20,60,1)
+ggplot()+
+  geom_point(aes(data$age, data$income))+
+  theme_classic(base_family = "HiraKakuPro-W3") +
+  theme(text=element_text(size=30)) +
+  geom_line(aes(x, model$coefficients[2]*x+model$coefficients[1]), col="blue") +
+  labs(x="age", y="income", title="Simple Regression Analysis")
+```

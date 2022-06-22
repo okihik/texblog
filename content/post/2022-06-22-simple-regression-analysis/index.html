@@ -1,0 +1,95 @@
+---
+title: Simple Regression Analysis
+author: Akihiko Mori
+date: '2022-06-22'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>A single regression analysis will be implemented using R.
+The data will be implemented from the data generation,
+so it can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Data Generation</li>
+<li>Data Visualization</li>
+<li>Analysis</li>
+<li>Results of Analysis</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)</code></pre>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>set.seed(10)
+age &lt;- rnorm(100, 40, 20) 
+err &lt;- rnorm(100, 0, 50) 
+income &lt;- 5*age + 300 + err
+data &lt;-data.frame(age, income) %&gt;%
+  filter(18&lt;age&amp;age&lt;60) %&gt;%
+  mutate(age=round(age), income=round(income))
+data %&gt;% head()</code></pre>
+<pre><code>##   age income
+## 1  40    464
+## 2  36    503
+## 3  28    476
+## 4  46    498
+## 5  48    567
+## 6  33    381</code></pre>
+</div>
+<div id="data-visualization" class="section level2">
+<h2>Data Visualization</h2>
+<pre class="r"><code>x &lt;- seq(20,60,1)
+ggplot()+
+  geom_point(aes(data$age, data$income))+
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;) +
+  theme(text=element_text(size=30)) +
+  labs(x=&quot;age&quot;, y=&quot;income&quot;, title=&quot;Simple Regression Analysis&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="simple-regression-analysis" class="section level2">
+<h2>Simple Regression Analysis</h2>
+<pre class="r"><code>model &lt;- lm(data=data, income~age)
+summary(model)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = income ~ age, data = data)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -110.452  -32.765    4.869   36.106  107.472 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 306.7034    20.7579  14.775  &lt; 2e-16 ***
+## age           4.7634     0.5033   9.463 4.31e-14 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 49.16 on 69 degrees of freedom
+## Multiple R-squared:  0.5648, Adjusted R-squared:  0.5585 
+## F-statistic: 89.56 on 1 and 69 DF,  p-value: 4.31e-14</code></pre>
+</div>
+<div id="results-of-analysis" class="section level2">
+<h2>Results of Analysis</h2>
+<pre class="r"><code>x &lt;- seq(20,60,1)
+ggplot()+
+  geom_point(aes(data$age, data$income))+
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;) +
+  theme(text=element_text(size=30)) +
+  geom_line(aes(x, model$coefficients[2]*x+model$coefficients[1]), col=&quot;blue&quot;) +
+  labs(x=&quot;age&quot;, y=&quot;income&quot;, title=&quot;Simple Regression Analysis&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
