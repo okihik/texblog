@@ -1,0 +1,121 @@
+---
+title: Bayeian Estimation with Multivariate Gaussian Distribution (μ,λ)
+author: Akihiko Mori
+date: '2022-06-22'
+slug: []
+categories: []
+tags:
+  - Bayesian Statistics (R)
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>Bayesian estimation of the parameter μ,λ of Multivariate Gaussian (Normal) distribution will be implemented using R.
+For the prior distribution, Multivariate Gaussian and Wishart distribution will be specified, and the posterior distribution will be obtained.
+This will implement this from data generation, so it can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>True Distribution</li>
+<li>Prior Distribution</li>
+<li>Data Generation</li>
+<li>Posterior Distribution</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(ggplot2)
+library(ellipse)
+library(MCMCpack)
+set.seed(1)</code></pre>
+</div>
+<div id="true-distribution" class="section level2">
+<h2>True Distribution</h2>
+<pre class="r"><code>mu &lt;- c(170, 60)
+lambda &lt;- solve(matrix(c(100, 80, 80, 100), ncol = 2))
+samples &lt;- mvrnorm(100, mu = mu, Sigma = solve(lambda))
+
+ell &lt;- ellipse(centre=mu, solve(lambda))
+ggplot()+
+  geom_point(aes(x=samples[,1], y=samples[,2]))+
+  labs(x=expression(x[1]), y=expression(x[2]), title=&quot;Multivariate Gaussian Distribution&quot;)+
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;) +
+  theme(text = element_text(size = 20))+
+  lims(x=c(140,200), y=c(30,90))+
+  geom_polygon(data=as.data.frame(ell), aes(x,y), fill=NA,colour=&quot;black&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+<div id="prior-distribution" class="section level2">
+<h2>Prior Distribution</h2>
+<div id="wishart-distribution-λ" class="section level3">
+<h3>Wishart distribution (λ)</h3>
+<pre class="r"><code>n_pre &lt;- 3
+w_pre &lt;- diag(2)*0.01
+lambda_sample_pre &lt;- rwish(n_pre, w_pre)
+
+plot_lambda &lt;- ggplot() +
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;)+
+  theme(text = element_text(size = 20), legend.position=c(0.3,0.7)) +
+  labs(x=expression(x[1]), y=expression(x[2]), title=&quot;Wishart distribution&quot;) 
+for(i in 1:100){
+  lambda_samples_pre &lt;- rwish(n_pre, w_pre)
+  ell &lt;-  ellipse(centre=mu, solve(lambda_samples_pre))
+  plot_lambda &lt;- plot_lambda + geom_polygon(data=as.data.frame(ell),aes(x,y), fill=NA,colour=&quot;black&quot;)
+}
+plot_lambda</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+### Multivariate Gaussian Distribution (μ)</p>
+<pre class="r"><code>mu_pre &lt;- c(150, 50)
+beta_pre &lt;- 0.01
+mu_samples_pre &lt;- mvrnorm(100, mu = mu_pre, Sigma = solve(beta_pre*lambda_sample_pre))
+
+plot_mu &lt;- ggplot()+
+  geom_point(aes(x=mu_samples_pre[,1], y=mu_samples_pre[,2]))+
+  labs(x=expression(mu[1]), y=expression(mu[2]), title=&quot;Multivariate Distribution&quot;)+
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;) +
+  theme(text = element_text(size = 24))
+plot_mu</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>data &lt;- mvrnorm(100, mu = mu, Sigma = solve(lambda))
+N &lt;- nrow(data)</code></pre>
+</div>
+<div id="posterior-distribution" class="section level2">
+<h2>Posterior Distribution</h2>
+<div id="parameters-update" class="section level3">
+<h3>Parameters update</h3>
+<pre class="r"><code>beta_pos &lt;- N + beta_pre
+mu_pos &lt;- (apply(data,2,sum)+beta_pre*mu_pre)/beta_pos
+n_pos &lt;- N + n_pre
+S &lt;- 0
+for(i in 1:N){
+  S &lt;- S + data[i,] %*% t(data[i,])
+}
+w_pos &lt;- solve(S + beta_pre*mu_pre%*%t(mu_pre) - beta_pos*mu_pos%*%t(mu_pos) + solve(w_pre))
+lambda_sample_pos &lt;- rwish(n_pos, w_pos)</code></pre>
+</div>
+<div id="wishart-distribution-λ-1" class="section level3">
+<h3>Wishart distribution (λ)</h3>
+<pre class="r"><code>for(i in 1:100){
+  lambda_samples_pos &lt;- rwish(n_pos, w_pos)
+  ell &lt;-  ellipse(centre=mu, solve(lambda_samples_pos))
+  plot_lambda &lt;- plot_lambda + geom_polygon(data=as.data.frame(ell),aes(x,y), fill=NA, colour=&quot;blue&quot;)
+}
+plot_lambda</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>
+<div id="gaussian-distribution" class="section level3">
+<h3>Gaussian Distribution</h3>
+<pre class="r"><code>mu_samples_pos &lt;- mvrnorm(100, mu = mu_pos, Sigma = solve(beta_pos*lambda_sample_pos))
+
+plot_mu + geom_point(aes(x=mu_samples_pos[,1], y=mu_samples_pos[,2]), col=&quot;blue&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+</div>
