@@ -1,0 +1,125 @@
+---
+title: Multiple Regression Analysis
+author: Akihiko Mori
+date: '2022-06-22'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>A multiple regression analysis will be implemented using R.
+The data will be implemented from the data generation,
+so it can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Data Generation</li>
+<li>Analysis</li>
+<li>Multicollinearity</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)</code></pre>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>set.seed(10)
+age   &lt;- rnorm(100, 40, 20) 
+width &lt;- rnorm(100, 40, 3)
+height&lt;- rnorm(100, 170, 10)
+err   &lt;- rnorm(100, 0, 50) 
+income &lt;- 5*age + rnorm(100,10*width,70) + 300 + err
+data &lt;-data.frame(age, width, height, income) %&gt;%
+filter(18&lt;age&amp;age&lt;60) %&gt;%
+mutate(age=round(age), income=round(income), height=round(height), width=round(width))
+data %&gt;% head()</code></pre>
+<pre><code>##   age width height income
+## 1  40    38    182    949
+## 2  36    41    173   1006
+## 3  28    42    179    929
+## 4  46    38    159    865
+## 5  48    42    175    835
+## 6  33    35    157    786</code></pre>
+</div>
+<div id="results-of-multilinear-regression-analysis" class="section level2">
+<h2>Results of Multilinear Regression Analysis</h2>
+<pre class="r"><code>model &lt;- lm(data=data, income~age+width+height)
+summary(model)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = income ~ age + width + height, data = data)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -218.550  -61.292    5.491   66.630  204.817 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 293.0234   269.3576   1.088   0.2806    
+## age           5.9241     0.9482   6.248 3.28e-08 ***
+## width         8.4364     3.7952   2.223   0.0296 *  
+## height        0.2723     1.2235   0.223   0.8245    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 92.37 on 67 degrees of freedom
+## Multiple R-squared:  0.3886, Adjusted R-squared:  0.3612 
+## F-statistic: 14.19 on 3 and 67 DF,  p-value: 2.929e-07</code></pre>
+</div>
+<div id="multicollinearity" class="section level2">
+<h2>Multicollinearity</h2>
+<pre class="r"><code>set.seed(1)
+age &lt;- rnorm(100, 40, 20) 
+width &lt;- rnorm(100, age, 1) 
+height &lt;- rnorm(100, 170, 10)
+err &lt;- rnorm(100, 0, 50) 
+income &lt;- 5*age + rnorm(100,10*width,70) + 300 + err
+data &lt;-data.frame(age, width, height, income) %&gt;%
+  filter(18&lt;age&amp;age&lt;60) %&gt;%
+  mutate(age=round(age), income=round(income), height=round(height), width=round(width))
+data %&gt;% head()</code></pre>
+<pre><code>##   age width height income
+## 1  27    27    174    826
+## 2  44    44    187   1036
+## 3  23    22    186    697
+## 4  47    46    147   1046
+## 5  24    25    195    721
+## 6  50    50    177   1032</code></pre>
+<pre class="r"><code>cor(data[,c(4,1:3)])</code></pre>
+<pre><code>##            income        age      width     height
+## income  1.0000000  0.8705654  0.8768171 -0.2291069
+## age     0.8705654  1.0000000  0.9950794 -0.2797307
+## width   0.8768171  0.9950794  1.0000000 -0.2826242
+## height -0.2291069 -0.2797307 -0.2826242  1.0000000</code></pre>
+<pre class="r"><code>model &lt;- lm(data=data, income~age+width+height)
+summary(model)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = income ~ age + width + height, data = data)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -258.73  -49.82    9.44   55.94  215.07 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept) 211.9309   198.3031   1.069   0.2888  
+## age          -3.6525    10.4760  -0.349   0.7284  
+## width        19.4120    10.3242   1.880   0.0642 .
+## height        0.3698     1.0634   0.348   0.7291  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 94.56 on 71 degrees of freedom
+## Multiple R-squared:  0.7696, Adjusted R-squared:  0.7598 
+## F-statistic: 79.05 on 3 and 71 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
