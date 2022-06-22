@@ -1,0 +1,8 @@
+---
+title: Bayeian Estimation with Gaussian Distribution (Lambda)
+author: Akihiko Mori
+date: '2022-06-22'
+slug: []
+categories: []
+tags: []
+---
