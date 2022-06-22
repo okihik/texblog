@@ -1,8 +1,74 @@
 ---
-title: Bayeian Estimation with Gaussian Distribution (Lambda)
+title: Bayeian Estimation with Gaussian Distribution (Λ)
 author: Akihiko Mori
 date: '2022-06-22'
 slug: []
 categories: []
-tags: []
+tags:
+  - Bayesian Statistics (R)
 ---
+
+## Purpose
+Bayesian estimation of the parameter λ of the Gaussian (Normal) distribution will be implemented using R. 
+For the prior distribution, a Gamma distribution will be specified, and the posterior distribution will be obtained. 
+This will implement this from data generation, so it can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. True Distribution
+3. Prior Distribution
+4. Data Generation
+5. Posterior Distribution
+
+## Library
+```{r message=FALSE}
+library(ggplot2)
+set.seed(1)
+```
+
+## True Distribution
+```{r}
+mu <- 170
+lambda <- 1/100
+x <- seq(100 ,200, 1)
+prob <- dnorm(x, mu, 1/sqrt(lambda))
+
+ggplot()+
+  geom_line(aes(x=x, y=prob))+
+  labs(x="x", y="prob", title="Gaussian Distribution")+
+  theme_classic(base_family = "HiraKakuPro-W3") +
+  theme(text = element_text(size = 24))
+```
+
+
+## Prior Distribution
+```{r}
+a_pre <- 2
+b_pre <- 1
+x <- seq(0, 0.1, 0.001)
+lambda_prob_pre <- dgamma(x, a_pre, b_pre)
+
+plot <- ggplot()+
+  geom_line(aes(x=x, y=lambda_prob_pre))+
+  labs(x="λ", y="prob", title="Gamma Distribution")+
+  theme_classic(base_family = "HiraKakuPro-W3")+
+  theme(text = element_text(size = 24))
+plot
+```
+
+## Data Generation
+```{r}
+data <- rnorm(30, mu, 1/sqrt(lambda))
+N <- length(data)
+```
+
+## Posterior Distribution
+
+```{r}
+a_pos <- N/2 + a_pre
+b_pos <- sum((data-mu)^2)/2 + b_pre
+x <- seq(0, 0.1, 0.001)
+lambda_prob_pos <- dgamma(x, a_pos, b_pos)
+
+plot + geom_line(aes(x=x, y=lambda_prob_pos), col="blue")
+```
