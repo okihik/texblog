@@ -1,0 +1,136 @@
+---
+title: Linear Discriminant Analysis (Mahalanobis Distance)
+author: Akihiko Mori
+date: '2022-06-23'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>A linear discriminant analysis will be implemented using R.
+The data will be implemented from the data generation,
+so it can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Simple Variable</li>
+<li>Multi-Variables</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)
+library(MASS)</code></pre>
+</div>
+<div id="simple-variable" class="section level2">
+<h2>Simple Variable</h2>
+<div id="data-generation" class="section level3">
+<h3>Data Generation</h3>
+<pre class="r"><code>set.seed(1)
+sales     &lt;- c(rnorm(100, 2000, 70), rnorm(100, 1700, 70)) %&gt;% round(1)
+customers &lt;- c(rep(&quot;IN&quot;, 100), rep(&quot;OUT&quot;, 100))
+data &lt;- data.frame(sales, customers)
+data %&gt;% head()</code></pre>
+<pre><code>##    sales customers
+## 1 1956.1        IN
+## 2 2012.9        IN
+## 3 1941.5        IN
+## 4 2111.7        IN
+## 5 2023.1        IN
+## 6 1942.6        IN</code></pre>
+</div>
+<div id="data-visualization" class="section level3">
+<h3>Data Visualization</h3>
+<pre class="r"><code>data %&gt;%
+  ggplot(aes(sales, fill=customers))+
+  geom_histogram(col=&quot;white&quot;)+
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;)+
+  theme(text=element_text(size=30)) +
+  labs(title=&quot;Histogram&quot;)+
+  scale_x_continuous(breaks=seq(1600,2100, 200))+
+  geom_vline(xintercept = mean(filter(data, customers==&quot;OUT&quot;)$sales), size=2) +
+  geom_vline(xintercept = mean(filter(data, customers==&quot;IN&quot;)$sales), size=2)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="analysis" class="section level3">
+<h3>Analysis</h3>
+<pre class="r"><code>data1 &lt;- filter(data, customers==&quot;IN&quot;)$sales
+data2 &lt;- filter(data, customers==&quot;OUT&quot;)$sales
+D1 &lt;- (data$sales - mean(data1))^2/var(data$sales)
+D2 &lt;- (data$sales - mean(data2))^2/var(data$sales)
+data$D1 &lt;- D1
+data$D2 &lt;- D2
+data$disc &lt;- D1 &lt; D2
+data %&gt;% sample_n(5)</code></pre>
+<pre><code>##    sales customers        D1         D2  disc
+## 1 1732.0       OUT 2.6758339 0.04226957 FALSE
+## 2 1910.6        IN 0.3315807 1.60164931  TRUE
+## 3 2082.5        IN 0.1974675 5.22472816  TRUE
+## 4 1731.5       OUT 2.6855509 0.04105819 FALSE
+## 5 2102.6        IN 0.3177171 5.78430036  TRUE</code></pre>
+</div>
+</div>
+<div id="multi-variables" class="section level2">
+<h2>Multi-Variables</h2>
+<div id="data-generation-1" class="section level3">
+<h3>Data Generation</h3>
+<pre class="r"><code>set.seed(1)
+sales     &lt;- c(rnorm(50, 2000, 200), rnorm(50, 1700, 200)) %&gt;% round(1)
+counts    &lt;- c(rpois(50, 30), rpois(50, 20))
+customers &lt;- c(rep(&quot;IN&quot;, 50), rep(&quot;OUT&quot;, 50))
+data &lt;- data.frame(sales, counts, customers)
+data %&gt;% head()</code></pre>
+<pre><code>##    sales counts customers
+## 1 1874.7     26        IN
+## 2 2036.7     26        IN
+## 3 1832.9     30        IN
+## 4 2319.1     26        IN
+## 5 2065.9     22        IN
+## 6 1835.9     34        IN</code></pre>
+</div>
+<div id="data-visualization-1" class="section level3">
+<h3>Data Visualization</h3>
+<pre class="r"><code>data %&gt;%
+  ggplot()+
+  geom_point(aes(sales, counts, col=customers))+
+  geom_point(aes(mean(filter(data,customers==&quot;IN&quot;)$sales),
+                 mean(filter(data,customers==&quot;IN&quot;)$counts)),
+             col=&quot;red&quot;, size=5)+
+  geom_point(aes(mean(filter(data,customers==&quot;OUT&quot;)$sales),
+                 mean(filter(data,customers==&quot;OUT&quot;)$counts)),
+             col=&quot;blue&quot;, size=5)+
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;)+
+  theme(text=element_text(size=30)) +
+  labs(title=&quot;Scatter Plot&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+</div>
+<div id="analysis-1" class="section level3">
+<h3>Analysis</h3>
+<pre class="r"><code>X &lt;- data[,c(1,2)]
+mu1 &lt;- apply(filter(data[,c(1,2)], customers==&quot;IN&quot;), 2, mean)
+mu2 &lt;- apply(filter(data[,c(1,2)], customers==&quot;OUT&quot;), 2, mean)
+V &lt;- cov(X)
+D1 &lt;- t(t(X)-mu1) %*% solve(V) %*% (t(X)-mu1)
+D2 &lt;- t(t(X)-mu2) %*% solve(V) %*% (t(X)-mu2)
+D1 &lt;- mahalanobis(X,mu1,V)
+D2 &lt;- mahalanobis(X,mu2,V)
+data$D1 &lt;- D1
+data$D2 &lt;- D2
+data$group &lt;- D1 &lt; D2
+data %&gt;% sample_n(5)</code></pre>
+<pre><code>##    sales counts customers       D1        D2 group
+## 1 1822.1     15       OUT 3.924671 0.9158663 FALSE
+## 2 1862.2     25        IN 0.510878 0.8441610  TRUE
+## 3 1840.0     25       OUT 0.626845 0.8174927  TRUE
+## 4 1605.3     19       OUT 3.528419 0.3604499 FALSE
+## 5 1449.3     29       OUT 7.996293 6.9104661 FALSE</code></pre>
+</div>
+</div>

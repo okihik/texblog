@@ -1,0 +1,108 @@
+---
+title: Linear Discriminant Analysis (Mahalanobis Distance)
+author: Akihiko Mori
+date: '2022-06-23'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+## Purpose
+A linear discriminant analysis will be implemented using R. 
+The data will be implemented from the data generation, 
+so it can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Simple Variable
+3. Multi-Variables
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(MASS)
+```
+
+## Simple Variable
+### Data Generation
+```{r, message=FALSE}
+set.seed(1)
+sales     <- c(rnorm(100, 2000, 70), rnorm(100, 1700, 70)) %>% round(1)
+customers <- c(rep("IN", 100), rep("OUT", 100))
+data <- data.frame(sales, customers)
+data %>% head()
+```
+
+
+### Data Visualization
+```{r, message=FALSE}
+data %>%
+  ggplot(aes(sales, fill=customers))+
+  geom_histogram(col="white")+
+  theme_classic(base_family = "HiraKakuPro-W3")+
+  theme(text=element_text(size=30)) +
+  labs(title="Histogram")+
+  scale_x_continuous(breaks=seq(1600,2100, 200))+
+  geom_vline(xintercept = mean(filter(data, customers=="OUT")$sales), size=2) +
+  geom_vline(xintercept = mean(filter(data, customers=="IN")$sales), size=2)
+```
+
+
+### Analysis
+```{r}
+data1 <- filter(data, customers=="IN")$sales
+data2 <- filter(data, customers=="OUT")$sales
+D1 <- (data$sales - mean(data1))^2/var(data$sales)
+D2 <- (data$sales - mean(data2))^2/var(data$sales)
+data$D1 <- D1
+data$D2 <- D2
+data$disc <- D1 < D2
+data %>% sample_n(5)
+```
+
+## Multi-Variables
+### Data Generation
+```{r, message=FALSE}
+set.seed(1)
+sales     <- c(rnorm(50, 2000, 200), rnorm(50, 1700, 200)) %>% round(1)
+counts    <- c(rpois(50, 30), rpois(50, 20))
+customers <- c(rep("IN", 50), rep("OUT", 50))
+data <- data.frame(sales, counts, customers)
+data %>% head()
+```
+
+
+### Data Visualization
+```{r, message=FALSE}
+data %>%
+  ggplot()+
+  geom_point(aes(sales, counts, col=customers))+
+  geom_point(aes(mean(filter(data,customers=="IN")$sales),
+                 mean(filter(data,customers=="IN")$counts)),
+             col="red", size=5)+
+  geom_point(aes(mean(filter(data,customers=="OUT")$sales),
+                 mean(filter(data,customers=="OUT")$counts)),
+             col="blue", size=5)+
+  theme_classic(base_family = "HiraKakuPro-W3")+
+  theme(text=element_text(size=30)) +
+  labs(title="Scatter Plot")
+```
+
+
+### Analysis
+```{r}
+X <- data[,c(1,2)]
+mu1 <- apply(filter(data[,c(1,2)], customers=="IN"), 2, mean)
+mu2 <- apply(filter(data[,c(1,2)], customers=="OUT"), 2, mean)
+V <- cov(X)
+D1 <- t(t(X)-mu1) %*% solve(V) %*% (t(X)-mu1)
+D2 <- t(t(X)-mu2) %*% solve(V) %*% (t(X)-mu2)
+D1 <- mahalanobis(X,mu1,V)
+D2 <- mahalanobis(X,mu2,V)
+data$D1 <- D1
+data$D2 <- D2
+data$group <- D1 < D2
+data %>% sample_n(5)
+```
