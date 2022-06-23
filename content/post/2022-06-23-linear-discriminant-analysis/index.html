@@ -1,0 +1,96 @@
+---
+title: Linear Discriminant Analysis
+author: Akihiko Mori
+date: '2022-06-23'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>A linear discriminant analysis will be implemented using R.
+The data will be implemented from the data generation,
+so it can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Data Generation</li>
+<li>Data Visualization</li>
+<li>Analysis</li>
+<li>Results of Analysis</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)
+library(MASS)</code></pre>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>set.seed(1)
+sales     &lt;- c(rnorm(50, 2000, 200), rnorm(50, 1700, 200)) %&gt;% round(1)
+counts    &lt;- c(rpois(50, 30), rpois(50, 20))
+customers &lt;- c(rep(&quot;IN&quot;, 50), rep(&quot;OUT&quot;, 50))
+data &lt;- data.frame(sales, counts, customers)
+data %&gt;% head()</code></pre>
+<pre><code>##    sales counts customers
+## 1 1874.7     26        IN
+## 2 2036.7     26        IN
+## 3 1832.9     30        IN
+## 4 2319.1     26        IN
+## 5 2065.9     22        IN
+## 6 1835.9     34        IN</code></pre>
+</div>
+<div id="data-visualization" class="section level2">
+<h2>Data Visualization</h2>
+<pre class="r"><code>data %&gt;%
+ggplot() +
+  geom_point(aes(sales, counts, col=customers))+
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;)+
+  theme(text=element_text(size=30)) +
+  labs(title=&quot;Scatter Plot&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="simple-regression-analysis" class="section level2">
+<h2>Simple Regression Analysis</h2>
+<pre class="r"><code>model &lt;- lda(data=data, customers~sales+counts)
+model</code></pre>
+<pre><code>## Call:
+## lda(customers ~ sales + counts, data = data)
+## 
+## Prior probabilities of groups:
+##  IN OUT 
+## 0.5 0.5 
+## 
+## Group means:
+##        sales counts
+## IN  2020.086  28.68
+## OUT 1723.466  18.76
+## 
+## Coefficients of linear discriminants:
+##                 LD1
+## sales  -0.003321201
+## counts -0.159440308</code></pre>
+</div>
+<div id="results-of-analysis" class="section level2">
+<h2>Results of Analysis</h2>
+<pre class="r"><code>a0 &lt;- - apply(model$means %*% model$scaling,2,mean)
+x &lt;- seq(1400, 2200,1)
+y &lt;- -model$scaling[1]/model$scaling[2]*x - a0/model$scaling[2]
+mu &lt;- apply(model$means, 2, mean)
+ggplot()+
+geom_point(aes(data$sales, data$counts, col=customers))+
+geom_point(aes(mu[1], mu[2]), size=3) +
+theme_classic(base_family = &quot;HiraKakuPro-W3&quot;)+
+theme(text=element_text(size=30)) +
+labs(title=&quot;Scatter Plot&quot;, x=&quot;Sales&quot;, y=&quot;Counts&quot;) +
+geom_line(aes(x,y))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>

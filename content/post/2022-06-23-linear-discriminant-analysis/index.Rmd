@@ -1,0 +1,71 @@
+---
+title: Linear Discriminant Analysis
+author: Akihiko Mori
+date: '2022-06-23'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+## Purpose
+A linear discriminant analysis will be implemented using R. 
+The data will be implemented from the data generation, 
+so it can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Data Generation
+3. Data Visualization
+4. Analysis
+5. Results of Analysis
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(MASS)
+```
+
+## Data Generation
+```{r, message=FALSE}
+set.seed(1)
+sales     <- c(rnorm(50, 2000, 200), rnorm(50, 1700, 200)) %>% round(1)
+counts    <- c(rpois(50, 30), rpois(50, 20))
+customers <- c(rep("IN", 50), rep("OUT", 50))
+data <- data.frame(sales, counts, customers)
+data %>% head()
+```
+
+
+## Data Visualization
+```{r, message=FALSE}
+data %>%
+ggplot() +
+  geom_point(aes(sales, counts, col=customers))+
+  theme_classic(base_family = "HiraKakuPro-W3")+
+  theme(text=element_text(size=30)) +
+  labs(title="Scatter Plot")
+```
+
+
+## Simple Regression Analysis
+```{r}
+model <- lda(data=data, customers~sales+counts)
+model
+```
+
+## Results of Analysis
+```{r}
+a0 <- - apply(model$means %*% model$scaling,2,mean)
+x <- seq(1400, 2200,1)
+y <- -model$scaling[1]/model$scaling[2]*x - a0/model$scaling[2]
+mu <- apply(model$means, 2, mean)
+ggplot()+
+geom_point(aes(data$sales, data$counts, col=customers))+
+geom_point(aes(mu[1], mu[2]), size=3) +
+theme_classic(base_family = "HiraKakuPro-W3")+
+theme(text=element_text(size=30)) +
+labs(title="Scatter Plot", x="Sales", y="Counts") +
+geom_line(aes(x,y))
+```
