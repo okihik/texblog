@@ -1,0 +1,93 @@
+---
+title: Quantification Method Ⅱ
+author: Akihiko Mori
+date: '2022-06-24'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>Hayashi’s quantification method/theory Ⅱ will be implemented using R.
+The data is implemented randomly,
+so it can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Data Generation</li>
+<li>Data Visualization</li>
+<li>Data Transformation</li>
+<li>Analysis</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)
+library(MASS)</code></pre>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>set.seed(10)
+N &lt;- 30
+lectures &lt;- c(rep(&quot;A&quot;, N), rep(&quot;B&quot;, N), rep(&quot;C&quot;, N))
+e1 &lt;- rnorm(N, 0, 10) ; e2 &lt;- rnorm(N, 0, 10) ; e3 &lt;- rnorm(N, 0, 10)
+Pass &lt;- c(&quot;fail&quot;, &quot;pass&quot;)
+Pass &lt;- c(Pass[rbinom(N,1,0.5)+1], Pass[rbinom(N,1,0.2)+1], Pass[rbinom(N,1,0.8)+1])
+data &lt;- data.frame(lectures, Pass)
+data %&gt;% sample_n(5)</code></pre>
+<pre><code>##   lectures Pass
+## 1        B fail
+## 2        C fail
+## 3        A pass
+## 4        C pass
+## 5        A pass</code></pre>
+</div>
+<div id="data-visualization" class="section level2">
+<h2>Data Visualization</h2>
+<pre class="r"><code>table(data)</code></pre>
+<pre><code>##         Pass
+## lectures fail pass
+##        A   13   17
+##        B   22    8
+##        C    6   24</code></pre>
+</div>
+<div id="data-transformation" class="section level2">
+<h2>Data Transformation</h2>
+<pre class="r"><code>data %&gt;%
+  mutate(lectureB = ifelse(lectures==&quot;B&quot;, 1, 0)) %&gt;%
+  mutate(lectureC = ifelse(lectures==&quot;C&quot;, 1, 0)) %&gt;%
+  sample_n(5)</code></pre>
+<pre><code>##   lectures Pass lectureB lectureC
+## 1        B fail        1        0
+## 2        C pass        0        1
+## 3        A pass        0        0
+## 4        B pass        1        0
+## 5        A fail        0        0</code></pre>
+</div>
+<div id="quantification-method-analysis" class="section level2">
+<h2>Quantification Method Analysis</h2>
+<pre class="r"><code>lda(data=data, Pass~lectures)</code></pre>
+<pre><code>## Call:
+## lda(Pass ~ lectures, data = data)
+## 
+## Prior probabilities of groups:
+##      fail      pass 
+## 0.4555556 0.5444444 
+## 
+## Group means:
+##      lecturesB lecturesC
+## fail 0.5365854 0.1463415
+## pass 0.1632653 0.4897959
+## 
+## Coefficients of linear discriminants:
+##                 LD1
+## lecturesB -1.511892
+## lecturesC  1.175916</code></pre>
+</div>

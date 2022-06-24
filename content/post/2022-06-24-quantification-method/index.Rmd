@@ -1,0 +1,60 @@
+---
+title: Quantification Method Ⅱ
+author: Akihiko Mori
+date: '2022-06-24'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+## Purpose
+Hayashi's quantification method/theory Ⅱ will be implemented using R. 
+The data is implemented randomly, 
+so it can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Data Generation
+3. Data Visualization
+4. Data Transformation
+5. Analysis
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(MASS)
+```
+
+## Data Generation
+```{r, message=FALSE}
+set.seed(10)
+N <- 30
+lectures <- c(rep("A", N), rep("B", N), rep("C", N))
+e1 <- rnorm(N, 0, 10) ; e2 <- rnorm(N, 0, 10) ; e3 <- rnorm(N, 0, 10)
+Pass <- c("fail", "pass")
+Pass <- c(Pass[rbinom(N,1,0.5)+1], Pass[rbinom(N,1,0.2)+1], Pass[rbinom(N,1,0.8)+1])
+data <- data.frame(lectures, Pass)
+data %>% sample_n(5)
+```
+
+
+## Data Visualization
+```{r, message=FALSE}
+table(data)
+```
+
+## Data Transformation
+```{r}
+data %>%
+  mutate(lectureB = ifelse(lectures=="B", 1, 0)) %>%
+  mutate(lectureC = ifelse(lectures=="C", 1, 0)) %>%
+  sample_n(5)
+```
+
+
+## Quantification Method Analysis
+```{r}
+lda(data=data, Pass~lectures)
+```
