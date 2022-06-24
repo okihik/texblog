@@ -1,0 +1,114 @@
+---
+title: Structural Equation Model
+author: Akihiko Mori
+date: '2022-06-24'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>A structural equation model will be implemented using R.
+The data is implemented randomly,
+so it can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Data Generation</li>
+<li>SEM Analysis</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)
+library(lavaan)
+library(semPlot)</code></pre>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>set.seed(1)
+math &lt;- rnorm(100, 50, 10)
+prog &lt;- rnorm(100, math, 5)
+calc &lt;- rnorm(100, math, 5) %&gt;% round()
+stat &lt;- rnorm(100, math, 5) %&gt;% round()
+lina &lt;- rnorm(100, math, 5) %&gt;% round()
+rprg &lt;- rnorm(100, prog, 5) %&gt;% round()
+Python &lt;- rnorm(100, prog, 5) %&gt;% round()
+data &lt;- data.frame(calc, stat, lina, rprg, Python)
+data &lt;- apply(data, 2, scale)
+data %&gt;% head()</code></pre>
+<pre><code>##            calc       stat       lina        rprg      Python
+## [1,] -0.5007136 -0.3365948 -0.1642212 -0.89192146 -0.93453226
+## [2,]  0.8370708 -0.4367719  0.8839990  0.03234948  0.86264516
+## [3,] -0.1184895  0.0641133 -1.0377380 -1.81619240 -0.84895238
+## [4,]  1.2192949  1.2662377  1.1460541  1.51118299  1.63286405
+## [5,] -0.8829377  1.0658836  0.0104822  0.40205786 -0.07873349
+## [6,]  0.2637346 -0.2364178 -0.9503863  0.77176624 -0.42105299</code></pre>
+</div>
+<div id="analysis-result-cfa" class="section level2">
+<h2>Analysis Result (cfa)</h2>
+<pre class="r"><code>data.model &lt;- &#39;
+Math=~calc+stat+lina
+prog=~rprg+Python
+Math=~prog
+&#39;
+model &lt;- sem(data.model, data)
+summary(model)</code></pre>
+<pre><code>## lavaan 0.6-11 ended normally after 23 iterations
+## 
+##   Estimator                                         ML
+##   Optimization method                           NLMINB
+##   Number of model parameters                        11
+##                                                       
+##   Number of observations                           100
+##                                                       
+## Model Test User Model:
+##                                                       
+##   Test statistic                                 3.867
+##   Degrees of freedom                                 4
+##   P-value (Chi-square)                           0.424
+## 
+## Parameter Estimates:
+## 
+##   Standard errors                             Standard
+##   Information                                 Expected
+##   Information saturated (h1) model          Structured
+## 
+## Latent Variables:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)
+##   Math =~                                             
+##     calc              1.000                           
+##     stat              0.990    0.085   11.660    0.000
+##     lina              1.005    0.084   11.961    0.000
+##   prog =~                                             
+##     rprg              1.000                           
+##     Python            1.048    0.091   11.475    0.000
+##   Math =~                                             
+##     prog              0.865    0.094    9.209    0.000
+## 
+## Variances:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)
+##    .calc              0.228    0.046    4.994    0.000
+##    .stat              0.243    0.047    5.163    0.000
+##    .lina              0.221    0.045    4.903    0.000
+##    .rprg              0.241    0.053    4.515    0.000
+##    .Python            0.167    0.051    3.284    0.001
+##     Math              0.762    0.140    5.443    0.000
+##    .prog              0.179    0.052    3.476    0.001</code></pre>
+<pre class="r"><code>semPaths(model, &quot;model&quot;, &quot;est&quot;, rotation = 2,
+         mar=c(5,6,5,6), 
+         edge.label.cex=1.0, 
+         sizeMan = 12,
+         sizeLat = 12,
+         style = &quot;lisrel&quot;,
+         curve = 3,
+         nCharNodes = 7)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
