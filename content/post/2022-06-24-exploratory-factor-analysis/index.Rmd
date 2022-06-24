@@ -1,0 +1,108 @@
+---
+title: Exploratory Factor Analysis
+author: Akihiko Mori
+date: '2022-06-24'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+## Purpose
+An exploratory factor analysis (EFA) will be implemented using R. 
+The data is implemented randomly, 
+so it can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. One Factor
+3. Two Factors
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+library(psych)
+```
+
+## One Factore
+### Data Generation
+```{r, message=FALSE}
+set.seed(1)
+f <- rnorm(100, 50, 10) 
+engl <- rnorm(100, f, 3)%>% round()
+math <- rnorm(100, f, 3)%>% round()
+data <- data.frame(engl, math)
+data %>% head()
+```
+
+
+### Data Visualization
+```{r, message=FALSE}
+data %>%
+  ggplot() +
+  geom_point(aes(engl, math))+
+  theme_classic(base_family = "HiraKakuPro-W3")+
+  theme(text=element_text(size=30)) +
+  labs(title="Scatter Plot")
+```
+
+
+### EFA
+```{r}
+model <- fa(r=data, nfactors=1, fm="ml")
+par(family= "HiraKakuProN-W3")
+fa.diagram(model)
+```
+
+## Two Factors
+### Data Generation
+```{r}
+set.seed(10)
+scis <- rnorm(100, 50, 10)
+arts <- rnorm(100, 50, 10)
+engl <- rnorm(100, 0.7*arts+0.3*scis, 5) %>% round()
+math <- rnorm(100, 0.3*arts+0.7*scis, 5) %>% round()
+litr <- rnorm(100, 0.7*arts+0.3*scis, 5) %>% round()
+scie <- rnorm(100, 0.3*arts+0.7*scis, 5) %>% round()
+soci <- rnorm(100, 0.7*arts+0.3*scis, 5) %>% round()
+data <- data.frame(engl, math, litr, scie, soci)
+data <- apply(data, 2, scale)
+data %>% head()
+```
+
+### EFA
+```{r}
+model1 <- fa(data, nfactors = 2, rotate = "none", fm="ml")
+model2 <- fa(data, nfactors = 2, rotate = "varimax", fm="ml")
+model1 ; model2
+```
+
+
+### Visualization
+```{r}
+fa.diagram(model1)
+fa.diagram(model2)
+```
+
+```{r}
+p1 <- ggplot() +
+  geom_point(aes(model1$loadings[,1],model1$loadings[,2]))+
+  theme_classic(base_family = "HiraKakuPro-W3")+
+  theme(text=element_text(size=20)) +
+  labs(title="Factore Loading", x=expression(a[1]), y=expression(a[2]))+
+  geom_hline(yintercept = 0)+
+  geom_vline(xintercept = 0)
+
+p2 <- ggplot() +
+  geom_point(aes(model2$loadings[,1],model2$loadings[,2]))+
+  theme_classic(base_family = "HiraKakuPro-W3")+
+  theme(text=element_text(size=20)) +
+  labs(title="Factore Loading", x=expression(b[1]), y=expression(b[2]))+
+  geom_hline(yintercept = 0)+
+  geom_vline(xintercept = 0)
+
+grid.arrange(p1, p2, nrow=1)
+```
+
