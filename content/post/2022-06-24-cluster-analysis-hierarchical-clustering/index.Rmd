@@ -1,7 +1,7 @@
 ---
-title: Linear Discriminant Analysis
+title: Cluster Analysis (Hierarchical Clustering)
 author: Akihiko Mori
-date: '2022-06-23'
+date: '2022-06-24'
 slug: []
 categories: []
 tags:
@@ -9,7 +9,7 @@ tags:
 ---
 
 ## Purpose
-A linear discriminant analysis will be implemented using R. 
+A cluster analysis (Hierarchical Clustering) with Ward's method will be implemented using R. 
 The data is implemented randomly, 
 so it can be reproduced by copy and paste.
 
@@ -24,16 +24,14 @@ so it can be reproduced by copy and paste.
 ```{r message=FALSE}
 library(dplyr)
 library(ggplot2)
-library(MASS)
 ```
 
 ## Data Generation
 ```{r, message=FALSE}
 set.seed(1)
-sales     <- c(rnorm(50, 2000, 200), rnorm(50, 1700, 200)) %>% round(1)
-counts    <- c(rpois(50, 30), rpois(50, 20))
-customers <- c(rep("IN", 50), rep("OUT", 50))
-data <- data.frame(sales, counts, customers)
+engl <- c(rnorm(5, 50, 10), rnorm(5, 70, 10))%>% round()
+math <- c(rnorm(5, 50, 10), rnorm(5, 30, 10))%>% round()
+data <- data.frame(engl, math)
 data %>% head()
 ```
 
@@ -41,18 +39,19 @@ data %>% head()
 ## Data Visualization
 ```{r, message=FALSE}
 data %>%
-ggplot() +
-  geom_point(aes(sales, counts, col=customers))+
+  ggplot()+
+  geom_point(aes(engl, math)) +
   theme_classic(base_family = "HiraKakuPro-W3")+
-  theme(text=element_text(size=30)) +
+  theme(text=element_text(size=30))+
   labs(title="Scatter Plot")
 ```
 
 
-## Simple Regression Analysis
+## Cluster Analysis
 ```{r}
-model <- lda(data=data, customers~sales+counts)
-model
+D <- dist(data, method = "euclidean")
+cls <- hclust(D, method = "ward.D")
+plot(as.dendrogram(cls))
 ```
 
 ## Results of Analysis

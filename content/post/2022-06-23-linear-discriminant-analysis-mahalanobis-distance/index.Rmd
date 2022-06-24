@@ -10,7 +10,7 @@ tags:
 
 ## Purpose
 A linear discriminant analysis will be implemented using R. 
-The data will be implemented from the data generation, 
+The data is implemented randomly, 
 so it can be reproduced by copy and paste.
 
 ## TOC

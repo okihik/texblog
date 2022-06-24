@@ -52,7 +52,7 @@ model <- prcomp(data, scale = TRUE)
 summary(model)
 ```
 
-## Scores
+### Scores
 ```{r}
 z <- model$rotation[,1] %*% t(scale(data)) %>% 
   round(2) %>% t() %>% as.data.frame()
