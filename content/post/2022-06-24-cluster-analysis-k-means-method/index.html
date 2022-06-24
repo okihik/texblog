@@ -1,0 +1,92 @@
+---
+title: Cluster Analysis (k-Means Method)
+author: Akihiko Mori
+date: '2022-06-24'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>A cluster analysis (k-Means Method) will be implemented using R.
+The data is implemented randomly,
+so it can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Data Generation</li>
+<li>Data Visualization</li>
+<li>Analysis</li>
+<li>Results of Analysis</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)</code></pre>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>set.seed(1)
+engl &lt;- c(rnorm(5, 50, 10), rnorm(5, 70, 10))%&gt;% round()
+math &lt;- c(rnorm(5, 50, 10), rnorm(5, 30, 10))%&gt;% round()
+data &lt;- data.frame(engl, math)
+data %&gt;% head()</code></pre>
+<pre><code>##   engl math
+## 1   44   65
+## 2   52   54
+## 3   42   44
+## 4   66   28
+## 5   53   61
+## 6   62   30</code></pre>
+</div>
+<div id="data-visualization" class="section level2">
+<h2>Data Visualization</h2>
+<pre class="r"><code>data %&gt;%
+  ggplot()+
+  geom_point(aes(engl, math)) +
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;)+
+  theme(text=element_text(size=30))+
+  labs(title=&quot;Scatter Plot&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="k-means-cluster-analysis" class="section level2">
+<h2>k-Means Cluster Analysis</h2>
+<pre class="r"><code>cls &lt;- kmeans(data, 2)
+cls</code></pre>
+<pre><code>## K-means clustering with 2 clusters of sizes 6, 4
+## 
+## Cluster means:
+##    engl math
+## 1 70.50 33.5
+## 2 47.75 56.0
+## 
+## Clustering vector:
+##  [1] 2 2 2 1 2 1 1 1 1 1
+## 
+## Within cluster sum of squares by cluster:
+## [1] 309.00 346.75
+##  (between_SS / total_SS =  78.9 %)
+## 
+## Available components:
+## 
+## [1] &quot;cluster&quot;      &quot;centers&quot;      &quot;totss&quot;        &quot;withinss&quot;     &quot;tot.withinss&quot;
+## [6] &quot;betweenss&quot;    &quot;size&quot;         &quot;iter&quot;         &quot;ifault&quot;</code></pre>
+</div>
+<div id="results-of-analysis" class="section level2">
+<h2>Results of Analysis</h2>
+<pre class="r"><code>data$cluster &lt;- factor(cls$cluster)
+data %&gt;%
+  ggplot()+
+  geom_point(aes(engl, math, col=cluster)) +
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;)+
+  theme(text=element_text(size=30))+
+  labs(title=&quot;Scatter Plot&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>

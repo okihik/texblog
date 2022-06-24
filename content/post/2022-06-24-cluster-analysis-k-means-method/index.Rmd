@@ -1,0 +1,65 @@
+---
+title: Cluster Analysis (k-Means Method)
+author: Akihiko Mori
+date: '2022-06-24'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+## Purpose
+A cluster analysis (k-Means Method) will be implemented using R. 
+The data is implemented randomly, 
+so it can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Data Generation
+3. Data Visualization
+4. Analysis
+5. Results of Analysis
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+## Data Generation
+```{r, message=FALSE}
+set.seed(1)
+engl <- c(rnorm(5, 50, 10), rnorm(5, 70, 10))%>% round()
+math <- c(rnorm(5, 50, 10), rnorm(5, 30, 10))%>% round()
+data <- data.frame(engl, math)
+data %>% head()
+```
+
+
+## Data Visualization
+```{r, message=FALSE}
+data %>%
+  ggplot()+
+  geom_point(aes(engl, math)) +
+  theme_classic(base_family = "HiraKakuPro-W3")+
+  theme(text=element_text(size=30))+
+  labs(title="Scatter Plot")
+```
+
+
+## k-Means Cluster Analysis
+```{r}
+cls <- kmeans(data, 2)
+cls
+```
+
+## Results of Analysis
+```{r}
+data$cluster <- factor(cls$cluster)
+data %>%
+  ggplot()+
+  geom_point(aes(engl, math, col=cluster)) +
+  theme_classic(base_family = "HiraKakuPro-W3")+
+  theme(text=element_text(size=30))+
+  labs(title="Scatter Plot")
+```
