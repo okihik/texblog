@@ -1,0 +1,92 @@
+---
+title: Principal Component Analysis
+author: Akihiko Mori
+date: '2022-06-24'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+## Purpose
+A linear discriminant analysis will be implemented using R. 
+The data is generated randomly, 
+so it can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Simple Variable
+3. Multi-Variables
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+## Simple Variable
+### Data Generation
+```{r, message=FALSE}
+set.seed(10)
+engl <- rnorm(100, 50, 10) %>% round()
+math <- rnorm(100, engl, 10) %>% round()
+data <- data.frame(engl, math)
+data %>% head()
+```
+
+
+### Data Visualization
+```{r, message=FALSE}
+data %>%
+  ggplot() +
+  geom_point(aes(engl, math))+
+  theme_classic(base_family = "HiraKakuPro-W3")+
+  theme(text=element_text(size=30)) +
+  labs(title="Scatter Plot")
+```
+
+
+### Analysis
+```{r}
+model <- prcomp(data, scale = TRUE)
+summary(model)
+```
+
+## Scores
+```{r}
+z <- model$rotation[,1] %*% t(scale(data)) %>% 
+  round(2) %>% t() %>% as.data.frame()
+colnames(z) <- "z"
+z %>% head()
+```
+
+
+## Multi-Variables
+### Data Generation
+```{r, message=FALSE}
+set.seed(10)
+engl <- rnorm(100, 50, 10) %>% round()
+math <- rnorm(100, 50, 10) %>% round()
+lit <- rnorm(100, engl, 5) %>% round()
+sci <- rnorm(100, math, 5) %>% round()
+soc <- rnorm(100, lit, 3) %>% round()
+data <- data.frame(engl, math, lit, sci, soc)
+data %>% head()
+```
+
+
+### Analysis
+```{r}
+model <- prcomp(data, scale = TRUE)
+summary(model)
+biplot(model, family="HiraKakuPro-W3")
+```
+
+### Scores
+```{r}
+z <- t(model$rotation[,1:2]) %*% t(scale(data)) %>% 
+  round(2) %>% t() %>% as.data.frame()
+colnames(z) <- c("z1", "z2")
+z %>% head()
+```
+

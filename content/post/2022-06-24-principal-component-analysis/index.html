@@ -1,0 +1,130 @@
+---
+title: Principal Component Analysis
+author: Akihiko Mori
+date: '2022-06-24'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>A linear discriminant analysis will be implemented using R.
+The data is generated randomly,
+so it can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Simple Variable</li>
+<li>Multi-Variables</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)</code></pre>
+</div>
+<div id="simple-variable" class="section level2">
+<h2>Simple Variable</h2>
+<div id="data-generation" class="section level3">
+<h3>Data Generation</h3>
+<pre class="r"><code>set.seed(10)
+engl &lt;- rnorm(100, 50, 10) %&gt;% round()
+math &lt;- rnorm(100, engl, 10) %&gt;% round()
+data &lt;- data.frame(engl, math)
+data %&gt;% head()</code></pre>
+<pre><code>##   engl math
+## 1   50   42
+## 2   48   52
+## 3   36   26
+## 4   44   51
+## 5   53   47
+## 6   54   60</code></pre>
+</div>
+<div id="data-visualization" class="section level3">
+<h3>Data Visualization</h3>
+<pre class="r"><code>data %&gt;%
+  ggplot() +
+  geom_point(aes(engl, math))+
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;)+
+  theme(text=element_text(size=30)) +
+  labs(title=&quot;Scatter Plot&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="analysis" class="section level3">
+<h3>Analysis</h3>
+<pre class="r"><code>model &lt;- prcomp(data, scale = TRUE)
+summary(model)</code></pre>
+<pre><code>## Importance of components:
+##                           PC1    PC2
+## Standard deviation     1.2933 0.5722
+## Proportion of Variance 0.8363 0.1637
+## Cumulative Proportion  0.8363 1.0000</code></pre>
+</div>
+</div>
+<div id="scores" class="section level2">
+<h2>Scores</h2>
+<pre class="r"><code>z &lt;- model$rotation[,1] %*% t(scale(data)) %&gt;% 
+  round(2) %&gt;% t() %&gt;% as.data.frame()
+colnames(z) &lt;- &quot;z&quot;
+z %&gt;% head()</code></pre>
+<pre><code>##       z
+## 1  0.20
+## 2 -0.19
+## 3  2.11
+## 4  0.17
+## 5 -0.29
+## 6 -1.07</code></pre>
+</div>
+<div id="multi-variables" class="section level2">
+<h2>Multi-Variables</h2>
+<div id="data-generation-1" class="section level3">
+<h3>Data Generation</h3>
+<pre class="r"><code>set.seed(10)
+engl &lt;- rnorm(100, 50, 10) %&gt;% round()
+math &lt;- rnorm(100, 50, 10) %&gt;% round()
+lit &lt;- rnorm(100, engl, 5) %&gt;% round()
+sci &lt;- rnorm(100, math, 5) %&gt;% round()
+soc &lt;- rnorm(100, lit, 3) %&gt;% round()
+data &lt;- data.frame(engl, math, lit, sci, soc)
+data %&gt;% head()</code></pre>
+<pre><code>##   engl math lit sci soc
+## 1   50   42  56  50  56
+## 2   48   54  50  57  54
+## 3   36   40  43  37  50
+## 4   44   57  48  61  49
+## 5   53   44  48  45  46
+## 6   54   56  56  58  50</code></pre>
+</div>
+<div id="analysis-1" class="section level3">
+<h3>Analysis</h3>
+<pre class="r"><code>model &lt;- prcomp(data, scale = TRUE)
+summary(model)</code></pre>
+<pre><code>## Importance of components:
+##                           PC1    PC2     PC3     PC4     PC5
+## Standard deviation     1.6832 1.3553 0.42296 0.33797 0.19152
+## Proportion of Variance 0.5666 0.3674 0.03578 0.02285 0.00734
+## Cumulative Proportion  0.5666 0.9340 0.96982 0.99266 1.00000</code></pre>
+<pre class="r"><code>biplot(model, family=&quot;HiraKakuPro-W3&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>
+<div id="scores-1" class="section level3">
+<h3>Scores</h3>
+<pre class="r"><code>z &lt;- t(model$rotation[,1:2]) %*% t(scale(data)) %&gt;% 
+  round(2) %&gt;% t() %&gt;% as.data.frame()
+colnames(z) &lt;- c(&quot;z1&quot;, &quot;z2&quot;)
+z %&gt;% head()</code></pre>
+<pre><code>##      z1    z2
+## 1 -0.96 -0.32
+## 2 -0.12  0.83
+## 3  0.64 -1.71
+## 4  0.58  1.15
+## 5 -0.24 -0.62
+## 6 -0.54  1.17</code></pre>
+</div>
+</div>
