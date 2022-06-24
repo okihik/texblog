@@ -1,0 +1,65 @@
+---
+title: Confirmatory Factor Analysis
+author: Akihiko Mori
+date: '2022-06-24'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+## Purpose
+An exploratory factor analysis (EFA) will be implemented using R. 
+The data is implemented randomly, 
+so it can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Data Generation
+3. Result of Analysis (cfa)
+4. Result of Analysis (sem)
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(lavaan)
+library(semPlot)
+```
+
+## Data Generation
+```{r, message=FALSE}
+set.seed(1)
+scis <- rnorm(100, 50, 10)
+arts <- rnorm(100, 50, 10)
+eng <- rnorm(100, arts, 10) %>% round()
+mat <- rnorm(100, scis, 10) %>% round()
+lit <- rnorm(100, arts, 10) %>% round()
+sci <- rnorm(100, scis, 10) %>% round()
+soc <- rnorm(100, arts, 10) %>% round()
+data <- data.frame(eng, mat, lit, sci, soc)
+data <- apply(data, 2, scale)
+data %>% head()
+```
+
+
+## Analysis Result (cfa)
+```{r, message=FALSE}
+data.model <- 'scis=~mat+sci
+arts=~eng+lit+soc'
+model <- cfa(data.model, data=data)
+summary(model,fit.measures=TRUE)
+```
+
+
+## ## Analysis Result (sem)
+```{r}
+model2 <- sem(data.model, data=data)
+semPaths(model2, "model", "est", rotation = 2,
+         mar=c(3,5,3,7), 
+         edge.label.cex=1.5,
+         sizeMan = 15,
+         sizeLat = 15,
+         style = "lisrel",
+         curve = 3)
+```
