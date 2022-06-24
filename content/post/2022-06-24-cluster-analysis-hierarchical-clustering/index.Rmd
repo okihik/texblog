@@ -56,15 +56,11 @@ plot(as.dendrogram(cls))
 
 ## Results of Analysis
 ```{r}
-a0 <- - apply(model$means %*% model$scaling,2,mean)
-x <- seq(1400, 2200,1)
-y <- -model$scaling[1]/model$scaling[2]*x - a0/model$scaling[2]
-mu <- apply(model$means, 2, mean)
-ggplot()+
-geom_point(aes(data$sales, data$counts, col=customers))+
-geom_point(aes(mu[1], mu[2]), size=3) +
-theme_classic(base_family = "HiraKakuPro-W3")+
-theme(text=element_text(size=30)) +
-labs(title="Scatter Plot", x="Sales", y="Counts") +
-geom_line(aes(x,y))
+data$cluster <- factor(cutree(cls, k=2))
+data %>%
+  ggplot()+
+  geom_point(aes(engl, math, col=cluster)) +
+  theme_classic(base_family = "HiraKakuPro-W3")+
+  theme(text=element_text(size=30))+
+  labs(title="Scatter Plot")
 ```

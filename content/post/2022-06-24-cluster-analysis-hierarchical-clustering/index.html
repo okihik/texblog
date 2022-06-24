@@ -1,0 +1,76 @@
+---
+title: Cluster Analysis (Hierarchical Clustering)
+author: Akihiko Mori
+date: '2022-06-24'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>A cluster analysis (Hierarchical Clustering) with Ward’s method will be implemented using R.
+The data is implemented randomly,
+so it can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Data Generation</li>
+<li>Data Visualization</li>
+<li>Analysis</li>
+<li>Results of Analysis</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)</code></pre>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>set.seed(1)
+engl &lt;- c(rnorm(5, 50, 10), rnorm(5, 70, 10))%&gt;% round()
+math &lt;- c(rnorm(5, 50, 10), rnorm(5, 30, 10))%&gt;% round()
+data &lt;- data.frame(engl, math)
+data %&gt;% head()</code></pre>
+<pre><code>##   engl math
+## 1   44   65
+## 2   52   54
+## 3   42   44
+## 4   66   28
+## 5   53   61
+## 6   62   30</code></pre>
+</div>
+<div id="data-visualization" class="section level2">
+<h2>Data Visualization</h2>
+<pre class="r"><code>data %&gt;%
+  ggplot()+
+  geom_point(aes(engl, math)) +
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;)+
+  theme(text=element_text(size=30))+
+  labs(title=&quot;Scatter Plot&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="cluster-analysis" class="section level2">
+<h2>Cluster Analysis</h2>
+<pre class="r"><code>D &lt;- dist(data, method = &quot;euclidean&quot;)
+cls &lt;- hclust(D, method = &quot;ward.D&quot;)
+plot(as.dendrogram(cls))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+<div id="results-of-analysis" class="section level2">
+<h2>Results of Analysis</h2>
+<pre class="r"><code>data$cluster &lt;- factor(cutree(cls, k=2))
+data %&gt;%
+  ggplot()+
+  geom_point(aes(engl, math, col=cluster)) +
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;)+
+  theme(text=element_text(size=30))+
+  labs(title=&quot;Scatter Plot&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
