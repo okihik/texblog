@@ -1,0 +1,58 @@
+---
+title: Path Analysis
+author: Akihiko Mori
+date: '2022-06-24'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+## Purpose
+A path analysis will be implemented using R. 
+The data is implemented randomly, 
+so it can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Data Generation
+3. Analysis
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(lavaan)
+library(semPlot)
+```
+
+## Data Generation
+```{r, message=FALSE}
+set.seed(1)
+la <- rnorm(100, 50, 10) %>% round()
+cal <- rnorm(100, 50, 10) %>% round()
+ml <- rnorm(100, 0.7*la+0.3*cal, 5) %>% round()
+NN <- rnorm(100, 0.2*la+0.8*cal, 5) %>% round()
+data <- data.frame(la, cal, ml, NN)
+data <- apply(data, 2, scale)
+data %>% head()
+```
+
+
+## Analysis Result (cfa)
+```{r, message=FALSE}
+data.model <- '
+ml ~ la+cal
+NN ~ la+cal
+'
+model <- sem(data.model, data=data)
+summary(model)
+semPaths(model, "model", "est", rotation = 2,
+         mar=c(5,8,5,14), 
+         edge.label.cex=2, 
+         sizeMan = 15,
+         sizeLat = 15,
+         style = "lisrel",
+         curve = 3,
+         nCharNodes = 4)
+```

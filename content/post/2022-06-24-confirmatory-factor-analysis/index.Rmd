@@ -9,7 +9,7 @@ tags:
 ---
 
 ## Purpose
-An exploratory factor analysis (EFA) will be implemented using R. 
+A Confirmatory factor analysis will be implemented using R. 
 The data is implemented randomly, 
 so it can be reproduced by copy and paste.
 
