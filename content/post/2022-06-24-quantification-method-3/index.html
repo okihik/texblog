@@ -1,0 +1,123 @@
+---
+title: Quantification Method Ⅲ
+author: Akihiko Mori
+date: '2022-06-24'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>Hayashi’s quantification method/theory Ⅲ will be implemented using R.
+The data is implemented randomly,
+so it can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Data Generation</li>
+<li>Data Transformation</li>
+<li>Analysis</li>
+<li>Visualization</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)
+library(MASS)
+library(ggrepel)
+library(gridExtra)</code></pre>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>set.seed(1)
+eng &lt;- rnorm(15, 50, 10) %&gt;% round()
+mat &lt;- rnorm(15, 50, 10) %&gt;% round()
+lit &lt;- rnorm(15, eng, 5) %&gt;% round()
+sci &lt;- rnorm(15, mat, 5) %&gt;% round()
+soc &lt;- rnorm(15, lit, 3) %&gt;% round()
+data &lt;- data.frame(eng, mat, lit, sci, soc) %&gt;%
+mutate(eng=ifelse(eng&gt;50, 1, 0)) %&gt;%
+mutate(mat=ifelse(mat&gt;50, 1, 0)) %&gt;%
+mutate(lit=ifelse(lit&gt;50, 1, 0)) %&gt;%
+mutate(sci=ifelse(sci&gt;50, 1, 0)) %&gt;%
+mutate(soc=ifelse(soc&gt;50, 1, 0))
+data %&gt;% head()</code></pre>
+<pre><code>##   eng mat lit sci soc
+## 1   0   0   1   0   1
+## 2   1   0   1   1   1
+## 3   0   1   0   1   0
+## 4   1   1   1   1   1
+## 5   1   1   0   1   0
+## 6   0   1   0   1   0</code></pre>
+</div>
+<div id="data-transformation" class="section level2">
+<h2>Data Transformation</h2>
+<pre class="r"><code>data &lt;- data[data %&gt;% apply(1,sum) != 0,]
+rownames(data) &lt;- 1:nrow(data)
+data %&gt;% head()</code></pre>
+<pre><code>##   eng mat lit sci soc
+## 1   0   0   1   0   1
+## 2   1   0   1   1   1
+## 3   0   1   0   1   0
+## 4   1   1   1   1   1
+## 5   1   1   0   1   0
+## 6   0   1   0   1   0</code></pre>
+</div>
+<div id="quantification-method-analysis" class="section level2">
+<h2>Quantification Method Analysis</h2>
+<pre class="r"><code>model &lt;- corresp(as.matrix(data), nf=2)
+model</code></pre>
+<pre><code>## First canonical correlation(s): 0.5559383 0.2722638 
+## 
+##  Row scores:
+##          [,1]         [,2]
+## 1   1.7139702  2.624197987
+## 2   0.6015372 -0.430233335
+## 3  -2.2165520  0.930015060
+## 4  -0.0545884 -0.008539853
+## 5  -1.2336275 -1.763698413
+## 6  -2.2165520  0.930015060
+## 7  -0.5423706 -0.852590955
+## 8  -0.0545884 -0.008539853
+## 9   1.3867207 -0.634243129
+## 10 -0.2512909  1.777106524
+## 11  0.6015372 -0.430233335
+## 12  1.3867207 -0.634243129
+## 13 -0.0545884 -0.008539853
+## 
+##  Column scores:
+##           [,1]        [,2]
+## eng  0.4070700 -1.94699287
+## mat -1.4894093  0.45692246
+## lit  0.8513641  0.51205516
+## sci -0.9751232  0.04949649
+## soc  1.0543595  0.91689329</code></pre>
+</div>
+<div id="visualization" class="section level2">
+<h2>Visualization</h2>
+<pre class="r"><code>p1 &lt;- ggplot() +
+  geom_text_repel(aes(model$rscore[,1],
+                      model$rscore[,2],
+                      label=1:nrow(data)), size=10) + 
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;)+
+  theme(text=element_text(size=30)) +
+  labs(title=&quot;Scatter Plot&quot;, x=expression(x[1]), y=expression(x[2]))
+
+p2 &lt;- ggplot() +
+  geom_text_repel(aes(model$cscore[,1],
+                      model$cscore[,2],
+                      label=colnames(data)), size=10, family=&quot;HiraKakuPro-W3&quot;) + 
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;)+
+  theme(text=element_text(size=30)) +
+  labs(title=&quot;Scatter Plot (label)&quot;, x=expression(y[1]), y=expression(y[2]))
+
+grid.arrange(p1, p2)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>

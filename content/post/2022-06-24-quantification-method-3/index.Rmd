@@ -1,0 +1,84 @@
+---
+title: Quantification Method Ⅲ
+author: Akihiko Mori
+date: '2022-06-24'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+## Purpose
+Hayashi's quantification method/theory Ⅲ will be implemented using R. 
+The data is implemented randomly, 
+so it can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Data Generation
+3. Data Transformation
+4. Analysis
+5. Visualization
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(MASS)
+library(ggrepel)
+library(gridExtra)
+```
+
+## Data Generation
+```{r, message=FALSE}
+set.seed(1)
+eng <- rnorm(15, 50, 10) %>% round()
+mat <- rnorm(15, 50, 10) %>% round()
+lit <- rnorm(15, eng, 5) %>% round()
+sci <- rnorm(15, mat, 5) %>% round()
+soc <- rnorm(15, lit, 3) %>% round()
+data <- data.frame(eng, mat, lit, sci, soc) %>%
+mutate(eng=ifelse(eng>50, 1, 0)) %>%
+mutate(mat=ifelse(mat>50, 1, 0)) %>%
+mutate(lit=ifelse(lit>50, 1, 0)) %>%
+mutate(sci=ifelse(sci>50, 1, 0)) %>%
+mutate(soc=ifelse(soc>50, 1, 0))
+data %>% head()
+```
+
+
+## Data Transformation
+```{r}
+data <- data[data %>% apply(1,sum) != 0,]
+rownames(data) <- 1:nrow(data)
+data %>% head()
+```
+
+
+## Quantification Method Analysis
+```{r}
+model <- corresp(as.matrix(data), nf=2)
+model
+```
+
+## Visualization
+```{r}
+p1 <- ggplot() +
+  geom_text_repel(aes(model$rscore[,1],
+                      model$rscore[,2],
+                      label=1:nrow(data)), size=10) + 
+  theme_classic(base_family = "HiraKakuPro-W3")+
+  theme(text=element_text(size=30)) +
+  labs(title="Scatter Plot", x=expression(x[1]), y=expression(x[2]))
+
+p2 <- ggplot() +
+  geom_text_repel(aes(model$cscore[,1],
+                      model$cscore[,2],
+                      label=colnames(data)), size=10, family="HiraKakuPro-W3") + 
+  theme_classic(base_family = "HiraKakuPro-W3")+
+  theme(text=element_text(size=30)) +
+  labs(title="Scatter Plot (label)", x=expression(y[1]), y=expression(y[2]))
+
+grid.arrange(p1, p2)
+```
+
