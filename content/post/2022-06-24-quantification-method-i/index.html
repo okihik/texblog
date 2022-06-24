@@ -1,0 +1,97 @@
+---
+title: Quantification Method I
+author: Akihiko Mori
+date: '2022-06-24'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+
+
+<div id="purpose" class="section level2">
+<h2>Purpose</h2>
+<p>A cluster analysis (k-Means Method) will be implemented using R.
+The data is implemented randomly,
+so it can be reproduced by copy and paste.</p>
+</div>
+<div id="toc" class="section level2">
+<h2>TOC</h2>
+<ol style="list-style-type: decimal">
+<li>Library</li>
+<li>Data Generation</li>
+<li>Data Visualization</li>
+<li>Data Transformation</li>
+<li>Analysis</li>
+</ol>
+</div>
+<div id="library" class="section level2">
+<h2>Library</h2>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)</code></pre>
+</div>
+<div id="data-generation" class="section level2">
+<h2>Data Generation</h2>
+<pre class="r"><code>set.seed(100)
+N &lt;- 30
+lectures &lt;- c(rep(&quot;lecture A&quot;, N), rep(&quot;lecture B&quot;, N), rep(&quot;lecture C&quot;, N))
+e1 &lt;- rnorm(N, 0, 10)
+e2 &lt;- rnorm(N, 0, 10)
+e3 &lt;- rnorm(N, 0, 10)
+data &lt;- data.frame(lectures) %&gt;% 
+mutate(test=ifelse(lectures==&quot;lecture A&quot;, 50+e1 , ifelse(lectures==&quot;lecture B&quot;, 30+e2, 80+e3))) %&gt;%
+mutate(test=round(test))
+data %&gt;% sample_n(5)</code></pre>
+<pre><code>##    lectures test
+## 1 lecture C   82
+## 2 lecture C   68
+## 3 lecture A   46
+## 4 lecture A   43
+## 5 lecture B   29</code></pre>
+</div>
+<div id="data-visualization" class="section level2">
+<h2>Data Visualization</h2>
+<pre class="r"><code>data %&gt;%
+  ggplot() +
+  geom_point(aes(lectures, test)) +
+  theme_classic(base_family = &quot;HiraKakuPro-W3&quot;) +
+  theme(text=element_text(size=30)) +
+  labs(title=&quot;Scatter Plotト&quot;, x=NULL)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+## Data Transformation</p>
+<pre class="r"><code>data %&gt;%
+  mutate(lectureB = ifelse(lectures==&quot;lecture B&quot;, 1, 0)) %&gt;%
+  mutate(lectureC = ifelse(lectures==&quot;lecture C&quot;, 1, 0)) %&gt;%
+  sample_n(5)</code></pre>
+<pre><code>##    lectures test lectureB lectureC
+## 1 lecture B   43        1        0
+## 2 lecture C   84        0        1
+## 3 lecture A   46        0        0
+## 4 lecture B   41        1        0
+## 5 lecture C   81        0        1</code></pre>
+</div>
+<div id="quantification-method-analysis" class="section level2">
+<h2>Quantification Method Analysis</h2>
+<pre class="r"><code>model1 &lt;- lm(data=data, test~lectures)
+summary(model1)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = test ~ lectures, data = data)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -23.967  -5.192   0.150   6.692  26.567 
+## 
+## Coefficients:
+##                   Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         50.267      1.841  27.304  &lt; 2e-16 ***
+## lectureslecture B  -19.300      2.604  -7.413  7.6e-11 ***
+## lectureslecture C   29.167      2.604  11.202  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 10.08 on 87 degrees of freedom
+## Multiple R-squared:  0.8015, Adjusted R-squared:  0.797 
+## F-statistic: 175.7 on 2 and 87 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>

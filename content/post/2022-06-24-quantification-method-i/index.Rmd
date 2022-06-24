@@ -1,0 +1,67 @@
+---
+title: Quantification Method I
+author: Akihiko Mori
+date: '2022-06-24'
+slug: []
+categories: []
+tags:
+  - Multivariate Analysis
+---
+
+## Purpose
+A cluster analysis (k-Means Method) will be implemented using R. 
+The data is implemented randomly, 
+so it can be reproduced by copy and paste.
+
+## TOC
+1. Library
+2. Data Generation
+3. Data Visualization
+4. Data Transformation
+5. Analysis
+
+## Library
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+## Data Generation
+```{r, message=FALSE}
+set.seed(100)
+N <- 30
+lectures <- c(rep("lecture A", N), rep("lecture B", N), rep("lecture C", N))
+e1 <- rnorm(N, 0, 10)
+e2 <- rnorm(N, 0, 10)
+e3 <- rnorm(N, 0, 10)
+data <- data.frame(lectures) %>% 
+mutate(test=ifelse(lectures=="lecture A", 50+e1 , ifelse(lectures=="lecture B", 30+e2, 80+e3))) %>%
+mutate(test=round(test))
+data %>% sample_n(5)
+```
+
+
+## Data Visualization
+```{r, message=FALSE}
+data %>%
+  ggplot() +
+  geom_point(aes(lectures, test)) +
+  theme_classic(base_family = "HiraKakuPro-W3") +
+  theme(text=element_text(size=30)) +
+  labs(title="Scatter Plotト", x=NULL)
+```
+## Data Transformation
+```{r}
+data %>%
+  mutate(lectureB = ifelse(lectures=="lecture B", 1, 0)) %>%
+  mutate(lectureC = ifelse(lectures=="lecture C", 1, 0)) %>%
+  sample_n(5)
+```
+
+
+## Quantification Method Analysis
+```{r}
+model1 <- lm(data=data, test~lectures)
+summary(model1)
+```
+
