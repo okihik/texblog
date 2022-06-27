@@ -8,7 +8,7 @@ tags:
   - soliloquy
 ---
 
-I first touched on statistics when I was doing text mining research on the policy-making process under the guidance of my supervisor at a graduate school in Japan. When I was doing the research, I was not very enthusiastic about it. Perhaps it was because I was exposed to statistics for the first time, fishing through the literature and the Internet, and swallowing my knowledge of statistics in bits and pieces, but I had a bad aftertaste that is hard to describe. That feeling did not change even after I settled down to research and sat down to study. I thought it might be the true nature of the murkiness that blends in when one tries to adapt statistics to reality.
+I first touched on statistics when I conducted a text-data analysis (text mining) research, (specifically, topic modelling), on the policy-making process under the guidance of my supervisor at a master degree in Japan around 2010. When doing the research, I was not very enthusiastic about it. Perhaps it was because I was exposed to statistics for the first time, fishing through the literature and the Internet, and swallowing my knowledge of statistics in bits and pieces, but I had a bad aftertaste that is hard to describe. That feeling did not change even after I settled down to research and sat down to study. I thought it might be the true nature of the murkiness that blends in when one tries to adapt statistics to reality.
 
 Let me begin by describing what statistics is all about. Since statistical inference and machine learning, while culturally quite divergent, are technically identical, it is probably safe to assume that the following discussion applies to both in broad strokes.
 
@@ -18,7 +18,7 @@ In the context of machine learning, unsupervised learning is classified as super
 
 If you cannot imagine the true distribution or the model, consider, for example, the case of inferring the distribution of height of all Japanese people from the data of 100 Japanese people's height. In this case, the true distribution is the distribution of "the height of all Japanese. In reality, since the population slightly increases or decreases during the time when height is sampled, it is ambiguous what the "distribution of the height of all Japanese people" is, which would fluctuate accordingly. However, the margin of error is probably small, so please let that go. We can assume that the model is roughly what is called a 00 distribution. For example, a normal distribution is uniquely determined by the center and variance, and these two parameters make up a family of probability distributions. When we say that the normal distribution model is used to estimate the distribution of the overall height of the Japanese, it is to determine the parameters of the normal distribution that seem to be closest to the distribution of the overall height of the Japanese. However, one should not assume that this will accurately determine the distribution of the overall Japanese height. This is because the normal distribution assumes that negative heights are also possible.
 
-The closeness of the model to the true distribution $q(x)$ is measured by something called the Kullback-Leibler divergence (also called relative entropy and I-divergence). In general, when $q(x)$ and $p(x)$ are probability distributions, the Kullback-Leibler divergence is defined as:
+The closeness of the model to the true distribution $q(x)$ is measured by something called the [Kullback-Leibler divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) (also called relative entropy and I-divergence). In general, when $q(x)$ and $p(x)$ are probability distributions, the Kullback-Leibler divergence is defined as:
 
 $$
 KL(q \mid \mid p) = \int q(x) \log{\frac{q(x)}{p(x)}}dx.
@@ -112,7 +112,7 @@ whereas Bayesian estimation uses information from all points.
 Subjective probabilists usually explain that they consider the data to be constant and the parameters to be variables, but "the data are constant" is obviously wrong.
 It is argued that the Bayesian statistical framework cannot account for fluctuations in $L_n$, but it is clear from the equation that Ln affects $p(x|X^n)$.
 Another explanation is that the prior distribution is determined by subjectivity, which is also a strange claim. There is a method of avoiding overfitting by adding an $L_2$ regularization term in maximum likelihood estimation, 
-which is equivalent to MAP estimation of the prior distribution as a normal distribution. 
+which is equivalent to MAP (a maximum posteriori probability) estimation of the prior distribution as a normal distribution. 
 Thus, one has two choices: either one believes that $L_2$ regularization is a subjective method, 
 or one believes that the prior distribution is not merely subjective and should be set according to the problem, but the latter is more constructive.
 Also, some people explain Bayes' theorem as if it is important in Bayesian estimation, but Bayes' theorem is not inherently difficult, 
