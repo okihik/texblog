@@ -9,7 +9,8 @@ Hello, world! Welcome to my Blog!
 <!---who am I?-->
 <!---<p style="text-align: center;"> Who am I? </p>-->
 I am a graduate student in Natural Resources and Environmental Studies at University of Northern BC, under the supervision of Dr. Balbinder Deo. 
-My research field in this master's degree is an estimation of food loss and waste in a restaurant (case study). 
+My research topic in this master's degree is an estimation of food loss and waste in a restaurant (case study). 
+
 Besides, I am also interested in:
 - Consumer Theory in Microeconomics
 - Managerial Economics
@@ -20,7 +21,7 @@ Besides, I am also interested in:
 
 and
 
-- Cooking!! - I have been working at a Chinese and a Japanese restaurant for more than five years.
+- Cooking!! - I have been working at Chinese and a Japanese restaurants for more than five years.
 
 Contact me: [mail](mailto:mori@unbc.ca)
 
